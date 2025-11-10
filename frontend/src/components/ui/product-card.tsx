@@ -92,7 +92,7 @@ export function ProductCard({ product, currency }: ProductCardProps) {
         <button
           type="button"
           onClick={handleAdd}
-          className="inline-flex w-full items-center justify-center rounded-full bg-[var(--accent)] px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-white transition hover:bg-emerald-500"
+          className="inline-flex w-full items-center justify-center rounded-full bg-[var(--accent)] px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-white transition hover:bg-neutral-800"
         >
           Add to Cart
         </button>

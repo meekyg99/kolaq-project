@@ -75,7 +75,7 @@ export function SiteFooter() {
             />
             <button
               type="submit"
-              className="inline-flex items-center justify-center rounded-full bg-[var(--accent)] px-4 py-2 text-xs font-semibold uppercase tracking-[0.35em] text-white transition hover:bg-emerald-500"
+              className="inline-flex items-center justify-center rounded-full bg-[var(--accent)] px-4 py-2 text-xs font-semibold uppercase tracking-[0.35em] text-white transition hover:bg-neutral-800"
             >
               Join
             </button>

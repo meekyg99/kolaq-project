@@ -29,14 +29,14 @@ export default function CheckoutPage() {
 
   if (items.length === 0 && !completed) {
     return (
-      <div className="container flex flex-col items-center gap-6 py-24 text-center">
+      <div className="container flex flex-col items-center gap-5 py-16 text-center">
         <h1 className="text-3xl font-semibold text-slate-900">Your cart is waiting</h1>
         <p className="max-w-md text-sm text-slate-600">
           Add Kolaq Alagbo signatures to the cart to start the checkout experience.
         </p>
         <Link
           href="/shop"
-          className="inline-flex items-center gap-3 rounded-full bg-[var(--accent)] px-6 py-3 text-sm font-semibold uppercase tracking-[0.4em] text-white transition hover:bg-emerald-500"
+          className="inline-flex items-center gap-3 rounded-full bg-[var(--accent)] px-5 py-3 text-xs font-semibold uppercase tracking-[0.35em] text-white transition hover:bg-neutral-800"
         >
           Browse Products
         </Link>
@@ -56,15 +56,15 @@ export default function CheckoutPage() {
 
   if (completed) {
     return (
-      <div className="container flex flex-col items-center gap-4 py-24 text-center">
-        <CheckCircle2 className="h-14 w-14 text-[var(--accent)]" />
+      <div className="container flex flex-col items-center gap-4 py-16 text-center">
+        <CheckCircle2 className="h-12 w-12 text-[var(--accent)]" />
         <h1 className="text-3xl font-semibold text-slate-900">Order placed successfully</h1>
         <p className="max-w-md text-sm text-slate-600">
           Our concierge team will reach out within the next business day to confirm delivery timelines and payment preferences.
         </p>
         <Link
           href="/shop"
-          className="inline-flex items-center gap-3 rounded-full border border-slate-200 px-6 py-3 text-sm font-semibold uppercase tracking-[0.4em] text-slate-600 transition hover:border-slate-300 hover:text-slate-900"
+          className="inline-flex items-center gap-3 rounded-full border border-slate-200 px-5 py-3 text-xs font-semibold uppercase tracking-[0.35em] text-slate-600 transition hover:border-slate-300 hover:text-slate-900"
         >
           Continue Shopping
         </Link>
@@ -73,9 +73,9 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="container grid gap-10 py-12 lg:grid-cols-[1.1fr_0.9fr]">
-      <section className="space-y-8">
-        <header className="flex flex-wrap items-center justify-between gap-4">
+    <div className="container grid gap-8 py-10 lg:grid-cols-[1.1fr_0.9fr]">
+      <section className="space-y-7">
+        <header className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h1 className="text-3xl font-semibold text-slate-900">Checkout</h1>
             <p className="text-sm text-slate-600">
@@ -85,10 +85,10 @@ export default function CheckoutPage() {
           <CurrencyToggle onChange={(value) => setCurrency(value)} defaultCurrency={currency} />
         </header>
 
-        <form onSubmit={handleSubmit} className="space-y-8">
-          <div className="rounded-[28px] border border-slate-200 bg-white p-8 shadow-sm">
+        <form onSubmit={handleSubmit} className="space-y-7">
+          <div className="rounded-[24px] border border-slate-200 bg-white p-7 shadow-sm">
             <h2 className="text-lg font-semibold text-slate-900">Contact information</h2>
-            <div className="mt-4 grid gap-4 md:grid-cols-2">
+            <div className="mt-3 grid gap-3.5 md:grid-cols-2">
               <label className="text-sm text-slate-600">
                 First name
                 <input
@@ -105,7 +105,7 @@ export default function CheckoutPage() {
                   className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:border-[var(--accent)] focus:outline-none"
                 />
               </label>
-              <label className="md:col-span-2 text-sm text-slate-600">
+              <label className="text-sm text-slate-600 md:col-span-2">
                 Email address
                 <input
                   required
@@ -133,10 +133,10 @@ export default function CheckoutPage() {
             </div>
           </div>
 
-          <div className="rounded-[28px] border border-slate-200 bg-white p-8 shadow-sm">
+          <div className="rounded-[24px] border border-slate-200 bg-white p-7 shadow-sm">
             <h2 className="text-lg font-semibold text-slate-900">Delivery details</h2>
-            <div className="mt-4 grid gap-4 md:grid-cols-2">
-              <label className="md:col-span-2 text-sm text-slate-600">
+            <div className="mt-3 grid gap-3.5 md:grid-cols-2">
+              <label className="text-sm text-slate-600 md:col-span-2">
                 Address line
                 <input
                   required
@@ -179,12 +179,12 @@ export default function CheckoutPage() {
             </div>
           </div>
 
-          <div className="rounded-[28px] border border-slate-200 bg-white p-8 shadow-sm">
+          <div className="rounded-[24px] border border-slate-200 bg-white p-7 shadow-sm">
             <h2 className="text-lg font-semibold text-slate-900">Payment preferences</h2>
             <p className="mt-2 text-sm text-slate-600">
               Select a settlement channel. Paystack activates instantly for ₦. Stripe invoices ship within 24 hours for USD orders.
             </p>
-            <div className="mt-4 grid gap-4 md:grid-cols-2">
+            <div className="mt-3 grid gap-3.5 md:grid-cols-2">
               <label className="flex items-center gap-3 rounded-2xl border border-slate-200 p-4 text-sm text-slate-600">
                 <input type="radio" name="payment" defaultChecked />
                 <div>
@@ -205,7 +205,7 @@ export default function CheckoutPage() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="inline-flex w-full items-center justify-center gap-3 rounded-full bg-[var(--accent)] px-6 py-3 text-sm font-semibold uppercase tracking-[0.4em] text-white transition hover:bg-emerald-500 disabled:cursor-not-allowed disabled:bg-emerald-300"
+            className="inline-flex w-full items-center justify-center gap-3 rounded-full bg-[var(--accent)] px-5 py-3 text-xs font-semibold uppercase tracking-[0.35em] text-white transition hover:bg-neutral-800 disabled:cursor-not-allowed disabled:bg-neutral-600"
           >
             <CreditCard size={16} /> {isSubmitting ? "Processing..." : "Place Order"}
           </button>
@@ -215,7 +215,7 @@ export default function CheckoutPage() {
         </form>
       </section>
 
-      <aside className="space-y-6 rounded-[28px] border border-slate-200 bg-white p-8 shadow-sm">
+      <aside className="space-y-5 rounded-[24px] border border-slate-200 bg-white p-7 shadow-sm">
         <div className="flex items-center gap-3">
           <ShieldCheck className="h-6 w-6 text-[var(--accent)]" />
           <div>
@@ -224,7 +224,7 @@ export default function CheckoutPage() {
           </div>
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-3.5">
           {items.map(({ product, quantity }) => (
             <div key={product.id} className="flex items-center justify-between text-sm text-slate-600">
               <div>
@@ -238,7 +238,7 @@ export default function CheckoutPage() {
           ))}
         </div>
 
-        <dl className="space-y-3 text-sm text-slate-600">
+        <dl className="space-y-2.5 text-sm text-slate-600">
           <div className="flex items-center justify-between">
             <dt>Subtotal</dt>
             <dd className="font-semibold text-slate-900">{formatCurrency(totals.subtotal, currency)}</dd>

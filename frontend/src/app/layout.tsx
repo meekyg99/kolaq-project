@@ -37,7 +37,7 @@ export default function RootLayout({
           <div className="pointer-events-none fixed inset-0 -z-10 accent-gradient opacity-70" aria-hidden />
           <div className="pointer-events-none fixed inset-0 -z-10 noisy" aria-hidden />
           <SiteHeader />
-          <main className="pb-20 pt-10 md:pb-24 md:pt-12">{children}</main>
+          <main className="pb-14 pt-6 md:pb-16 md:pt-8">{children}</main>
           <SiteFooter />
         </Providers>
       </body>

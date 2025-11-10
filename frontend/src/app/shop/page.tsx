@@ -22,11 +22,11 @@ export default function ShopPage() {
   }, [activeCategory]);
 
   return (
-    <div className="container space-y-10">
-      <div className="flex flex-col gap-5 pt-6 md:flex-row md:items-center md:justify-between">
-        <div className="space-y-3">
+    <div className="container space-y-8">
+      <div className="flex flex-col gap-4 pt-6 md:flex-row md:items-center md:justify-between">
+        <div className="space-y-2.5">
           <span className="text-xs uppercase tracking-[0.3em] text-slate-400">Shop</span>
-          <h1 className="text-4xl font-semibold text-slate-900">Explore the Kolaq catalogue</h1>
+          <h1 className="text-3xl font-semibold text-slate-900">Explore the Kolaq catalogue</h1>
           <p className="max-w-2xl text-sm text-slate-600">
             Browse signature bitters, herbal elixirs, and aperitifs. Toggle pricing in ₦ or $ and add to cart for a streamlined Paystack checkout.
           </p>
@@ -42,7 +42,7 @@ export default function ShopPage() {
         </div>
       </div>
 
-  <div className="flex flex-wrap gap-2.5">
+  <div className="flex flex-wrap gap-2">
         {categories.map((category) => {
           const isActive = category === activeCategory;
           return (
@@ -61,7 +61,7 @@ export default function ShopPage() {
         })}
       </div>
 
-      <div className="grid gap-5 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-3">
         {visibleProducts.map((product) => (
           <ProductCard key={product.id} product={product} currency={currency} />
         ))}

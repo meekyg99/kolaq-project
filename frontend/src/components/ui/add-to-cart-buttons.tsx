@@ -26,7 +26,7 @@ export function AddToCartButtons({ product }: AddToCartButtonsProps) {
       <button
         type="button"
         onClick={handleAddToCart}
-        className="inline-flex flex-1 items-center justify-center gap-3 rounded-full bg-[var(--accent)] px-6 py-3 text-sm font-semibold uppercase tracking-[0.3em] text-white transition hover:bg-emerald-500"
+        className="inline-flex flex-1 items-center justify-center gap-3 rounded-full bg-[var(--accent)] px-6 py-3 text-sm font-semibold uppercase tracking-[0.3em] text-white transition hover:bg-neutral-800"
       >
         Add to Cart
       </button>
