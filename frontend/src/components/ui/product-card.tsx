@@ -15,6 +15,7 @@ interface ProductCardProps {
 
 export function ProductCard({ product, currency }: ProductCardProps) {
   const { addItem } = useCart();
+  const isDynamicImage = product.image.startsWith("http") || product.image.startsWith("data:");
 
   const handleAdd = () => {
     addItem(product, 1);
@@ -22,11 +23,11 @@ export function ProductCard({ product, currency }: ProductCardProps) {
 
   return (
     <motion.article
-      whileHover={{ y: -6, scale: 1.01 }}
-      transition={{ type: "spring", stiffness: 260, damping: 20 }}
-      className="group relative flex h-full flex-col overflow-hidden rounded-[24px] border border-slate-200 bg-white p-6 shadow-sm"
+      whileHover={{ y: -6, scale: 1.02 }}
+      transition={{ type: "spring", stiffness: 280, damping: 22 }}
+      className="group relative flex h-full flex-col overflow-hidden rounded-[24px] border border-slate-200 bg-white p-5 shadow-sm"
     >
-      <div className="relative mb-6 flex h-60 items-center justify-center overflow-hidden rounded-[20px] bg-slate-100">
+      <div className="relative mb-5 flex h-72 items-center justify-center overflow-hidden rounded-[20px] bg-slate-100">
         <motion.div
           className="absolute inset-0 bg-gradient-to-br from-white via-transparent to-transparent"
           animate={{ opacity: [0.4, 0.15, 0.4] }}
@@ -37,17 +38,23 @@ export function ProductCard({ product, currency }: ProductCardProps) {
           alt={product.name}
           width={280}
           height={280}
-          className="h-auto w-40 object-contain drop-shadow-[0_20px_35px_rgba(0,0,0,0.35)]"
+          className="h-auto w-48 max-w-full object-contain drop-shadow-[0_24px_40px_rgba(0,0,0,0.28)]"
+          unoptimized={isDynamicImage}
         />
       </div>
-      <div className="flex-1 space-y-3">
+      <div className="flex-1 space-y-2.5">
         <div className="flex items-center justify-between text-xs uppercase tracking-[0.3em] text-slate-400">
-          <span>{product.sku}</span>
+          <span>{product.category}</span>
           {product.isFeatured && <span className="text-[var(--accent)]">Signature</span>}
         </div>
         <h3 className="text-lg font-semibold text-slate-900">{product.name}</h3>
-        <p className="text-sm leading-relaxed text-slate-600">{product.description}</p>
-        <ul className="flex flex-wrap gap-2 text-xs text-slate-500">
+        <p className="flex flex-wrap items-center gap-2 text-xs uppercase tracking-[0.25em] text-slate-400">
+          <span>{product.size}</span>
+          <span className="text-slate-300">•</span>
+          <span>{product.sku}</span>
+        </p>
+        <p className="text-sm leading-relaxed text-slate-600 line-clamp-3">{product.description}</p>
+        <ul className="flex flex-wrap gap-1.5 text-xs text-slate-500">
           {product.tastingNotes.map((note) => (
             <li key={note} className="rounded-full border border-slate-200 px-3 py-1 bg-slate-50">
               {note}
@@ -55,7 +62,7 @@ export function ProductCard({ product, currency }: ProductCardProps) {
           ))}
         </ul>
       </div>
-      <div className="mt-6 space-y-3">
+      <div className="mt-4 space-y-2.5">
         <div className="flex items-center justify-between">
           <span className="text-lg font-semibold text-slate-900">
             {formatCurrency(product.price[currency], currency)}

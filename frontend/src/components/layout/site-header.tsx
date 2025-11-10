@@ -3,16 +3,17 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/cn";
-import { PhoneCall, ShoppingBag, Bot } from "lucide-react";
+import { ShoppingBag, Search } from "lucide-react";
 import { useState } from "react";
 import Image from "next/image";
 import { useCartCount } from "@/components/providers/cart-provider";
+import { useProductSearch } from "@/components/providers/product-search-provider";
 
 const navLinks = [
   { href: "/", label: "Home" },
   { href: "/shop", label: "Shop" },
   { href: "/promo", label: "Promotions" },
-  { href: "/contact", label: "Contact" },
+  { href: "/admin", label: "Admin" },
   { href: "/login", label: "Login" },
 ];
 
@@ -20,6 +21,7 @@ export function SiteHeader() {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const cartCount = useCartCount();
+  const { open } = useProductSearch();
 
   return (
     <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/90 backdrop-blur-md">
@@ -28,14 +30,14 @@ export function SiteHeader() {
           <span className="relative flex h-12 w-12 items-center justify-center overflow-hidden rounded-full border border-slate-200/80 bg-white">
             <Image
               src="/images/logo-kolaq.jpg"
-              alt="Kolaq Alagbo logo"
+              alt="KOLAQ ALAGBO BITTERS logo"
               width={48}
               height={48}
-              className="h-full w-full object-cover"
+              className="h-full w-full object-contain p-1"
               priority
             />
           </span>
-          <span className="hidden sm:inline-flex text-base font-semibold text-slate-800">Kolaq Alagbo</span>
+          <span className="hidden sm:inline-flex text-base font-semibold text-slate-800">KOLAQ ALAGBO BITTERS</span>
         </Link>
 
     <nav className="hidden items-center gap-6 text-sm font-medium md:flex">
@@ -57,6 +59,14 @@ export function SiteHeader() {
         </nav>
 
         <div className="hidden items-center gap-3 md:flex">
+          <button
+            type="button"
+            onClick={open}
+            className="inline-flex items-center gap-2 rounded-full border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:text-slate-900"
+          >
+            <Search size={16} />
+            Search
+          </button>
           <Link
             href="/cart"
             className="inline-flex items-center gap-2 rounded-full border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
@@ -74,15 +84,6 @@ export function SiteHeader() {
             className="inline-flex items-center gap-2 rounded-full bg-[var(--accent)] px-4 py-2 text-sm font-semibold text-white transition hover:bg-neutral-800"
           >
             Create Account
-          </Link>
-          <Link
-            href="https://wa.me/2349027342185"
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center gap-2 rounded-full bg-[var(--brand-whatsapp)] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#16a34a]"
-          >
-            <Bot size={16} className="text-white" />
-            WhatsApp Bot
           </Link>
         </div>
 
@@ -128,6 +129,16 @@ export function SiteHeader() {
                 )}
               </Link>
             ))}
+            <button
+              type="button"
+              onClick={() => {
+                open();
+                setMenuOpen(false);
+              }}
+              className="inline-flex items-center gap-2 rounded-full border border-slate-200 px-4 py-2 text-slate-700"
+            >
+              <Search size={16} /> Search
+            </button>
             <Link
               href="/cart"
               className="inline-flex items-center gap-2 rounded-full border border-slate-200 px-4 py-2 text-slate-700"
@@ -139,17 +150,8 @@ export function SiteHeader() {
                 </span>
               )}
             </Link>
-            <Link
-              href="https://wa.me/2349027342185"
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-2 rounded-full bg-[var(--brand-whatsapp)] px-4 py-2 text-white"
-            >
-              <Bot size={16} /> WhatsApp Bot
-            </Link>
-            <a href="tel:+2349027342185" className="inline-flex items-center gap-2 text-slate-500 transition hover:text-slate-800">
-              <PhoneCall size={16} />
-              +234 902 734 2185
+            <a href="tel:+2348157065742" className="inline-flex items-center gap-2 text-slate-500 transition hover:text-slate-800">
+              +234 815 706 5742
             </a>
           </div>
         </div>

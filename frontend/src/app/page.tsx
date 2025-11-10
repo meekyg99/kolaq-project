@@ -6,11 +6,11 @@ import Link from "next/link";
 import { ArrowUpRight, Leaf, ShieldCheck, Sparkles } from "lucide-react";
 import { useMemo, useState } from "react";
 
-import { products } from "@/data/products";
 import type { Currency } from "@/data/products";
 import { ProductCard } from "@/components/ui/product-card";
 import { CurrencyToggle } from "@/components/ui/currency-toggle";
 import { formatCurrency } from "@/lib/currency";
+import { useProducts } from "@/components/providers/inventory-provider";
 
 const heroStats = [
   { label: "Herbal Heritage", value: "3 Generations" },
@@ -38,9 +38,30 @@ const sellingPoints = [
 
 export default function Home() {
   const [currency, setCurrency] = useState<Currency>("NGN");
+  const productList = useProducts();
 
-  const heroProduct = useMemo(() => products.find((p) => p.isFeatured) ?? products[0], []);
-  const featuredProducts = useMemo(() => products.filter((p) => p.isFeatured), []);
+  const heroProduct = useMemo(() => {
+    if (productList.length === 0) {
+      return undefined;
+    }
+    return productList.find((product) => product.isFeatured) ?? productList[0];
+  }, [productList]);
+
+  const featuredProducts = useMemo(
+    () => productList.filter((product) => product.isFeatured).slice(0, 6),
+    [productList]
+  );
+
+  if (!heroProduct) {
+    return (
+      <div className="container space-y-6 py-20 text-center">
+        <h1 className="text-3xl font-semibold text-slate-900">No products available yet</h1>
+        <p className="text-sm text-slate-600">
+          Use the admin dashboard to seed products and they will appear across the storefront instantly.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-16">
@@ -152,7 +173,7 @@ export default function Home() {
       </section>
 
       <section className="container space-y-5">
-        <span className="text-xs uppercase tracking-[0.3em] text-slate-400">Why Kolaq</span>
+  <span className="text-xs uppercase tracking-[0.3em] text-slate-400">Why KOLAQ ALAGBO BITTERS</span>
         <h2 className="text-3xl font-semibold text-slate-900 md:max-w-3xl">
           Built for premium hospitality, wellness spaces, and the discerning collector.
         </h2>
@@ -170,7 +191,7 @@ export default function Home() {
         <div className="rounded-[24px] border border-slate-200 bg-white p-7 shadow-sm md:p-8">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div className="space-y-2">
-              <h3 className="text-2xl font-semibold text-slate-900">Ready to stock Kolaq Alagbo?</h3>
+              <h3 className="text-2xl font-semibold text-slate-900">Ready to stock KOLAQ ALAGBO BITTERS?</h3>
               <p className="max-w-xl text-sm text-slate-600">
                 Review our catalogue, request reseller pricing, and integrate Paystack-powered checkout for instant fulfilment. Stripe flows ship as soon as API keys arrive.
               </p>

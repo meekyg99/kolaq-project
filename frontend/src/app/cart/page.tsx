@@ -31,7 +31,7 @@ export default function CartPage() {
       <div className="container flex flex-col items-center gap-5 py-20 text-center">
         <h1 className="text-3xl font-semibold text-slate-900">Your cart is empty</h1>
         <p className="max-w-md text-sm text-slate-600">
-          Explore the collection and add Kolaq Alagbo signatures to continue to checkout.
+          Explore the collection and add KOLAQ ALAGBO BITTERS signatures to continue to checkout.
         </p>
         <Link
           href="/shop"

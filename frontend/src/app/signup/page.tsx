@@ -3,7 +3,7 @@ import { Metadata } from "next";
 import { ArrowLeft, ShieldCheck } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Create Account | Kolaq Alagbo",
+  title: "Create Account | KOLAQ ALAGBO BITTERS",
 };
 
 export default function SignupPage() {
@@ -15,7 +15,7 @@ export default function SignupPage() {
         </Link>
         <h1 className="text-3xl font-semibold text-slate-900">Create your trade account</h1>
         <p className="text-sm text-slate-600">
-          Unlock wholesale pricing, concierge fulfillment, and early access to limited Kolaq bottlings tailored for premium hospitality programs.
+          Unlock wholesale pricing, concierge fulfillment, and early access to limited KOLAQ ALAGBO BITTERS bottlings tailored for premium hospitality programs.
         </p>
         <div className="hidden rounded-[28px] border border-slate-200 bg-white/60 p-6 shadow-sm md:block">
           <div className="flex items-center gap-3 text-sm font-semibold text-slate-900">
@@ -123,7 +123,7 @@ export default function SignupPage() {
 
           <label className="flex items-start gap-3 text-xs text-slate-500">
             <input type="checkbox" required className="mt-1 h-3.5 w-3.5 rounded border border-slate-300 text-[var(--accent)]" />
-            I agree to the Kolaq trade terms, data processing policy, and responsible serving guidelines.
+            I agree to the KOLAQ ALAGBO BITTERS trade terms, data processing policy, and responsible serving guidelines.
           </label>
 
           <button

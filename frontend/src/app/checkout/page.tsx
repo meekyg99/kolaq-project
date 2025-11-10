@@ -32,7 +32,7 @@ export default function CheckoutPage() {
       <div className="container flex flex-col items-center gap-5 py-16 text-center">
         <h1 className="text-3xl font-semibold text-slate-900">Your cart is waiting</h1>
         <p className="max-w-md text-sm text-slate-600">
-          Add Kolaq Alagbo signatures to the cart to start the checkout experience.
+          Add KOLAQ ALAGBO BITTERS signatures to the cart to start the checkout experience.
         </p>
         <Link
           href="/shop"
@@ -119,7 +119,7 @@ export default function CheckoutPage() {
                 <input
                   required
                   type="tel"
-                  defaultValue="+2349027342185"
+                  defaultValue="+2348157065742"
                   className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:border-[var(--accent)] focus:outline-none"
                 />
               </label>
@@ -253,7 +253,7 @@ export default function CheckoutPage() {
           </div>
         </dl>
         <p className="text-xs text-slate-500">
-          Need assistance? Email <a href="mailto:kolaqalagbo53@gmail.com" className="underline">kolaqalagbo53@gmail.com</a> or call <a href="tel:+2349027342185" className="underline">+234 902 734 2185</a>.
+          Need assistance? Email <a href="mailto:kolaqalagbo53@gmail.com" className="underline">kolaqalagbo53@gmail.com</a> or call <a href="tel:+2348157065742" className="underline">+234 815 706 5742</a>, <a href="tel:+2349027342185" className="underline">+234 902 734 2185</a>, or <a href="tel:+2347038580268" className="underline">+234 703 858 0268</a>.
         </p>
       </aside>
     </div>

@@ -1,5 +1,7 @@
 export type Currency = "NGN" | "USD";
 
+export type ProductCategory = "Bitters" | "Elixirs" | "Aperitifs" | "Limited";
+
 export type Product = {
   id: string;
   slug: string;
@@ -11,6 +13,8 @@ export type Product = {
   isFeatured: boolean;
   image: string;
   tastingNotes: string[];
+  category: ProductCategory;
+  size: string;
 };
 
 export const products: Product[] = [
@@ -24,8 +28,10 @@ export const products: Product[] = [
     sku: "KA-EB-001",
     stock: 120,
     isFeatured: true,
-  image: "/images/products/essence-bitter.jpg",
+    image: "/images/products/essence-bitter.jpg",
     tastingNotes: ["Citrus peel", "Roasted kola", "Velvet finish"],
+    category: "Bitters",
+    size: "750 ml",
   },
   {
     id: "velvet-root",
@@ -37,8 +43,10 @@ export const products: Product[] = [
     sku: "KA-VR-002",
     stock: 80,
     isFeatured: true,
-  image: "/images/products/velvet-root.jpg",
+    image: "/images/products/velvet-root.jpg",
     tastingNotes: ["Wild honey", "Warm ginger", "Soft spice"],
+    category: "Elixirs",
+    size: "700 ml",
   },
   {
     id: "noir-botanica",
@@ -50,8 +58,10 @@ export const products: Product[] = [
     sku: "KA-NB-003",
     stock: 50,
     isFeatured: false,
-  image: "/images/products/noir-botanica.jpg",
+    image: "/images/products/noir-botanica.jpg",
     tastingNotes: ["Smoked herbs", "Dark cacao", "Long finish"],
+    category: "Limited",
+    size: "500 ml",
   },
   {
     id: "citrus-leaf",
@@ -65,6 +75,8 @@ export const products: Product[] = [
     isFeatured: false,
     image: "/images/products/citrus-leaf.svg",
     tastingNotes: ["Orange blossom", "Lemongrass", "Clean finish"],
+    category: "Aperitifs",
+    size: "750 ml",
   },
   {
     id: "emerald-reserve",
@@ -78,6 +90,8 @@ export const products: Product[] = [
     isFeatured: true,
     image: "/images/products/emerald-reserve.svg",
     tastingNotes: ["Oak smoke", "Wild mint", "Citrus zest"],
+    category: "Limited",
+    size: "700 ml",
   },
   {
     id: "ruby-aperitif",
@@ -91,6 +105,8 @@ export const products: Product[] = [
     isFeatured: false,
     image: "/images/products/ruby-aperitif.svg",
     tastingNotes: ["Hibiscus", "Honeyed ginger", "Velvet finish"],
+    category: "Aperitifs",
+    size: "750 ml",
   },
   {
     id: "obsidian-bitter",
@@ -104,6 +120,8 @@ export const products: Product[] = [
     isFeatured: false,
     image: "/images/products/obsidian-bitter.svg",
     tastingNotes: ["Espresso cacao", "Forest spice", "Resonant finish"],
+    category: "Bitters",
+    size: "700 ml",
   },
   {
     id: "sunrise-tonic",
@@ -117,5 +135,7 @@ export const products: Product[] = [
     isFeatured: true,
     image: "/images/products/sunrise-tonic.svg",
     tastingNotes: ["Turmeric warmth", "Lemongrass", "Bright citrus"],
+    category: "Elixirs",
+    size: "750 ml",
   },
 ];

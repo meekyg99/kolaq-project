@@ -1,28 +1,54 @@
+'use client';
+
 import Image from "next/image";
 import Link from "next/link";
-import { notFound } from "next/navigation";
-import { products, type Currency } from "@/data/products";
+import { useMemo } from "react";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { Bot, ChevronRight, ShieldCheck } from "lucide-react";
+
+import type { Currency } from "@/data/products";
 import { formatCurrency } from "@/lib/currency";
 import { ProductCard } from "@/components/ui/product-card";
-import { Bot, ChevronRight, ShieldCheck } from "lucide-react";
 import { AddToCartButtons } from "@/components/ui/add-to-cart-buttons";
+import { useInventory } from "@/components/providers/inventory-provider";
 
-interface ProductPageProps {
-  params: Promise<{ slug: string }> | { slug: string };
-  searchParams?: { currency?: Currency };
-}
+export default function ProductPage() {
+  const params = useParams<{ slug: string }>();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const {
+    state: { products },
+  } = useInventory();
 
-export default async function ProductPage({ params, searchParams }: ProductPageProps) {
-  const resolvedParams = await Promise.resolve(params);
-  const { slug } = resolvedParams;
-  const product = products.find((item) => item.slug === slug);
+  const product = useMemo(() => products.find((item) => item.slug === params?.slug), [params?.slug, products]);
+
+  const requestedCurrency = searchParams?.get("currency");
+  const currency: Currency = requestedCurrency === "USD" || requestedCurrency === "NGN" ? requestedCurrency : "NGN";
+
+  const related = useMemo(
+    () => products.filter((item) => item.slug !== product?.slug).slice(0, 3),
+    [product?.slug, products]
+  );
 
   if (!product) {
-    notFound();
+    return (
+      <div className="container space-y-6 py-20 text-center">
+        <h1 className="text-3xl font-semibold text-slate-900">Product not found</h1>
+        <p className="text-sm text-slate-600">
+          The requested product is no longer available. Browse the catalogue to discover other blends.
+        </p>
+        <button
+          type="button"
+          onClick={() => router.push("/shop")}
+          className="inline-flex items-center gap-3 rounded-full bg-[var(--accent)] px-5 py-3 text-xs font-semibold uppercase tracking-[0.35em] text-white transition hover:bg-neutral-800"
+        >
+          Back to Shop
+        </button>
+      </div>
+    );
   }
 
-  const requestedCurrency = searchParams?.currency;
-  const currency: Currency = requestedCurrency === "USD" || requestedCurrency === "NGN" ? requestedCurrency : "NGN";
+  const isDynamicImage = product.image.startsWith("http") || product.image.startsWith("data:");
 
   return (
     <div className="container space-y-10">
@@ -42,6 +68,7 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
             width={380}
             height={480}
             className="h-auto w-full max-w-sm drop-shadow-[0_25px_60px_rgba(74,222,128,0.35)]"
+            unoptimized={isDynamicImage}
           />
         </div>
 
@@ -50,6 +77,11 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
             <span className="text-xs uppercase tracking-[0.3em] text-slate-400">SKU {product.sku}</span>
             <h1 className="text-3xl font-semibold text-slate-900">{product.name}</h1>
             <p className="text-sm text-slate-600">{product.description}</p>
+            <div className="flex items-center gap-3 text-xs text-slate-500">
+              <span className="uppercase tracking-[0.3em]">{product.category}</span>
+              <span>•</span>
+              <span>{product.size}</span>
+            </div>
           </header>
 
           <div className="rounded-[24px] border border-slate-200 bg-white p-5 shadow-sm">
@@ -60,8 +92,7 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
               </span>
             </div>
             <p className="mt-3 text-xs text-slate-500">
-              Paystack checkout activates instantly for ₦ orders. USD checkout via Stripe ships as soon as keys are
-              provisioned.
+              Paystack checkout activates instantly for ₦ orders. USD checkout via Stripe ships as soon as keys are provisioned.
             </p>
             <div className="mt-5">
               <AddToCartButtons product={product} />
@@ -101,26 +132,16 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
         </div>
       </div>
 
-      <RelatedProducts currentSlug={product.slug} currency={currency} />
-    </div>
-  );
-}
-
-function RelatedProducts({ currentSlug, currency }: { currentSlug: string; currency: Currency }) {
-  const others = products.filter((item) => item.slug !== currentSlug).slice(0, 3);
-
-  if (others.length === 0) {
-    return null;
-  }
-
-  return (
-    <div className="space-y-5">
-      <h2 className="container text-xl font-semibold text-slate-900">You may also like</h2>
-      <div className="container grid gap-5 md:grid-cols-3">
-        {others.map((item) => (
-          <ProductCard key={item.id} product={item} currency={currency} />
-        ))}
-      </div>
+      {related.length > 0 && (
+        <div className="space-y-5">
+          <h2 className="container text-xl font-semibold text-slate-900">You may also like</h2>
+          <div className="container grid gap-5 md:grid-cols-3">
+            {related.map((item) => (
+              <ProductCard key={item.id} product={item} currency={currency} />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

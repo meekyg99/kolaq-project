@@ -17,9 +17,9 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Kolaq Alagbo International",
+  title: "KOLAQ ALAGBO BITTERS",
   description:
-    "Premium herbal drink experience with international ordering and a modern shopping interface.",
+    "Premium herbal drink experience with international ordering and a modern shopping interface from KOLAQ ALAGBO BITTERS.",
 };
 
 export default function RootLayout({

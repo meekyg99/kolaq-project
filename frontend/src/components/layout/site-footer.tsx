@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Mail, Phone } from "lucide-react";
+import { Mail, Phone, MessageCircle } from "lucide-react";
 
 const footerLinks = [
   {
@@ -30,24 +30,30 @@ const footerLinks = [
 ];
 
 export function SiteFooter() {
+  const phoneNumbers = [
+    { display: "+234 815 706 5742", href: "tel:+2348157065742" },
+    { display: "+234 902 734 2185", href: "tel:+2349027342185" },
+    { display: "+234 703 858 0268", href: "tel:+2347038580268" },
+  ];
+
   return (
-    <footer className="border-t border-slate-200 bg-slate-50/95">
+    <footer className="relative border-t border-slate-200 bg-slate-50/95">
       <div className="container grid gap-12 py-16 md:grid-cols-4">
         <div className="flex flex-col gap-4">
           <div className="flex items-center gap-3">
             <span className="relative flex h-12 w-12 items-center justify-center overflow-hidden rounded-full border border-slate-200 bg-white">
               <Image
                 src="/images/logo-kolaq.jpg"
-                alt="Kolaq Alagbo logo"
+                alt="KOLAQ ALAGBO BITTERS logo"
                 width={48}
                 height={48}
-                className="h-full w-full object-cover"
+                className="h-full w-full object-contain p-1"
               />
             </span>
-            <span className="text-sm uppercase tracking-[0.4em] text-slate-600">Kolaq Alagbo</span>
+            <span className="text-sm uppercase tracking-[0.4em] text-slate-600">KOLAQ ALAGBO BITTERS</span>
           </div>
           <p className="max-w-sm text-sm text-slate-600">
-            Premium herbal infusions, crafted from ancient Yoruba recipes and refined for the modern world.
+            Premium herbal infusions crafted from ancient Yoruba recipes and refined for the modern world.
           </p>
           <div className="space-y-2 text-sm text-slate-600">
             <a href="mailto:kolaqalagbo53@gmail.com" className="flex items-center gap-2 hover:text-slate-900">
@@ -56,14 +62,20 @@ export function SiteFooter() {
               </span>
               kolaqalagbo53@gmail.com
             </a>
-            <a href="tel:+2349027342185" className="flex items-center gap-2 hover:text-slate-900">
-              <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-slate-100 text-slate-500">
-                <Phone size={14} />
-              </span>
-              +234 902 734 2185
-            </a>
+            <ul className="space-y-2">
+              {phoneNumbers.map((phone) => (
+                <li key={phone.href}>
+                  <a href={phone.href} className="flex items-center gap-2 hover:text-slate-900">
+                    <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-slate-100 text-slate-500">
+                      <Phone size={14} />
+                    </span>
+                    {phone.display}
+                  </a>
+                </li>
+              ))}
+            </ul>
           </div>
-          <form className="mt-2 flex w-full max-w-sm items-center gap-2 rounded-full border border-slate-200 bg-white/60 px-2 py-1">
+            <form className="mt-2 flex w-full max-w-sm items-center gap-2 rounded-full border border-slate-200 bg-white/60 px-2 py-1">
             <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-500">
               <Mail size={16} />
             </span>
@@ -100,8 +112,18 @@ export function SiteFooter() {
         ))}
       </div>
       <div className="border-t border-slate-200 py-6 text-center text-xs text-slate-500">
-        © {new Date().getFullYear()} Kolaq Alagbo International. All rights reserved.
+        © {new Date().getFullYear()} KOLAQ ALAGBO BITTERS. All rights reserved.
       </div>
+      <a
+        href="https://wa.me/2349027342185"
+        target="_blank"
+        rel="noreferrer"
+        aria-label="Chat with KOLAQ ALAGBO BITTERS on WhatsApp"
+        className="fixed bottom-6 right-6 z-50 inline-flex items-center gap-2 rounded-full bg-[var(--brand-whatsapp)] px-5 py-3 text-sm font-semibold text-white shadow-xl transition hover:bg-[#16a34a]"
+      >
+        <MessageCircle size={18} className="text-white" />
+        Chat with us
+      </a>
     </footer>
   );
 }

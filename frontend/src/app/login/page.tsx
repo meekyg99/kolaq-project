@@ -3,7 +3,7 @@ import { Metadata } from "next";
 import { ArrowLeft } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Login | Kolaq Alagbo",
+  title: "Login | KOLAQ ALAGBO BITTERS",
 };
 
 export default function LoginPage() {
@@ -16,14 +16,14 @@ export default function LoginPage() {
         >
           <ArrowLeft size={16} /> Back home
         </Link>
-        <h1 className="text-3xl font-semibold text-slate-900">Welcome back to Kolaq</h1>
+        <h1 className="text-3xl font-semibold text-slate-900">Welcome back to KOLAQ ALAGBO BITTERS</h1>
         <p className="text-sm text-slate-600">
-          Access your trade dashboard, manage wholesale orders, and keep the bar stocked with the freshest Kolaq releases.
+          Access your trade dashboard, manage wholesale orders, and keep the bar stocked with the freshest KOLAQ ALAGBO BITTERS releases.
         </p>
         <div className="hidden rounded-[28px] border border-slate-200 bg-white/60 p-6 shadow-sm md:block">
           <h2 className="text-sm uppercase tracking-[0.35em] text-slate-400">Pro tip</h2>
           <p className="mt-3 text-sm text-slate-600">
-            One login gives you access to inventory tracking, concierge chat, and exclusive drops—all synced with your preferred checkout flow.
+            One login gives you access to inventory tracking, concierge chat, and exclusive KOLAQ ALAGBO BITTERS drops—all synced with your preferred checkout flow.
           </p>
         </div>
       </div>
@@ -91,7 +91,7 @@ export default function LoginPage() {
             </button>
           </div>
           <p className="text-xs text-slate-500">
-            New to Kolaq?{" "}
+            New to KOLAQ ALAGBO BITTERS?{" "}
             <Link
               href="/signup"
               className="font-semibold uppercase tracking-[0.35em] text-[var(--accent)] transition hover:text-neutral-900"
