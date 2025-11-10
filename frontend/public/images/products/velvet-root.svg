@@ -1,0 +1,15 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" fill="none">
+  <defs>
+    <linearGradient id="g2" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1f2937" />
+      <stop offset="100%" stop-color="#a855f7" />
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="48" fill="#050505" />
+  <circle cx="180" cy="200" r="140" fill="url(#g2)" opacity="0.4" />
+  <circle cx="360" cy="200" r="120" fill="#fde68a" opacity="0.2" />
+  <path d="M220 120C220 103.431 233.431 90 250 90h12c16.569 0 30 13.431 30 30v280c0 16.569-13.431 30-30 30h-12c-16.569 0-30-13.431-30-30V120z" fill="#111" />
+  <path d="M232 150c0-8.837 7.163-16 16-16h8c8.837 0 16 7.163 16 16v216c0 8.837-7.163 16-16 16h-8c-8.837 0-16-7.163-16-16V150z" fill="#c4b5fd" />
+  <rect x="238" y="132" width="36" height="14" rx="7" fill="#f1f5f9" opacity="0.5" />
+  <text x="50%" y="420" text-anchor="middle" fill="#e2e8f0" font-family="'Poppins', sans-serif" font-size="32" font-weight="600">Velvet Root</text>
+</svg>
