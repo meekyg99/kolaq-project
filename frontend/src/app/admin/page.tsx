@@ -1,7 +1,9 @@
 'use client';
 
-import { type ChangeEvent, type ComponentType, type FormEvent, type ReactNode, useEffect, useMemo, useState } from 'react';
+import Image from 'next/image';
+import { type ChangeEvent, type ComponentType, type FormEvent, type ReactNode, useMemo, useState } from 'react';
 import { Bell, Check, Edit, Filter, LogOut, Package, Pencil, Plus, Search, Trash2, TrendingUp, X } from 'lucide-react';
+
 
 import type { Product, ProductCategory } from '@/data/products';
 import { formatCurrency } from '@/lib/currency';
@@ -52,16 +54,15 @@ const AUTH_STORAGE_KEY = 'kolaq-admin-auth-v1';
 
 export default function AdminDashboardPage() {
   const [activeTab, setActiveTab] = useState<AdminTab>('overview');
-  const [isAuthenticated, setAuthenticated] = useState(false);
-  const [authChecked, setAuthChecked] = useState(false);
+  const isBrowser = typeof window !== 'undefined';
+  const [isAuthenticated, setAuthenticated] = useState(() => {
+    if (!isBrowser) {
+      return false;
+    }
+    return window.localStorage.getItem(AUTH_STORAGE_KEY) === 'true';
+  });
+  const authChecked = isBrowser;
   const [loginError, setLoginError] = useState('');
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const stored = window.localStorage.getItem(AUTH_STORAGE_KEY);
-    setAuthenticated(stored === 'true');
-    setAuthChecked(true);
-  }, []);
 
   const handleLogin = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -830,10 +831,13 @@ function ProductEditor({
             <input type="file" accept="image/*" onChange={handleFile} />
             {(uploadPreview || form.image) && (
               <div className="mt-2 flex items-center gap-3">
-                <img
+                <Image
                   src={uploadPreview ?? form.image}
                   alt="Preview"
+                  width={64}
+                  height={64}
                   className="h-16 w-16 rounded-[14px] border border-slate-200 object-cover"
+                  unoptimized
                 />
                 <span className="text-xs text-slate-400">Preview</span>
               </div>
@@ -1230,3 +1234,4 @@ function ActivityPanel({ activity }: { activity: AdminActivity[] }) {
     </div>
   );
 }
+

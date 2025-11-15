@@ -4,13 +4,12 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight, Leaf, ShieldCheck, Sparkles } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 
-import type { Currency } from "@/data/products";
 import { ProductCard } from "@/components/ui/product-card";
-import { CurrencyToggle } from "@/components/ui/currency-toggle";
 import { formatCurrency } from "@/lib/currency";
 import { useProducts } from "@/components/providers/inventory-provider";
+import { useCurrency } from "@/components/providers/currency-provider";
 
 const heroStats = [
   { label: "Herbal Heritage", value: "3 Generations" },
@@ -37,7 +36,7 @@ const sellingPoints = [
 ];
 
 export default function Home() {
-  const [currency, setCurrency] = useState<Currency>("NGN");
+  const { currency } = useCurrency();
   const productList = useProducts();
 
   const heroProduct = useMemo(() => {
@@ -105,7 +104,6 @@ export default function Home() {
             <h2 className="text-xl font-semibold uppercase tracking-[0.35em] text-slate-500">
               Essence Bitter Tonic
             </h2>
-            <CurrencyToggle onChange={(value) => setCurrency(value)} defaultCurrency={currency} />
           </div>
           <div className="space-y-3">
             <p className="text-sm leading-relaxed text-slate-600">
@@ -162,7 +160,6 @@ export default function Home() {
             <span className="text-xs uppercase tracking-[0.3em] text-slate-400">Collections</span>
             <h2 className="text-3xl font-semibold text-slate-900">Our Featured Signatures</h2>
           </div>
-          <CurrencyToggle onChange={(value) => setCurrency(value)} defaultCurrency={currency} />
         </div>
 
         <div className="grid gap-4 md:grid-cols-3">

@@ -21,9 +21,7 @@ interface ProductSearchContextValue {
 const ProductSearchContext = createContext<ProductSearchContextValue | null>(null);
 
 function useIsClient() {
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-  return mounted;
+  return typeof window !== "undefined";
 }
 
 export function ProductSearchProvider({ children }: { children: React.ReactNode }) {

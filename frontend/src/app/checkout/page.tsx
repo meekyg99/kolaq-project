@@ -7,7 +7,7 @@ import { CheckCircle2, CreditCard, ShieldCheck } from "lucide-react";
 import type { Currency } from "@/data/products";
 import { useCart } from "@/components/providers/cart-provider";
 import { formatCurrency } from "@/lib/currency";
-import { CurrencyToggle } from "@/components/ui/currency-toggle";
+import { useCurrency } from "@/components/providers/currency-provider";
 
 const shippingRates: Record<Currency, number> = {
   NGN: 4500,
@@ -16,7 +16,7 @@ const shippingRates: Record<Currency, number> = {
 
 export default function CheckoutPage() {
   const { items, clearCart } = useCart();
-  const [currency, setCurrency] = useState<Currency>("NGN");
+  const { currency } = useCurrency();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [completed, setCompleted] = useState(false);
 
@@ -82,7 +82,6 @@ export default function CheckoutPage() {
               Securely confirm your order and choose your preferred payment channel.
             </p>
           </div>
-          <CurrencyToggle onChange={(value) => setCurrency(value)} defaultCurrency={currency} />
         </header>
 
         <form onSubmit={handleSubmit} className="space-y-7">

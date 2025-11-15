@@ -1,15 +1,15 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { Currency, ProductCategory } from "@/data/products";
-import { CurrencyToggle } from "@/components/ui/currency-toggle";
+import type { ProductCategory } from "@/data/products";
 import { ProductCard } from "@/components/ui/product-card";
 import { Search, SlidersHorizontal } from "lucide-react";
 import { useProducts } from "@/components/providers/inventory-provider";
 import { useProductSearch } from "@/components/providers/product-search-provider";
+import { useCurrency } from "@/components/providers/currency-provider";
 
 export default function ShopPage() {
-  const [currency, setCurrency] = useState<Currency>("NGN");
+  const { currency } = useCurrency();
   const [activeCategory, setActiveCategory] = useState("All");
   const productList = useProducts();
   const { open } = useProductSearch();
@@ -47,7 +47,6 @@ export default function ShopPage() {
           <button className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-slate-200 text-slate-500 transition hover:border-slate-300 hover:text-slate-900">
             <SlidersHorizontal size={18} />
           </button>
-          <CurrencyToggle onChange={(value) => setCurrency(value)} defaultCurrency={currency} />
         </div>
       </div>
 

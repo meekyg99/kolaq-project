@@ -7,7 +7,6 @@ const footerLinks = [
     title: "Company",
     items: [
       { label: "About", href: "/about" },
-      { label: "Sourcing", href: "/story" },
       { label: "Reseller Program", href: "/reseller" },
     ],
   },
@@ -16,7 +15,6 @@ const footerLinks = [
     items: [
       { label: "Help Center", href: "/support" },
       { label: "Shipping", href: "/shipping" },
-      { label: "Returns", href: "/returns" },
     ],
   },
   {

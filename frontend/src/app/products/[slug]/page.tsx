@@ -2,15 +2,15 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { Bot, ChevronRight, ShieldCheck } from "lucide-react";
 
-import type { Currency } from "@/data/products";
 import { formatCurrency } from "@/lib/currency";
 import { ProductCard } from "@/components/ui/product-card";
 import { AddToCartButtons } from "@/components/ui/add-to-cart-buttons";
 import { useInventory } from "@/components/providers/inventory-provider";
+import { useCurrency } from "@/components/providers/currency-provider";
 
 export default function ProductPage() {
   const params = useParams<{ slug: string }>();
@@ -19,11 +19,22 @@ export default function ProductPage() {
   const {
     state: { products },
   } = useInventory();
+  const { currency, setCurrency } = useCurrency();
 
-  const product = useMemo(() => products.find((item) => item.slug === params?.slug), [params?.slug, products]);
+  const product = useMemo(
+    () => products.find((item) => item.slug === params?.slug),
+    [params?.slug, products]
+  );
 
   const requestedCurrency = searchParams?.get("currency");
-  const currency: Currency = requestedCurrency === "USD" || requestedCurrency === "NGN" ? requestedCurrency : "NGN";
+  useEffect(() => {
+    if (!requestedCurrency) {
+      return;
+    }
+    if ((requestedCurrency === "USD" || requestedCurrency === "NGN") && requestedCurrency !== currency) {
+      setCurrency(requestedCurrency);
+    }
+  }, [currency, requestedCurrency, setCurrency]);
 
   const related = useMemo(
     () => products.filter((item) => item.slug !== product?.slug).slice(0, 3),

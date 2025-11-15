@@ -2,13 +2,13 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { Minus, Plus, Trash2 } from "lucide-react";
 
 import type { Currency } from "@/data/products";
 import { useCart } from "@/components/providers/cart-provider";
-import { CurrencyToggle } from "@/components/ui/currency-toggle";
 import { formatCurrency } from "@/lib/currency";
+import { useCurrency } from "@/components/providers/currency-provider";
 
 const shippingRates: Record<Currency, number> = {
   NGN: 4500,
@@ -17,7 +17,7 @@ const shippingRates: Record<Currency, number> = {
 
 export default function CartPage() {
   const { items, updateQuantity, removeItem, clearCart } = useCart();
-  const [currency, setCurrency] = useState<Currency>("NGN");
+  const { currency } = useCurrency();
 
   const subtotal = useMemo(() => {
     return items.reduce((sum, item) => sum + item.product.price[currency] * item.quantity, 0);
@@ -49,7 +49,6 @@ export default function CartPage() {
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h1 className="text-3xl font-semibold text-slate-900">Cart</h1>
           <div className="flex items-center gap-3">
-            <CurrencyToggle onChange={(value) => setCurrency(value)} defaultCurrency={currency} />
             <button
               type="button"
               className="text-xs uppercase tracking-[0.3em] text-slate-500 hover:text-slate-900"
