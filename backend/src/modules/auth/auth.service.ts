@@ -7,6 +7,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
+import { ActivityService } from '../activity/activity.service';
 import { LoginDto } from './dto/login.dto';
 
 @Injectable()
@@ -17,6 +18,7 @@ export class AuthService {
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
+    private readonly activityService: ActivityService,
   ) {}
 
   async login(loginDto: LoginDto) {
@@ -45,6 +47,14 @@ export class AuthService {
     });
 
     this.logger.log(`User ${user.email} logged in successfully`);
+
+    await this.activityService.log({
+      type: 'LOGIN',
+      userId: user.id,
+      userEmail: user.email,
+      action: 'Admin login',
+      description: `${user.email} logged in successfully`,
+    });
 
     return {
       accessToken,

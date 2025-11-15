@@ -252,7 +252,7 @@ export default function CheckoutPage() {
           </div>
         </dl>
         <p className="text-xs text-slate-500">
-          Need assistance? Email <a href="mailto:kolaqalagbo53@gmail.com" className="underline">kolaqalagbo53@gmail.com</a> or call <a href="tel:+2348157065742" className="underline">+234 815 706 5742</a>, <a href="tel:+2349027342185" className="underline">+234 902 734 2185</a>, or <a href="tel:+2347038580268" className="underline">+234 703 858 0268</a>.
+          Need assistance? Email <a href="mailto:support@kolaqbitters.com" className="underline">support@kolaqbitters.com</a> or call <a href="tel:+2348157065742" className="underline">+234 815 706 5742</a>, <a href="tel:+2349027342185" className="underline">+234 902 734 2185</a>, or <a href="tel:+2347038580268" className="underline">+234 703 858 0268</a>.
         </p>
       </aside>
     </div>

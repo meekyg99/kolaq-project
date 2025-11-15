@@ -15,16 +15,16 @@ export declare class CatalogService {
             productId: string;
         }[];
     } & {
-        id: string;
-        name: string;
-        createdAt: Date;
-        updatedAt: Date;
         slug: string;
+        name: string;
         description: string;
         image: string | null;
         category: string;
         size: string | null;
         isFeatured: boolean;
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
     }>;
     findAll(query: QueryProductDto): Promise<{
         products: ({
@@ -36,16 +36,16 @@ export declare class CatalogService {
                 productId: string;
             }[];
         } & {
-            id: string;
-            name: string;
-            createdAt: Date;
-            updatedAt: Date;
             slug: string;
+            name: string;
             description: string;
             image: string | null;
             category: string;
             size: string | null;
             isFeatured: boolean;
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
         })[];
         total: number;
         limit: number;
@@ -60,16 +60,16 @@ export declare class CatalogService {
             productId: string;
         }[];
     } & {
-        id: string;
-        name: string;
-        createdAt: Date;
-        updatedAt: Date;
         slug: string;
+        name: string;
         description: string;
         image: string | null;
         category: string;
         size: string | null;
         isFeatured: boolean;
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
     }>;
     findBySlug(slug: string): Promise<{
         prices: {
@@ -80,16 +80,16 @@ export declare class CatalogService {
             productId: string;
         }[];
     } & {
-        id: string;
-        name: string;
-        createdAt: Date;
-        updatedAt: Date;
         slug: string;
+        name: string;
         description: string;
         image: string | null;
         category: string;
         size: string | null;
         isFeatured: boolean;
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
     }>;
     updateProduct(id: string, updateProductDto: UpdateProductDto): Promise<{
         prices: {
@@ -100,16 +100,16 @@ export declare class CatalogService {
             productId: string;
         }[];
     } & {
-        id: string;
-        name: string;
-        createdAt: Date;
-        updatedAt: Date;
         slug: string;
+        name: string;
         description: string;
         image: string | null;
         category: string;
         size: string | null;
         isFeatured: boolean;
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
     }>;
     deleteProduct(id: string): Promise<{
         message: string;
@@ -124,15 +124,15 @@ export declare class CatalogService {
             productId: string;
         }[];
     } & {
-        id: string;
-        name: string;
-        createdAt: Date;
-        updatedAt: Date;
         slug: string;
+        name: string;
         description: string;
         image: string | null;
         category: string;
         size: string | null;
         isFeatured: boolean;
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
     })[]>;
 }

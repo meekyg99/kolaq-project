@@ -14,6 +14,8 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { OrderService } from './modules/order/order.service';
 import { NotificationService } from './modules/notification/notification.service';
+import { ActivityModule } from './modules/activity/activity.module';
+import { OrdersModule } from './modules/orders/orders.module';
 
 @Module({
   imports: [
@@ -31,6 +33,8 @@ import { NotificationService } from './modules/notification/notification.service
     OrderModule,
     NotificationModule,
     AdminModule,
+    ActivityModule,
+    OrdersModule,
   ],
   controllers: [AppController],
   providers: [AppService],

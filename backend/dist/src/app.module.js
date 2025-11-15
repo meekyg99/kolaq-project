@@ -25,6 +25,8 @@ const app_controller_1 = require("./app.controller");
 const app_service_1 = require("./app.service");
 const order_service_1 = require("./modules/order/order.service");
 const notification_service_1 = require("./modules/notification/notification.service");
+const activity_module_1 = require("./modules/activity/activity.module");
+const orders_module_1 = require("./modules/orders/orders.module");
 let AppModule = class AppModule {
     constructor(orderService, notificationService) {
         this.orderService = orderService;
@@ -52,6 +54,8 @@ exports.AppModule = AppModule = __decorate([
             order_module_1.OrderModule,
             notification_module_1.NotificationModule,
             admin_module_1.AdminModule,
+            activity_module_1.ActivityModule,
+            orders_module_1.OrdersModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],

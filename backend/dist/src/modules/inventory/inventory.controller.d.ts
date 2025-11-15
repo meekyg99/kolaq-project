@@ -7,9 +7,9 @@ export declare class InventoryController {
     adjustInventory(adjustInventoryDto: AdjustInventoryDto): Promise<{
         event: {
             product: {
-                id: string;
-                name: string;
                 slug: string;
+                name: string;
+                id: string;
             };
         } & {
             id: string;
@@ -26,9 +26,9 @@ export declare class InventoryController {
     getHistory(query: QueryInventoryDto): Promise<{
         events: ({
             product: {
-                id: string;
-                name: string;
                 slug: string;
+                name: string;
+                id: string;
             };
         } & {
             id: string;

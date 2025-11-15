@@ -15,6 +15,7 @@ const footerLinks = [
     items: [
       { label: "Help Center", href: "/support" },
       { label: "Shipping", href: "/shipping" },
+      { label: "support@kolaqbitters.com", href: "mailto:support@kolaqbitters.com" },
     ],
   },
   {
@@ -54,11 +55,11 @@ export function SiteFooter() {
             Premium herbal infusions crafted from ancient Yoruba recipes and refined for the modern world.
           </p>
           <div className="space-y-2 text-sm text-slate-600">
-            <a href="mailto:kolaqalagbo53@gmail.com" className="flex items-center gap-2 hover:text-slate-900">
+            <a href="mailto:support@kolaqbitters.com" className="flex items-center gap-2 hover:text-slate-900">
               <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-slate-100 text-slate-500">
                 <Mail size={14} />
               </span>
-              kolaqalagbo53@gmail.com
+              support@kolaqbitters.com
             </a>
             <ul className="space-y-2">
               {phoneNumbers.map((phone) => (
@@ -113,7 +114,7 @@ export function SiteFooter() {
         © {new Date().getFullYear()} KOLAQ ALAGBO BITTERS. All rights reserved.
       </div>
       <a
-        href="https://wa.me/2349027342185"
+        href="https://wa.me/2348157065742"
         target="_blank"
         rel="noreferrer"
         aria-label="Chat with KOLAQ ALAGBO BITTERS on WhatsApp"

@@ -12,9 +12,9 @@ export declare class NotificationController {
         message: string;
         type: import(".prisma/client").$Enums.NotificationType;
         status: import(".prisma/client").$Enums.NotificationStatus;
+        metadata: import("@prisma/client/runtime/library").JsonValue | null;
         recipient: string;
         subject: string | null;
-        metadata: import("@prisma/client/runtime/library").JsonValue | null;
         sentAt: Date | null;
         deliveredAt: Date | null;
     }>;
@@ -26,9 +26,9 @@ export declare class NotificationController {
         message: string;
         type: import(".prisma/client").$Enums.NotificationType;
         status: import(".prisma/client").$Enums.NotificationStatus;
+        metadata: import("@prisma/client/runtime/library").JsonValue | null;
         recipient: string;
         subject: string | null;
-        metadata: import("@prisma/client/runtime/library").JsonValue | null;
         sentAt: Date | null;
         deliveredAt: Date | null;
     }>;
@@ -43,9 +43,9 @@ export declare class NotificationController {
         message: string;
         type: import(".prisma/client").$Enums.NotificationType;
         status: import(".prisma/client").$Enums.NotificationStatus;
+        metadata: import("@prisma/client/runtime/library").JsonValue | null;
         recipient: string;
         subject: string | null;
-        metadata: import("@prisma/client/runtime/library").JsonValue | null;
         sentAt: Date | null;
         deliveredAt: Date | null;
     }>;
@@ -58,9 +58,9 @@ export declare class NotificationController {
             message: string;
             type: import(".prisma/client").$Enums.NotificationType;
             status: import(".prisma/client").$Enums.NotificationStatus;
+            metadata: import("@prisma/client/runtime/library").JsonValue | null;
             recipient: string;
             subject: string | null;
-            metadata: import("@prisma/client/runtime/library").JsonValue | null;
             sentAt: Date | null;
             deliveredAt: Date | null;
         }[];

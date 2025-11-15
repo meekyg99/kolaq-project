@@ -49,11 +49,13 @@ const config_1 = require("@nestjs/config");
 const jwt_1 = require("@nestjs/jwt");
 const bcrypt = __importStar(require("bcrypt"));
 const prisma_service_1 = require("../prisma/prisma.service");
+const activity_service_1 = require("../activity/activity.service");
 let AuthService = AuthService_1 = class AuthService {
-    constructor(prisma, jwtService, configService) {
+    constructor(prisma, jwtService, configService, activityService) {
         this.prisma = prisma;
         this.jwtService = jwtService;
         this.configService = configService;
+        this.activityService = activityService;
         this.logger = new common_1.Logger(AuthService_1.name);
     }
     async login(loginDto) {
@@ -73,6 +75,13 @@ let AuthService = AuthService_1 = class AuthService {
             expiresIn: '7d',
         });
         this.logger.log(`User ${user.email} logged in successfully`);
+        await this.activityService.log({
+            type: 'LOGIN',
+            userId: user.id,
+            userEmail: user.email,
+            action: 'Admin login',
+            description: `${user.email} logged in successfully`,
+        });
         return {
             accessToken,
             refreshToken,
@@ -118,6 +127,7 @@ exports.AuthService = AuthService = AuthService_1 = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [prisma_service_1.PrismaService,
         jwt_1.JwtService,
-        config_1.ConfigService])
+        config_1.ConfigService,
+        activity_service_1.ActivityService])
 ], AuthService);
 //# sourceMappingURL=auth.service.js.map

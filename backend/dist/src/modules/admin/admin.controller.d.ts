@@ -19,11 +19,11 @@ export declare class AdminController {
         recentOrders: {
             id: string;
             createdAt: Date;
-            status: import(".prisma/client").$Enums.OrderStatus;
             currency: import(".prisma/client").$Enums.Currency;
+            status: import(".prisma/client").$Enums.OrderStatus;
+            total: import("@prisma/client/runtime/library").Decimal;
             customerName: string;
             orderNumber: string;
-            total: import("@prisma/client/runtime/library").Decimal;
         }[];
         lowStockProducts: any[];
         notifications: {
@@ -57,10 +57,10 @@ export declare class AdminController {
     getTopProducts(limit?: string): Promise<{
         totalQuantitySold: number;
         totalOrders: number;
-        id: string;
-        name: string;
         slug: string;
+        name: string;
         category: string;
+        id: string;
     }[]>;
     getCustomerInsights(): Promise<{
         totalCustomers: number;
@@ -76,14 +76,14 @@ export declare class AdminController {
     }>;
     getActivity(query: QueryActivityDto): Promise<{
         logs: {
+            description: string | null;
             id: string;
             createdAt: Date;
             type: import(".prisma/client").$Enums.ActivityType;
-            description: string | null;
             userId: string | null;
-            metadata: import("@prisma/client/runtime/library").JsonValue | null;
             userEmail: string | null;
             action: string;
+            metadata: import("@prisma/client/runtime/library").JsonValue | null;
             ipAddress: string | null;
             userAgent: string | null;
         }[];
@@ -96,27 +96,27 @@ export declare class AdminController {
         todayActivities: number;
         byType: {};
         recentActivities: {
+            description: string | null;
             id: string;
             createdAt: Date;
             type: import(".prisma/client").$Enums.ActivityType;
-            description: string | null;
             userId: string | null;
-            metadata: import("@prisma/client/runtime/library").JsonValue | null;
             userEmail: string | null;
             action: string;
+            metadata: import("@prisma/client/runtime/library").JsonValue | null;
             ipAddress: string | null;
             userAgent: string | null;
         }[];
     }>;
     logActivity(data: any, req: any): Promise<{
+        description: string | null;
         id: string;
         createdAt: Date;
         type: import(".prisma/client").$Enums.ActivityType;
-        description: string | null;
         userId: string | null;
-        metadata: import("@prisma/client/runtime/library").JsonValue | null;
         userEmail: string | null;
         action: string;
+        metadata: import("@prisma/client/runtime/library").JsonValue | null;
         ipAddress: string | null;
         userAgent: string | null;
     }>;
