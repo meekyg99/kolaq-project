@@ -31,12 +31,6 @@ const validateEnv = (config) => {
     if (!data.DATABASE_URL && !isTest) {
         missing.push('DATABASE_URL');
     }
-    if (!data.SUPABASE_URL && !isTest) {
-        missing.push('SUPABASE_URL');
-    }
-    if (!data.SUPABASE_ANON_KEY && !isTest) {
-        missing.push('SUPABASE_ANON_KEY');
-    }
     if (!data.JWT_SECRET && !isTest) {
         missing.push('JWT_SECRET');
     }
