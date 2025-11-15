@@ -9,7 +9,8 @@
     "node": "20.x"
   },
   "scripts": {
-    "build": "prisma generate && prisma migrate deploy && npm run db:seed && nest build",
+    "build": "prisma generate && nest build",
+    "postbuild": "prisma migrate deploy",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "eslint .",
