@@ -6,11 +6,10 @@
   "private": true,
   "license": "UNLICENSED",
   "engines": {
-    "node": ">=20 <21"
+    "node": "20.x"
   },
   "scripts": {
-    "prebuild": "prisma generate",
-    "build": "nest build",
+    "build": "prisma generate && nest build",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "eslint .",
