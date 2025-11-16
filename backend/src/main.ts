@@ -19,11 +19,6 @@ async function bootstrap() {
   // Setup global exception filter
   app.useGlobalFilters(new AllExceptionsFilter(pinoLogger as any));
 
-  // Sentry request handler (only if configured)
-  if (process.env.SENTRY_DSN) {
-    app.use(Sentry.expressIntegration());
-  }
-
   // Enable CORS for frontend
   app.enableCors({
     origin: [
