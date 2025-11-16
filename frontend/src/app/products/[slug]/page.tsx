@@ -2,15 +2,17 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { Bot, ChevronRight, ShieldCheck } from "lucide-react";
 
 import { formatCurrency } from "@/lib/currency";
 import { ProductCard } from "@/components/ui/product-card";
 import { AddToCartButtons } from "@/components/ui/add-to-cart-buttons";
+import { ProductVariantSelector } from "@/components/ui/product-variant-selector";
 import { useInventory } from "@/components/providers/inventory-provider";
 import { useCurrency } from "@/components/providers/currency-provider";
+import type { ProductVariant } from "@/data/products";
 
 export default function ProductPage() {
   const params = useParams<{ slug: string }>();
@@ -20,11 +22,21 @@ export default function ProductPage() {
     state: { products },
   } = useInventory();
   const { currency, setCurrency } = useCurrency();
+  const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null);
 
   const product = useMemo(
     () => products.find((item) => item.slug === params?.slug),
     [params?.slug, products]
   );
+
+  useEffect(() => {
+    if (product?.variants && product.variants.length > 0 && !selectedVariant) {
+      const defaultVariant = product.variants
+        .filter((v) => v.isActive)
+        .sort((a, b) => a.sortOrder - b.sortOrder)[0];
+      setSelectedVariant(defaultVariant || null);
+    }
+  }, [product, selectedVariant]);
 
   const requestedCurrency = searchParams?.get("currency");
   useEffect(() => {
@@ -85,23 +97,49 @@ export default function ProductPage() {
 
         <div className="space-y-6">
           <header className="space-y-2.5">
-            <span className="text-xs uppercase tracking-[0.3em] text-slate-400">SKU {product.sku}</span>
+            <span className="text-xs uppercase tracking-[0.3em] text-slate-400">
+              SKU {selectedVariant?.sku || product.sku}
+            </span>
             <h1 className="text-3xl font-semibold text-slate-900">{product.name}</h1>
             <p className="text-sm text-slate-600">{product.description}</p>
             <div className="flex items-center gap-3 text-xs text-slate-500">
               <span className="uppercase tracking-[0.3em]">{product.category}</span>
               <span>•</span>
-              <span>{product.size}</span>
+              <span>{selectedVariant?.bottleSize || product.size}</span>
             </div>
           </header>
+
+          {product.variants && product.variants.length > 0 && (
+            <ProductVariantSelector
+              variants={product.variants}
+              currency={currency}
+              selectedVariant={selectedVariant || undefined}
+              onVariantChange={setSelectedVariant}
+            />
+          )}
 
           <div className="rounded-[24px] border border-slate-200 bg-white p-5 shadow-sm">
             <div className="flex items-center justify-between gap-3">
               <span className="text-xs uppercase tracking-[0.3em] text-slate-500">Price ({currency})</span>
               <span className="text-2xl font-semibold text-slate-900">
-                {formatCurrency(product.price[currency], currency)}
+                {selectedVariant
+                  ? formatCurrency(
+                      currency === 'NGN' ? selectedVariant.priceNGN : selectedVariant.priceUSD,
+                      currency
+                    )
+                  : formatCurrency(product.price[currency], currency)}
               </span>
             </div>
+            {selectedVariant && selectedVariant.stock > 0 && selectedVariant.stock < 10 && (
+              <p className="mt-2 text-xs text-amber-600">
+                Only {selectedVariant.stock} left in stock
+              </p>
+            )}
+            {selectedVariant && selectedVariant.stock === 0 && (
+              <p className="mt-2 text-xs text-red-600 font-semibold">
+                Out of stock
+              </p>
+            )}
             <p className="mt-3 text-xs text-slate-500">
               Paystack checkout activates instantly for ₦ orders. USD checkout via Stripe ships as soon as keys are provisioned.
             </p>

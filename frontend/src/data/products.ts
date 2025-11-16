@@ -2,6 +2,19 @@ export type Currency = "NGN" | "USD";
 
 export type ProductCategory = "Bitters" | "Elixirs" | "Aperitifs" | "Limited";
 
+export type ProductVariant = {
+  id: string;
+  name: string;
+  sku?: string;
+  bottleSize: string;
+  priceNGN: number;
+  priceUSD: number;
+  image?: string;
+  stock: number;
+  isActive: boolean;
+  sortOrder: number;
+};
+
 export type Product = {
   id: string;
   slug: string;
@@ -15,6 +28,7 @@ export type Product = {
   tastingNotes: string[];
   category: ProductCategory;
   size: string;
+  variants?: ProductVariant[];
 };
 
 export const products: Product[] = [
