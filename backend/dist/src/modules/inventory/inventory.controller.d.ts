@@ -1,9 +1,11 @@
 import { InventoryService } from './inventory.service';
 import { AdjustInventoryDto } from './dto/adjust-inventory.dto';
 import { QueryInventoryDto } from './dto/query-inventory.dto';
+import { Queue } from 'bullmq';
 export declare class InventoryController {
     private readonly inventoryService;
-    constructor(inventoryService: InventoryService);
+    private inventoryQueue;
+    constructor(inventoryService: InventoryService, inventoryQueue: Queue);
     adjustInventory(adjustInventoryDto: AdjustInventoryDto): Promise<{
         event: {
             product: {
@@ -66,5 +68,17 @@ export declare class InventoryController {
             reason: string;
             actorEmail: string | null;
         }[];
+    }>;
+    triggerReconciliation(body: {
+        productId?: string;
+        threshold?: number;
+    }): Promise<{
+        message: string;
+        jobId: string;
+        productId: string;
+    }>;
+    triggerLowStockCheck(): Promise<{
+        message: string;
+        jobId: string;
     }>;
 }

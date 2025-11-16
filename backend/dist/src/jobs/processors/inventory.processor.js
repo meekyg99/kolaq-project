@@ -29,45 +29,106 @@ let InventoryProcessor = InventoryProcessor_1 = class InventoryProcessor {
     async handleReconciliation(job) {
         this.logger.log(`Processing inventory reconciliation job ${job.id}`);
         try {
-            const { productId } = job.data;
+            const { productId, threshold = 10 } = job.data;
             const products = productId
                 ? await this.prisma.product.findMany({ where: { id: productId } })
                 : await this.prisma.product.findMany();
+            const reconciliationReport = [];
+            const lowStockItems = [];
+            const outOfStockItems = [];
             for (const product of products) {
                 const events = await this.prisma.inventoryEvent.findMany({
                     where: { productId: product.id },
                     orderBy: { createdAt: 'asc' },
                 });
                 const currentStock = events.reduce((sum, event) => sum + event.delta, 0);
+                let status = 'ok';
+                if (currentStock === 0) {
+                    status = 'out_of_stock';
+                    outOfStockItems.push({
+                        productId: product.id,
+                        productName: product.name,
+                        currentStock,
+                        status,
+                    });
+                }
+                else if (currentStock <= threshold) {
+                    status = 'low';
+                    lowStockItems.push({
+                        productId: product.id,
+                        productName: product.name,
+                        currentStock,
+                        status,
+                    });
+                }
+                reconciliationReport.push({
+                    productId: product.id,
+                    productName: product.name,
+                    currentStock,
+                    status,
+                });
                 await this.prisma.activityLog.create({
                     data: {
                         type: 'INVENTORY_ADJUSTED',
                         action: 'inventory.reconciled',
-                        description: `Reconciled ${product.name}: ${currentStock} units`,
+                        description: `Reconciled ${product.name}: ${currentStock} units (${status})`,
                         metadata: {
                             productId: product.id,
                             productName: product.name,
                             calculatedStock: currentStock,
+                            status,
+                            threshold,
                         },
                     },
                 });
-                if (currentStock <= 10) {
-                    this.logger.warn(`Low stock detected for ${product.name}: ${currentStock}`);
-                    await this.emailQueue.add('email-job', {
-                        type: 'low_stock',
-                        data: {
-                            productName: product.name,
-                            currentStock,
-                        },
-                    });
-                }
             }
-            this.logger.log(`Inventory reconciliation job ${job.id} completed`);
+            if (lowStockItems.length > 0 || outOfStockItems.length > 0) {
+                this.logger.warn(`Reconciliation found ${lowStockItems.length} low stock and ${outOfStockItems.length} out of stock items`);
+                await this.sendReconciliationReport(lowStockItems, outOfStockItems);
+            }
+            this.logger.log(`Inventory reconciliation job ${job.id} completed. Processed ${products.length} products.`);
+            return reconciliationReport;
         }
         catch (error) {
             this.logger.error(`Inventory reconciliation job ${job.id} failed: ${error.message}`, error.stack);
             throw error;
         }
+    }
+    async sendReconciliationReport(lowStockItems, outOfStockItems) {
+        let alertHtml = '<h2>Inventory Reconciliation Report</h2>';
+        if (outOfStockItems.length > 0) {
+            alertHtml += `
+        <h3 style="color: red;">⚠️ Out of Stock (${outOfStockItems.length} items)</h3>
+        <ul>
+          ${outOfStockItems.map(p => `
+            <li><strong>${p.productName}</strong>: ${p.currentStock} units</li>
+          `).join('')}
+        </ul>
+      `;
+        }
+        if (lowStockItems.length > 0) {
+            alertHtml += `
+        <h3 style="color: orange;">⚠ Low Stock (${lowStockItems.length} items)</h3>
+        <ul>
+          ${lowStockItems.map(p => `
+            <li><strong>${p.productName}</strong>: ${p.currentStock} units remaining</li>
+          `).join('')}
+        </ul>
+      `;
+        }
+        alertHtml += `
+      <p style="margin-top: 20px; font-size: 14px; color: #666;">
+        Please take action to restock these items.
+      </p>
+    `;
+        await this.emailQueue.add('email-job', {
+            type: 'generic',
+            data: {
+                to: process.env.ADMIN_EMAIL,
+                subject: `Inventory Alert: ${outOfStockItems.length} Out of Stock, ${lowStockItems.length} Low Stock`,
+                html: alertHtml,
+            },
+        });
     }
     async handleLowStockCheck(job) {
         this.logger.log('Checking for low stock items');

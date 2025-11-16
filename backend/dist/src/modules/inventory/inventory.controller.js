@@ -20,9 +20,12 @@ const query_inventory_dto_1 = require("./dto/query-inventory.dto");
 const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
 const roles_guard_1 = require("../auth/guards/roles.guard");
 const roles_decorator_1 = require("../auth/decorators/roles.decorator");
+const bull_1 = require("@nestjs/bull");
+const bullmq_1 = require("bullmq");
 let InventoryController = class InventoryController {
-    constructor(inventoryService) {
+    constructor(inventoryService, inventoryQueue) {
         this.inventoryService = inventoryService;
+        this.inventoryQueue = inventoryQueue;
     }
     adjustInventory(adjustInventoryDto) {
         return this.inventoryService.adjustInventory(adjustInventoryDto);
@@ -38,6 +41,24 @@ let InventoryController = class InventoryController {
     }
     getProductInventory(productId) {
         return this.inventoryService.getProductInventory(productId);
+    }
+    async triggerReconciliation(body) {
+        const job = await this.inventoryQueue.add('reconcile', {
+            productId: body.productId,
+            threshold: body.threshold || 10,
+        });
+        return {
+            message: 'Inventory reconciliation job queued',
+            jobId: job.id,
+            productId: body.productId || 'all',
+        };
+    }
+    async triggerLowStockCheck() {
+        const job = await this.inventoryQueue.add('low-stock-check', {});
+        return {
+            message: 'Low stock check job queued',
+            jobId: job.id,
+        };
     }
 };
 exports.InventoryController = InventoryController;
@@ -82,8 +103,27 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], InventoryController.prototype, "getProductInventory", null);
+__decorate([
+    (0, common_1.Post)('reconcile'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)('admin'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], InventoryController.prototype, "triggerReconciliation", null);
+__decorate([
+    (0, common_1.Post)('check-low-stock'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)('admin'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], InventoryController.prototype, "triggerLowStockCheck", null);
 exports.InventoryController = InventoryController = __decorate([
     (0, common_1.Controller)('api/v1/inventory'),
-    __metadata("design:paramtypes", [inventory_service_1.InventoryService])
+    __param(1, (0, bull_1.InjectQueue)('inventory')),
+    __metadata("design:paramtypes", [inventory_service_1.InventoryService,
+        bullmq_1.Queue])
 ], InventoryController);
 //# sourceMappingURL=inventory.controller.js.map
