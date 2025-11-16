@@ -25,12 +25,18 @@ exports.JobsModule = JobsModule = __decorate([
             bull_1.BullModule.forRootAsync({
                 imports: [config_1.ConfigModule],
                 inject: [config_1.ConfigService],
-                useFactory: async (config) => ({
-                    redis: {
-                        host: config.get('REDIS_HOST') || 'localhost',
-                        port: parseInt(config.get('REDIS_PORT') || '6379', 10),
-                    },
-                }),
+                useFactory: async (config) => {
+                    const redisUrl = config.get('REDIS_URL');
+                    if (redisUrl) {
+                        return { redis: redisUrl };
+                    }
+                    return {
+                        redis: {
+                            host: config.get('REDIS_HOST') || 'localhost',
+                            port: parseInt(config.get('REDIS_PORT') || '6379', 10),
+                        },
+                    };
+                },
             }),
             bull_1.BullModule.registerQueue({ name: 'emails' }, { name: 'inventory' }, { name: 'webhooks' }),
         ],

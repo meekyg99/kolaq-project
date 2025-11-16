@@ -46,7 +46,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], MonitoringController.prototype, "status", null);
 exports.MonitoringController = MonitoringController = __decorate([
-    (0, common_1.Controller)('monitoring'),
+    (0, common_1.Controller)('api/v1/monitoring'),
     __metadata("design:paramtypes", [monitoring_service_1.MonitoringService])
 ], MonitoringController);
 //# sourceMappingURL=monitoring.controller.js.map

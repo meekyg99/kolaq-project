@@ -51,24 +51,26 @@ let MonitoringService = class MonitoringService {
         this.prisma = prisma;
     }
     async healthCheck() {
+        let dbStatus = 'unknown';
+        let dbError = null;
         try {
-            await this.prisma.$queryRaw `SELECT 1`;
-            return {
-                status: 'ok',
-                timestamp: new Date().toISOString(),
-                uptime: process.uptime(),
-                database: 'connected',
-            };
+            await Promise.race([
+                this.prisma.$queryRaw `SELECT 1`,
+                new Promise((_, reject) => setTimeout(() => reject(new Error('Database timeout')), 3000)),
+            ]);
+            dbStatus = 'connected';
         }
         catch (error) {
-            return {
-                status: 'error',
-                timestamp: new Date().toISOString(),
-                uptime: process.uptime(),
-                database: 'disconnected',
-                error: error.message,
-            };
+            dbStatus = 'disconnected';
+            dbError = error.message;
         }
+        return {
+            status: 'ok',
+            timestamp: new Date().toISOString(),
+            uptime: process.uptime(),
+            database: dbStatus,
+            ...(dbError && { databaseError: dbError }),
+        };
     }
     async getMetrics() {
         const memoryUsage = process.memoryUsage();

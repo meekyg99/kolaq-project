@@ -7,25 +7,32 @@ export class MonitoringService {
   constructor(private readonly prisma: PrismaService) {}
 
   async healthCheck() {
-    try {
-      // Check database
-      await this.prisma.$queryRaw`SELECT 1`;
+    let dbStatus = 'unknown';
+    let dbError = null;
 
-      return {
-        status: 'ok',
-        timestamp: new Date().toISOString(),
-        uptime: process.uptime(),
-        database: 'connected',
-      };
+    try {
+      // Check database with timeout
+      await Promise.race([
+        this.prisma.$queryRaw`SELECT 1`,
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Database timeout')), 3000),
+        ),
+      ]);
+      dbStatus = 'connected';
     } catch (error) {
-      return {
-        status: 'error',
-        timestamp: new Date().toISOString(),
-        uptime: process.uptime(),
-        database: 'disconnected',
-        error: error.message,
-      };
+      dbStatus = 'disconnected';
+      dbError = error.message;
     }
+
+    // Always return 200 OK for Railway healthcheck
+    // Even if database is down, the app is still running
+    return {
+      status: 'ok',
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+      database: dbStatus,
+      ...(dbError && { databaseError: dbError }),
+    };
   }
 
   async getMetrics() {

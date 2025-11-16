@@ -3,17 +3,11 @@ export declare class MonitoringController {
     private readonly monitoringService;
     constructor(monitoringService: MonitoringService);
     health(): Promise<{
+        databaseError: any;
         status: string;
         timestamp: string;
         uptime: number;
         database: string;
-        error?: undefined;
-    } | {
-        status: string;
-        timestamp: string;
-        uptime: number;
-        database: string;
-        error: any;
     }>;
     metrics(): Promise<{
         timestamp: string;
@@ -58,17 +52,11 @@ export declare class MonitoringController {
             };
         };
         application: {
+            databaseError: any;
             status: string;
             timestamp: string;
             uptime: number;
             database: string;
-            error?: undefined;
-        } | {
-            status: string;
-            timestamp: string;
-            uptime: number;
-            database: string;
-            error: any;
         };
     }>;
 }

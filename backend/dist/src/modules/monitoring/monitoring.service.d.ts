@@ -3,17 +3,11 @@ export declare class MonitoringService {
     private readonly prisma;
     constructor(prisma: PrismaService);
     healthCheck(): Promise<{
+        databaseError: any;
         status: string;
         timestamp: string;
         uptime: number;
         database: string;
-        error?: undefined;
-    } | {
-        status: string;
-        timestamp: string;
-        uptime: number;
-        database: string;
-        error: any;
     }>;
     getMetrics(): Promise<{
         timestamp: string;
@@ -58,17 +52,11 @@ export declare class MonitoringService {
             };
         };
         application: {
+            databaseError: any;
             status: string;
             timestamp: string;
             uptime: number;
             database: string;
-            error?: undefined;
-        } | {
-            status: string;
-            timestamp: string;
-            uptime: number;
-            database: string;
-            error: any;
         };
     }>;
 }
