@@ -13,6 +13,8 @@ exports.AppModule = void 0;
 const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
 const schedule_1 = require("@nestjs/schedule");
+const throttler_1 = require("@nestjs/throttler");
+const core_1 = require("@nestjs/core");
 const env_validation_1 = require("./config/env.validation");
 const prisma_module_1 = require("./modules/prisma/prisma.module");
 const auth_module_1 = require("./modules/auth/auth.module");
@@ -48,6 +50,23 @@ exports.AppModule = AppModule = __decorate([
                 envFilePath: ['.env.local', '.env'],
                 validate: env_validation_1.validateEnv,
             }),
+            throttler_1.ThrottlerModule.forRoot([
+                {
+                    name: 'short',
+                    ttl: 1000,
+                    limit: 10,
+                },
+                {
+                    name: 'medium',
+                    ttl: 10000,
+                    limit: 50,
+                },
+                {
+                    name: 'long',
+                    ttl: 60000,
+                    limit: 100,
+                },
+            ]),
             schedule_1.ScheduleModule.forRoot(),
             prisma_module_1.PrismaModule,
             auth_module_1.AuthModule,
@@ -62,7 +81,13 @@ exports.AppModule = AppModule = __decorate([
             jobs_module_1.JobsModule,
         ],
         controllers: [app_controller_1.AppController],
-        providers: [app_service_1.AppService],
+        providers: [
+            app_service_1.AppService,
+            {
+                provide: core_1.APP_GUARD,
+                useClass: throttler_1.ThrottlerGuard,
+            },
+        ],
     }),
     __metadata("design:paramtypes", [order_service_1.OrderService,
         notification_service_1.NotificationService])
