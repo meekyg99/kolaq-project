@@ -1,9 +1,26 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
+import { Logger } from 'nestjs-pino';
+import { AllExceptionsFilter } from './common/filters/http-exception.filter';
+import { initializeSentry } from './config/sentry.config';
+import * as Sentry from '@sentry/node';
+
+// Initialize Sentry before app creation
+initializeSentry();
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { bufferLogs: true });
+
+  // Setup Pino logger
+  app.useLogger(app.get(Logger));
+  const pinoLogger = app.get(Logger);
+
+  // Setup global exception filter
+  app.useGlobalFilters(new AllExceptionsFilter(pinoLogger as any));
+
+  // Sentry request handler
+  app.use(Sentry.expressIntegration());
 
   // Enable CORS for frontend
   app.enableCors({
@@ -28,7 +45,9 @@ async function bootstrap() {
 
   const port = process.env.PORT || 4000;
   await app.listen(port, '0.0.0.0');
-  console.log(`🚀 Backend running on http://0.0.0.0:${port}`);
-  console.log(`📚 API endpoints available at http://0.0.0.0:${port}/api/v1`);
+  pinoLogger.log(`🚀 Backend running on http://0.0.0.0:${port}`);
+  pinoLogger.log(`📚 API endpoints available at http://0.0.0.0:${port}/api/v1`);
+  pinoLogger.log(`🔍 Health check: http://0.0.0.0:${port}/api/v1/monitoring/health`);
+  pinoLogger.log(`📊 Metrics: http://0.0.0.0:${port}/api/v1/monitoring/metrics`);
 }
 void bootstrap();

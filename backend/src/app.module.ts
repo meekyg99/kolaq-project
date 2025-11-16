@@ -3,8 +3,10 @@ import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
+import { LoggerModule } from 'nestjs-pino';
 
 import { validateEnv } from './config/env.validation';
+import { loggerConfig } from './config/logger.config';
 import { PrismaModule } from './modules/prisma/prisma.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { CatalogModule } from './modules/catalog/catalog.module';
@@ -20,9 +22,11 @@ import { NotificationService } from './modules/notification/notification.service
 import { ActivityModule } from './modules/activity/activity.module';
 import { OrdersModule } from './modules/orders/orders.module';
 import { JobsModule } from './jobs/jobs.module';
+import { MonitoringModule } from './modules/monitoring/monitoring.module';
 
 @Module({
   imports: [
+    LoggerModule.forRoot(loggerConfig),
     ConfigModule.forRoot({
       isGlobal: true,
       cache: true,
@@ -58,6 +62,7 @@ import { JobsModule } from './jobs/jobs.module';
     ActivityModule,
     OrdersModule,
     JobsModule,
+    MonitoringModule,
   ],
   controllers: [AppController],
   providers: [

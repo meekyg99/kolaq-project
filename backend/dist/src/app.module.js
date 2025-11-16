@@ -15,7 +15,9 @@ const config_1 = require("@nestjs/config");
 const schedule_1 = require("@nestjs/schedule");
 const throttler_1 = require("@nestjs/throttler");
 const core_1 = require("@nestjs/core");
+const nestjs_pino_1 = require("nestjs-pino");
 const env_validation_1 = require("./config/env.validation");
+const logger_config_1 = require("./config/logger.config");
 const prisma_module_1 = require("./modules/prisma/prisma.module");
 const auth_module_1 = require("./modules/auth/auth.module");
 const catalog_module_1 = require("./modules/catalog/catalog.module");
@@ -31,6 +33,7 @@ const notification_service_1 = require("./modules/notification/notification.serv
 const activity_module_1 = require("./modules/activity/activity.module");
 const orders_module_1 = require("./modules/orders/orders.module");
 const jobs_module_1 = require("./jobs/jobs.module");
+const monitoring_module_1 = require("./modules/monitoring/monitoring.module");
 let AppModule = class AppModule {
     constructor(orderService, notificationService) {
         this.orderService = orderService;
@@ -44,6 +47,7 @@ exports.AppModule = AppModule;
 exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
         imports: [
+            nestjs_pino_1.LoggerModule.forRoot(logger_config_1.loggerConfig),
             config_1.ConfigModule.forRoot({
                 isGlobal: true,
                 cache: true,
@@ -79,6 +83,7 @@ exports.AppModule = AppModule = __decorate([
             activity_module_1.ActivityModule,
             orders_module_1.OrdersModule,
             jobs_module_1.JobsModule,
+            monitoring_module_1.MonitoringModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [
