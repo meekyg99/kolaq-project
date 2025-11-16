@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppModule = void 0;
 const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
+const schedule_1 = require("@nestjs/schedule");
 const env_validation_1 = require("./config/env.validation");
 const prisma_module_1 = require("./modules/prisma/prisma.module");
 const auth_module_1 = require("./modules/auth/auth.module");
@@ -27,6 +28,7 @@ const order_service_1 = require("./modules/order/order.service");
 const notification_service_1 = require("./modules/notification/notification.service");
 const activity_module_1 = require("./modules/activity/activity.module");
 const orders_module_1 = require("./modules/orders/orders.module");
+const jobs_module_1 = require("./jobs/jobs.module");
 let AppModule = class AppModule {
     constructor(orderService, notificationService) {
         this.orderService = orderService;
@@ -46,6 +48,7 @@ exports.AppModule = AppModule = __decorate([
                 envFilePath: ['.env.local', '.env'],
                 validate: env_validation_1.validateEnv,
             }),
+            schedule_1.ScheduleModule.forRoot(),
             prisma_module_1.PrismaModule,
             auth_module_1.AuthModule,
             catalog_module_1.CatalogModule,
@@ -56,6 +59,7 @@ exports.AppModule = AppModule = __decorate([
             admin_module_1.AdminModule,
             activity_module_1.ActivityModule,
             orders_module_1.OrdersModule,
+            jobs_module_1.JobsModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],

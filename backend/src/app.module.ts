@@ -1,5 +1,6 @@
 import { Module, OnModuleInit } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { ScheduleModule } from '@nestjs/schedule';
 
 import { validateEnv } from './config/env.validation';
 import { PrismaModule } from './modules/prisma/prisma.module';
@@ -16,6 +17,7 @@ import { OrderService } from './modules/order/order.service';
 import { NotificationService } from './modules/notification/notification.service';
 import { ActivityModule } from './modules/activity/activity.module';
 import { OrdersModule } from './modules/orders/orders.module';
+import { JobsModule } from './jobs/jobs.module';
 
 @Module({
   imports: [
@@ -25,6 +27,7 @@ import { OrdersModule } from './modules/orders/orders.module';
       envFilePath: ['.env.local', '.env'],
       validate: validateEnv,
     }),
+    ScheduleModule.forRoot(),
     PrismaModule,
     AuthModule,
     CatalogModule,
@@ -35,6 +38,7 @@ import { OrdersModule } from './modules/orders/orders.module';
     AdminModule,
     ActivityModule,
     OrdersModule,
+    JobsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
