@@ -13,6 +13,8 @@ import { CatalogService } from './catalog.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { QueryProductDto } from './dto/query-product.dto';
+import { CreateVariantDto } from './dto/create-variant.dto';
+import { UpdateVariantDto } from './dto/update-variant.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -65,5 +67,59 @@ export class CatalogController {
   @Roles('admin')
   remove(@Param('id') id: string) {
     return this.catalogService.deleteProduct(id);
+  }
+
+  // Product Variant Endpoints
+  @Post(':productId/variants')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
+  createVariant(
+    @Param('productId') productId: string,
+    @Body() createVariantDto: CreateVariantDto,
+  ) {
+    return this.catalogService.createVariant(productId, createVariantDto);
+  }
+
+  @Get(':productId/variants')
+  getProductVariants(
+    @Param('productId') productId: string,
+    @Query('activeOnly') activeOnly?: string,
+  ) {
+    return this.catalogService.getProductVariants(
+      productId,
+      activeOnly === 'true',
+    );
+  }
+
+  @Get('variants/:variantId')
+  getVariantById(@Param('variantId') variantId: string) {
+    return this.catalogService.getVariantById(variantId);
+  }
+
+  @Patch('variants/:variantId')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
+  updateVariant(
+    @Param('variantId') variantId: string,
+    @Body() updateVariantDto: UpdateVariantDto,
+  ) {
+    return this.catalogService.updateVariant(variantId, updateVariantDto);
+  }
+
+  @Patch('variants/:variantId/stock')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
+  updateVariantStock(
+    @Param('variantId') variantId: string,
+    @Body('stock') stock: number,
+  ) {
+    return this.catalogService.updateVariantStock(variantId, stock);
+  }
+
+  @Delete('variants/:variantId')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
+  removeVariant(@Param('variantId') variantId: string) {
+    return this.catalogService.deleteVariant(variantId);
   }
 }

@@ -8,6 +8,8 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { QueryProductDto } from './dto/query-product.dto';
+import { CreateVariantDto } from './dto/create-variant.dto';
+import { UpdateVariantDto } from './dto/update-variant.dto';
 
 @Injectable()
 export class CatalogService {
@@ -101,6 +103,10 @@ export class CatalogService {
       where: { id },
       include: {
         prices: true,
+        variants: {
+          where: { isActive: true },
+          orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
+        },
       },
     });
 
@@ -116,6 +122,10 @@ export class CatalogService {
       where: { slug },
       include: {
         prices: true,
+        variants: {
+          where: { isActive: true },
+          orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
+        },
       },
     });
 
@@ -220,5 +230,150 @@ export class CatalogService {
     });
 
     return products;
+  }
+
+  // Product Variant Methods
+  async createVariant(productId: string, createVariantDto: CreateVariantDto) {
+    const product = await this.prisma.product.findUnique({
+      where: { id: productId },
+    });
+
+    if (!product) {
+      throw new NotFoundException(`Product with ID '${productId}' not found`);
+    }
+
+    if (createVariantDto.sku) {
+      const existingSku = await this.prisma.productVariant.findUnique({
+        where: { sku: createVariantDto.sku },
+      });
+
+      if (existingSku) {
+        throw new ConflictException(
+          `Variant with SKU '${createVariantDto.sku}' already exists`,
+        );
+      }
+    }
+
+    const variant = await this.prisma.productVariant.create({
+      data: {
+        ...createVariantDto,
+        productId,
+      },
+    });
+
+    this.logger.log(
+      `Created variant: ${variant.name} for product ${product.name}`,
+    );
+    return variant;
+  }
+
+  async getProductVariants(productId: string, activeOnly = false) {
+    const product = await this.prisma.product.findUnique({
+      where: { id: productId },
+    });
+
+    if (!product) {
+      throw new NotFoundException(`Product with ID '${productId}' not found`);
+    }
+
+    const where: any = { productId };
+    if (activeOnly) {
+      where.isActive = true;
+    }
+
+    const variants = await this.prisma.productVariant.findMany({
+      where,
+      orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
+    });
+
+    return variants;
+  }
+
+  async getVariantById(variantId: string) {
+    const variant = await this.prisma.productVariant.findUnique({
+      where: { id: variantId },
+      include: {
+        product: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+          },
+        },
+      },
+    });
+
+    if (!variant) {
+      throw new NotFoundException(`Variant with ID '${variantId}' not found`);
+    }
+
+    return variant;
+  }
+
+  async updateVariant(variantId: string, updateVariantDto: UpdateVariantDto) {
+    const existingVariant = await this.prisma.productVariant.findUnique({
+      where: { id: variantId },
+    });
+
+    if (!existingVariant) {
+      throw new NotFoundException(`Variant with ID '${variantId}' not found`);
+    }
+
+    if (updateVariantDto.sku && updateVariantDto.sku !== existingVariant.sku) {
+      const skuExists = await this.prisma.productVariant.findUnique({
+        where: { sku: updateVariantDto.sku },
+      });
+
+      if (skuExists) {
+        throw new ConflictException(
+          `Variant with SKU '${updateVariantDto.sku}' already exists`,
+        );
+      }
+    }
+
+    const variant = await this.prisma.productVariant.update({
+      where: { id: variantId },
+      data: updateVariantDto,
+    });
+
+    this.logger.log(`Updated variant: ${variant.name} (${variant.id})`);
+    return variant;
+  }
+
+  async deleteVariant(variantId: string) {
+    const variant = await this.prisma.productVariant.findUnique({
+      where: { id: variantId },
+    });
+
+    if (!variant) {
+      throw new NotFoundException(`Variant with ID '${variantId}' not found`);
+    }
+
+    await this.prisma.productVariant.delete({
+      where: { id: variantId },
+    });
+
+    this.logger.log(`Deleted variant: ${variant.name} (${variant.id})`);
+    return { message: 'Variant deleted successfully' };
+  }
+
+  async updateVariantStock(variantId: string, stock: number) {
+    const variant = await this.prisma.productVariant.findUnique({
+      where: { id: variantId },
+    });
+
+    if (!variant) {
+      throw new NotFoundException(`Variant with ID '${variantId}' not found`);
+    }
+
+    const updated = await this.prisma.productVariant.update({
+      where: { id: variantId },
+      data: { stock },
+    });
+
+    this.logger.log(
+      `Updated stock for variant ${variant.name}: ${stock} units`,
+    );
+    return updated;
   }
 }

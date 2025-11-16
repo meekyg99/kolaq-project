@@ -7,6 +7,8 @@ export declare class AdminController {
     getDashboard(): Promise<{
         overview: {
             totalProducts: number;
+            totalVariants: number;
+            activeVariants: number;
             totalOrders: number;
             totalCustomers: number;
             revenue: {
@@ -26,6 +28,18 @@ export declare class AdminController {
             orderNumber: string;
         }[];
         lowStockProducts: any[];
+        lowStockVariants: {
+            name: string;
+            id: string;
+            product: {
+                slug: string;
+                name: string;
+                id: string;
+            };
+            sku: string;
+            bottleSize: string;
+            stock: number;
+        }[];
         notifications: {
             totalNotifications: number;
             sentNotifications: number;

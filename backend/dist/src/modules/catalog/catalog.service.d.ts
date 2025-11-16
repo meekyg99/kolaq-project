@@ -2,6 +2,8 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { QueryProductDto } from './dto/query-product.dto';
+import { CreateVariantDto } from './dto/create-variant.dto';
+import { UpdateVariantDto } from './dto/update-variant.dto';
 export declare class CatalogService {
     private readonly prisma;
     private readonly logger;
@@ -59,6 +61,21 @@ export declare class CatalogService {
             amount: import("@prisma/client/runtime/library").Decimal;
             productId: string;
         }[];
+        variants: {
+            name: string;
+            image: string | null;
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            productId: string;
+            sku: string | null;
+            bottleSize: string;
+            priceNGN: import("@prisma/client/runtime/library").Decimal;
+            priceUSD: import("@prisma/client/runtime/library").Decimal;
+            stock: number;
+            isActive: boolean;
+            sortOrder: number;
+        }[];
     } & {
         slug: string;
         name: string;
@@ -78,6 +95,21 @@ export declare class CatalogService {
             currency: import(".prisma/client").$Enums.Currency;
             amount: import("@prisma/client/runtime/library").Decimal;
             productId: string;
+        }[];
+        variants: {
+            name: string;
+            image: string | null;
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            productId: string;
+            sku: string | null;
+            bottleSize: string;
+            priceNGN: import("@prisma/client/runtime/library").Decimal;
+            priceUSD: import("@prisma/client/runtime/library").Decimal;
+            stock: number;
+            isActive: boolean;
+            sortOrder: number;
         }[];
     } & {
         slug: string;
@@ -135,4 +167,88 @@ export declare class CatalogService {
         createdAt: Date;
         updatedAt: Date;
     })[]>;
+    createVariant(productId: string, createVariantDto: CreateVariantDto): Promise<{
+        name: string;
+        image: string | null;
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        productId: string;
+        sku: string | null;
+        bottleSize: string;
+        priceNGN: import("@prisma/client/runtime/library").Decimal;
+        priceUSD: import("@prisma/client/runtime/library").Decimal;
+        stock: number;
+        isActive: boolean;
+        sortOrder: number;
+    }>;
+    getProductVariants(productId: string, activeOnly?: boolean): Promise<{
+        name: string;
+        image: string | null;
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        productId: string;
+        sku: string | null;
+        bottleSize: string;
+        priceNGN: import("@prisma/client/runtime/library").Decimal;
+        priceUSD: import("@prisma/client/runtime/library").Decimal;
+        stock: number;
+        isActive: boolean;
+        sortOrder: number;
+    }[]>;
+    getVariantById(variantId: string): Promise<{
+        product: {
+            slug: string;
+            name: string;
+            id: string;
+        };
+    } & {
+        name: string;
+        image: string | null;
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        productId: string;
+        sku: string | null;
+        bottleSize: string;
+        priceNGN: import("@prisma/client/runtime/library").Decimal;
+        priceUSD: import("@prisma/client/runtime/library").Decimal;
+        stock: number;
+        isActive: boolean;
+        sortOrder: number;
+    }>;
+    updateVariant(variantId: string, updateVariantDto: UpdateVariantDto): Promise<{
+        name: string;
+        image: string | null;
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        productId: string;
+        sku: string | null;
+        bottleSize: string;
+        priceNGN: import("@prisma/client/runtime/library").Decimal;
+        priceUSD: import("@prisma/client/runtime/library").Decimal;
+        stock: number;
+        isActive: boolean;
+        sortOrder: number;
+    }>;
+    deleteVariant(variantId: string): Promise<{
+        message: string;
+    }>;
+    updateVariantStock(variantId: string, stock: number): Promise<{
+        name: string;
+        image: string | null;
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        productId: string;
+        sku: string | null;
+        bottleSize: string;
+        priceNGN: import("@prisma/client/runtime/library").Decimal;
+        priceUSD: import("@prisma/client/runtime/library").Decimal;
+        stock: number;
+        isActive: boolean;
+        sortOrder: number;
+    }>;
 }

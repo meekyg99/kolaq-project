@@ -24,8 +24,10 @@ let AdminService = AdminService_1 = class AdminService {
         const now = new Date();
         const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
         const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-        const [totalProducts, totalOrders, totalCustomers, totalRevenue, recentOrders, lowStockProducts, notificationStats, ordersLast30Days, ordersLast7Days,] = await Promise.all([
+        const [totalProducts, totalVariants, activeVariants, totalOrders, totalCustomers, totalRevenue, recentOrders, lowStockProducts, lowStockVariants, notificationStats, ordersLast30Days, ordersLast7Days,] = await Promise.all([
             this.prisma.product.count(),
+            this.prisma.productVariant.count(),
+            this.prisma.productVariant.count({ where: { isActive: true } }),
             this.prisma.order.count(),
             this.prisma.order
                 .findMany({ select: { customerEmail: true }, distinct: ['customerEmail'] })
@@ -45,6 +47,7 @@ let AdminService = AdminService_1 = class AdminService {
                 },
             }),
             this.getProductsWithLowStock(),
+            this.getLowStockVariants(),
             this.notificationService.getStats(),
             this.prisma.order.count({
                 where: { createdAt: { gte: thirtyDaysAgo } },
@@ -60,6 +63,8 @@ let AdminService = AdminService_1 = class AdminService {
         return {
             overview: {
                 totalProducts,
+                totalVariants,
+                activeVariants,
                 totalOrders,
                 totalCustomers,
                 revenue,
@@ -68,6 +73,7 @@ let AdminService = AdminService_1 = class AdminService {
             },
             recentOrders,
             lowStockProducts: lowStockProducts.slice(0, 5),
+            lowStockVariants: lowStockVariants.slice(0, 5),
             notifications: notificationStats,
         };
     }
@@ -340,6 +346,30 @@ let AdminService = AdminService_1 = class AdminService {
             }
         }
         return lowStockProducts.sort((a, b) => a.currentStock - b.currentStock);
+    }
+    async getLowStockVariants() {
+        const variants = await this.prisma.productVariant.findMany({
+            where: {
+                isActive: true,
+                stock: { lte: 10 },
+            },
+            select: {
+                id: true,
+                name: true,
+                sku: true,
+                bottleSize: true,
+                stock: true,
+                product: {
+                    select: {
+                        id: true,
+                        name: true,
+                        slug: true,
+                    },
+                },
+            },
+            orderBy: { stock: 'asc' },
+        });
+        return variants;
     }
 };
 exports.AdminService = AdminService;

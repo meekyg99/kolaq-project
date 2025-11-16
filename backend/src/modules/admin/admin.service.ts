@@ -20,17 +20,26 @@ export class AdminService {
 
     const [
       totalProducts,
+      totalVariants,
+      activeVariants,
       totalOrders,
       totalCustomers,
       totalRevenue,
       recentOrders,
       lowStockProducts,
+      lowStockVariants,
       notificationStats,
       ordersLast30Days,
       ordersLast7Days,
     ] = await Promise.all([
       // Products
       this.prisma.product.count(),
+
+      // Total variants
+      this.prisma.productVariant.count(),
+
+      // Active variants
+      this.prisma.productVariant.count({ where: { isActive: true } }),
 
       // Orders
       this.prisma.order.count(),
@@ -61,6 +70,9 @@ export class AdminService {
       // Low stock products
       this.getProductsWithLowStock(),
 
+      // Low stock variants
+      this.getLowStockVariants(),
+
       // Notification stats
       this.notificationService.getStats(),
 
@@ -84,6 +96,8 @@ export class AdminService {
     return {
       overview: {
         totalProducts,
+        totalVariants,
+        activeVariants,
         totalOrders,
         totalCustomers,
         revenue,
@@ -92,6 +106,7 @@ export class AdminService {
       },
       recentOrders,
       lowStockProducts: lowStockProducts.slice(0, 5),
+      lowStockVariants: lowStockVariants.slice(0, 5),
       notifications: notificationStats,
     };
   }
@@ -432,5 +447,31 @@ export class AdminService {
     }
 
     return lowStockProducts.sort((a, b) => a.currentStock - b.currentStock);
+  }
+
+  private async getLowStockVariants() {
+    const variants = await this.prisma.productVariant.findMany({
+      where: {
+        isActive: true,
+        stock: { lte: 10 },
+      },
+      select: {
+        id: true,
+        name: true,
+        sku: true,
+        bottleSize: true,
+        stock: true,
+        product: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+          },
+        },
+      },
+      orderBy: { stock: 'asc' },
+    });
+
+    return variants;
   }
 }

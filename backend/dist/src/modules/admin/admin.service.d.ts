@@ -10,6 +10,8 @@ export declare class AdminService {
     getDashboardStats(): Promise<{
         overview: {
             totalProducts: number;
+            totalVariants: number;
+            activeVariants: number;
             totalOrders: number;
             totalCustomers: number;
             revenue: {
@@ -29,6 +31,18 @@ export declare class AdminService {
             orderNumber: string;
         }[];
         lowStockProducts: any[];
+        lowStockVariants: {
+            name: string;
+            id: string;
+            product: {
+                slug: string;
+                name: string;
+                id: string;
+            };
+            sku: string;
+            bottleSize: string;
+            stock: number;
+        }[];
         notifications: {
             totalNotifications: number;
             sentNotifications: number;
@@ -133,4 +147,5 @@ export declare class AdminService {
         }[];
     }>;
     private getProductsWithLowStock;
+    private getLowStockVariants;
 }

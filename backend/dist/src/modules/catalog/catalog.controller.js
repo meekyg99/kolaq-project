@@ -18,6 +18,8 @@ const catalog_service_1 = require("./catalog.service");
 const create_product_dto_1 = require("./dto/create-product.dto");
 const update_product_dto_1 = require("./dto/update-product.dto");
 const query_product_dto_1 = require("./dto/query-product.dto");
+const create_variant_dto_1 = require("./dto/create-variant.dto");
+const update_variant_dto_1 = require("./dto/update-variant.dto");
 const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
 const roles_guard_1 = require("../auth/guards/roles.guard");
 const roles_decorator_1 = require("../auth/decorators/roles.decorator");
@@ -48,6 +50,24 @@ let CatalogController = class CatalogController {
     }
     remove(id) {
         return this.catalogService.deleteProduct(id);
+    }
+    createVariant(productId, createVariantDto) {
+        return this.catalogService.createVariant(productId, createVariantDto);
+    }
+    getProductVariants(productId, activeOnly) {
+        return this.catalogService.getProductVariants(productId, activeOnly === 'true');
+    }
+    getVariantById(variantId) {
+        return this.catalogService.getVariantById(variantId);
+    }
+    updateVariant(variantId, updateVariantDto) {
+        return this.catalogService.updateVariant(variantId, updateVariantDto);
+    }
+    updateVariantStock(variantId, stock) {
+        return this.catalogService.updateVariantStock(variantId, stock);
+    }
+    removeVariant(variantId) {
+        return this.catalogService.deleteVariant(variantId);
     }
 };
 exports.CatalogController = CatalogController;
@@ -113,6 +133,60 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], CatalogController.prototype, "remove", null);
+__decorate([
+    (0, common_1.Post)(':productId/variants'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)('admin'),
+    __param(0, (0, common_1.Param)('productId')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, create_variant_dto_1.CreateVariantDto]),
+    __metadata("design:returntype", void 0)
+], CatalogController.prototype, "createVariant", null);
+__decorate([
+    (0, common_1.Get)(':productId/variants'),
+    __param(0, (0, common_1.Param)('productId')),
+    __param(1, (0, common_1.Query)('activeOnly')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:returntype", void 0)
+], CatalogController.prototype, "getProductVariants", null);
+__decorate([
+    (0, common_1.Get)('variants/:variantId'),
+    __param(0, (0, common_1.Param)('variantId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], CatalogController.prototype, "getVariantById", null);
+__decorate([
+    (0, common_1.Patch)('variants/:variantId'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)('admin'),
+    __param(0, (0, common_1.Param)('variantId')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, update_variant_dto_1.UpdateVariantDto]),
+    __metadata("design:returntype", void 0)
+], CatalogController.prototype, "updateVariant", null);
+__decorate([
+    (0, common_1.Patch)('variants/:variantId/stock'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)('admin'),
+    __param(0, (0, common_1.Param)('variantId')),
+    __param(1, (0, common_1.Body)('stock')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Number]),
+    __metadata("design:returntype", void 0)
+], CatalogController.prototype, "updateVariantStock", null);
+__decorate([
+    (0, common_1.Delete)('variants/:variantId'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)('admin'),
+    __param(0, (0, common_1.Param)('variantId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], CatalogController.prototype, "removeVariant", null);
 exports.CatalogController = CatalogController = __decorate([
     (0, common_1.Controller)('api/v1/products'),
     __metadata("design:paramtypes", [catalog_service_1.CatalogService])
