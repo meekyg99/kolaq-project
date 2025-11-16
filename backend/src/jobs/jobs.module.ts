@@ -13,12 +13,22 @@ import { PrismaService } from '../modules/prisma/prisma.service';
     BullModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: async (config: ConfigService) => ({
-        redis: {
-          host: config.get('REDIS_HOST') || 'localhost',
-          port: parseInt(config.get('REDIS_PORT') || '6379', 10),
-        },
-      }),
+      useFactory: async (config: ConfigService) => {
+        const redisUrl = config.get('REDIS_URL');
+        
+        // If REDIS_URL is provided (Railway format), use it
+        if (redisUrl) {
+          return { redis: redisUrl };
+        }
+        
+        // Otherwise fall back to host/port
+        return {
+          redis: {
+            host: config.get('REDIS_HOST') || 'localhost',
+            port: parseInt(config.get('REDIS_PORT') || '6379', 10),
+          },
+        };
+      },
     }),
     BullModule.registerQueue(
       { name: 'emails' },
