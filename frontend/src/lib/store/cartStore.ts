@@ -27,12 +27,14 @@ export const useCartStore = create<CartState>()(
       currency: 'NGN',
 
       fetchCart: async () => {
+        if (typeof window === 'undefined') return;
         set({ isLoading: true, error: null });
         try {
           const sessionId = getSessionId();
           const cart = await cartApi.getCart(sessionId);
           set({ cart, isLoading: false });
         } catch (error: any) {
+          console.error('Fetch cart error:', error);
           set({
             error: error.response?.data?.message || 'Failed to fetch cart',
             isLoading: false,
@@ -41,57 +43,62 @@ export const useCartStore = create<CartState>()(
       },
 
       addToCart: async (productId: string, quantity: number) => {
+        if (typeof window === 'undefined') return;
         set({ isLoading: true, error: null });
         try {
           const sessionId = getSessionId();
           const cart = await cartApi.addItem(sessionId, productId, quantity);
           set({ cart, isLoading: false });
         } catch (error: any) {
+          console.error('Add to cart error:', error);
           set({
             error: error.response?.data?.message || 'Failed to add item',
             isLoading: false,
           });
-          throw error;
         }
       },
 
       updateQuantity: async (itemId: string, quantity: number) => {
+        if (typeof window === 'undefined') return;
         set({ isLoading: true, error: null });
         try {
           const sessionId = getSessionId();
           const cart = await cartApi.updateItem(sessionId, itemId, quantity);
           set({ cart, isLoading: false });
         } catch (error: any) {
+          console.error('Update quantity error:', error);
           set({
             error: error.response?.data?.message || 'Failed to update item',
             isLoading: false,
           });
-          throw error;
         }
       },
 
       removeItem: async (itemId: string) => {
+        if (typeof window === 'undefined') return;
         set({ isLoading: true, error: null });
         try {
           const sessionId = getSessionId();
           const cart = await cartApi.removeItem(sessionId, itemId);
           set({ cart, isLoading: false });
         } catch (error: any) {
+          console.error('Remove item error:', error);
           set({
             error: error.response?.data?.message || 'Failed to remove item',
             isLoading: false,
           });
-          throw error;
         }
       },
 
       clearCart: async () => {
+        if (typeof window === 'undefined') return;
         set({ isLoading: true, error: null });
         try {
           const sessionId = getSessionId();
           const cart = await cartApi.clearCart(sessionId);
           set({ cart, isLoading: false });
         } catch (error: any) {
+          console.error('Clear cart error:', error);
           set({
             error: error.response?.data?.message || 'Failed to clear cart',
             isLoading: false,
@@ -108,6 +115,7 @@ export const useCartStore = create<CartState>()(
     {
       name: 'cart-storage',
       partialize: (state) => ({ currency: state.currency }),
+      skipHydration: true,
     }
   )
 );

@@ -22,8 +22,10 @@ export function AddToCartButtons({ product, selectedVariant }: AddToCartButtonsP
     setAdding(true);
     try {
       await addToCart(product.id, 1);
+      // Show success feedback
     } catch (error) {
       console.error('Failed to add to cart:', error);
+      alert('Failed to add item to cart. Please try again.');
     } finally {
       setAdding(false);
     }
@@ -37,6 +39,7 @@ export function AddToCartButtons({ product, selectedVariant }: AddToCartButtonsP
       router.push("/cart");
     } catch (error) {
       console.error('Failed to add to cart:', error);
+      alert('Failed to add item to cart. Please try again.');
       setAdding(false);
     }
   };

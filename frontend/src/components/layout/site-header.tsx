@@ -29,7 +29,7 @@ export function SiteHeader() {
 
   useEffect(() => {
     fetchCart();
-  }, [fetchCart]);
+  }, []);
 
   const homeLink = navLinks[0];
   const secondaryLinks = navLinks.slice(1);

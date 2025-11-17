@@ -18,9 +18,7 @@ export const useCart = () => {
 
   // Fetch cart on mount
   useEffect(() => {
-    if (!cart) {
-      fetchCart();
-    }
+    fetchCart();
   }, []);
 
   const itemCount = cart?.itemCount || 0;
