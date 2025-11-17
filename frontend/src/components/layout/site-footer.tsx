@@ -119,9 +119,15 @@ export function SiteFooter() {
           <div className="flex items-center gap-3">
             <span className="text-xs text-slate-400">We accept:</span>
             <div className="flex items-center gap-2">
-              <Image src="/images/visa.svg" alt="Visa" width={40} height={24} className="h-6 w-auto" />
-              <Image src="/images/mastercard.svg" alt="Mastercard" width={40} height={24} className="h-6 w-auto" />
-              <Image src="/images/verve.svg" alt="Verve" width={40} height={24} className="h-6 w-auto" />
+              <div className="flex h-8 w-12 items-center justify-center rounded bg-white p-1 shadow-sm border border-slate-200">
+                <Image src="/images/visa-card.svg" alt="Visa" width={48} height={30} className="h-auto w-full object-contain" />
+              </div>
+              <div className="flex h-8 w-12 items-center justify-center rounded bg-white p-1 shadow-sm border border-slate-200">
+                <Image src="/images/mastercard-card.svg" alt="Mastercard" width={48} height={30} className="h-auto w-full object-contain" />
+              </div>
+              <div className="flex h-8 w-12 items-center justify-center rounded bg-white p-1 shadow-sm border border-slate-200">
+                <Image src="/images/verve-card.svg" alt="Verve" width={48} height={30} className="h-auto w-full object-contain" />
+              </div>
             </div>
           </div>
         </div>
