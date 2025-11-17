@@ -79,11 +79,10 @@ export default function CartPage() {
             >
               <div className="flex items-center gap-4">
                 <div className="relative h-24 w-24 overflow-hidden rounded-2xl bg-slate-100">
-                  <Image src={item.product.images?.[0] || '/placeholder.jpg'} alt={item.product.name} fill className="object-contain" />
+                  <Image src={item.product.image || '/placeholder.jpg'} alt={item.product.name} fill className="object-contain" />
                 </div>
                 <div className="space-y-1.5">
                   <h2 className="text-lg font-semibold text-slate-900">{item.product.name}</h2>
-                  <p className="text-xs uppercase tracking-[0.3em] text-slate-400">SKU {item.product.sku}</p>
                   <p className="text-sm text-slate-600">{item.product.description}</p>
                 </div>
               </div>

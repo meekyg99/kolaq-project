@@ -5,6 +5,8 @@ import { authApi, AuthResponse } from '../api/auth';
 interface User {
   id: string;
   email: string;
+  firstName?: string;
+  lastName?: string;
   name: string;
   role: string;
 }
@@ -31,15 +33,24 @@ export const useAuthStore = create<AuthState>()(
       login: async (email: string, passcode: string) => {
         set({ isLoading: true, error: null });
         try {
-          const response: AuthResponse = await authApi.login({ email, passcode });
+          const response: AuthResponse = await authApi.login({ email, password: passcode });
           
           if (typeof window !== 'undefined') {
             localStorage.setItem('access_token', response.accessToken);
-            localStorage.setItem('refresh_token', response.refreshToken);
+            if (response.refreshToken) {
+              localStorage.setItem('refresh_token', response.refreshToken);
+            }
           }
 
+          const user = {
+            ...response.user,
+            name: response.user.firstName && response.user.lastName 
+              ? `${response.user.firstName} ${response.user.lastName}`
+              : response.user.email
+          };
+
           set({
-            user: response.user,
+            user,
             isAuthenticated: true,
             isLoading: false,
           });
