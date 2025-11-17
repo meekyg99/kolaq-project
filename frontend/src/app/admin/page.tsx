@@ -17,8 +17,9 @@ import {
   type AdminNotification,
   type AdminUser,
 } from '@/components/providers/inventory-provider';
+import { AnalyticsPanel } from '@/components/admin/AnalyticsPanel';
 
-type AdminTab = 'overview' | 'inventory' | 'users' | 'notifications' | 'activity';
+type AdminTab = 'overview' | 'inventory' | 'users' | 'notifications' | 'activity' | 'analytics';
 
 type ProductFormState = {
   name: string;
@@ -186,6 +187,7 @@ function AdminWorkspace({ activeTab, onTabChange, onSignOut }: {
 
   const tabs: { id: AdminTab; label: string }[] = [
     { id: 'overview', label: 'Overview' },
+    { id: 'analytics', label: 'Analytics' },
     { id: 'inventory', label: 'Inventory' },
     { id: 'users', label: 'Users' },
     { id: 'notifications', label: 'Notifications' },
@@ -257,6 +259,7 @@ function AdminWorkspace({ activeTab, onTabChange, onSignOut }: {
         {activeTab === 'overview' && (
           <OverviewPanel products={products} users={users} notifications={notifications} activity={activity} />
         )}
+        {activeTab === 'analytics' && <AnalyticsPanel />}
         {activeTab === 'inventory' && (
           <InventoryManager
             products={products}
