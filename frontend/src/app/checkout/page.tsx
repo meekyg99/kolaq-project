@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { CheckCircle2, CreditCard, ShieldCheck } from "lucide-react";
+import { CheckCircle2, CreditCard, ShieldCheck, AlertCircle } from "lucide-react";
 
 import type { Currency } from "@/data/products";
 import { useCart } from "@/components/providers/cart-provider";
 import { formatCurrency } from "@/lib/currency";
 import { useCurrency } from "@/components/providers/currency-provider";
+import { ordersApi } from "@/lib/api/orders";
 
 const shippingRates: Record<Currency, number> = {
   NGN: 4500,
@@ -19,6 +20,8 @@ export default function CheckoutPage() {
   const { currency } = useCurrency();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [completed, setCompleted] = useState(false);
+  const [orderNumber, setOrderNumber] = useState<string>("");
+  const [error, setError] = useState<string>("");
 
   const totals = useMemo(() => {
     const subtotal = items.reduce((sum, item) => sum + item.product.price[currency] * item.quantity, 0);
@@ -44,14 +47,50 @@ export default function CheckoutPage() {
     );
   }
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setIsSubmitting(true);
-    setTimeout(() => {
-      setIsSubmitting(false);
+    setError("");
+
+    const formData = new FormData(event.currentTarget);
+    
+    try {
+      const firstName = formData.get("firstName") as string;
+      const lastName = formData.get("lastName") as string;
+      const email = formData.get("email") as string;
+      const phone = formData.get("phone") as string;
+      const company = formData.get("company") as string || "";
+      const address = formData.get("address") as string;
+      const city = formData.get("city") as string;
+      const state = formData.get("state") as string;
+      const postalCode = formData.get("postalCode") as string || "";
+      const country = formData.get("country") as string;
+      const paymentMethod = formData.get("payment") as string;
+
+      const shippingAddress = `${address}, ${city}, ${state}${postalCode ? ', ' + postalCode : ''}, ${country}`;
+      
+      const order = await ordersApi.create({
+        customerEmail: email,
+        customerName: `${firstName} ${lastName}`,
+        customerPhone: phone,
+        shippingAddress,
+        currency,
+        items: items.map(item => ({
+          productId: item.product.id,
+          quantity: item.quantity,
+        })),
+        notes: company ? `Company: ${company} | Payment: ${paymentMethod}` : `Payment: ${paymentMethod}`,
+      });
+
+      setOrderNumber(order.orderNumber);
       setCompleted(true);
       clearCart();
-    }, 1400);
+    } catch (err: any) {
+      console.error("Order creation failed:", err);
+      setError(err.response?.data?.message || "Failed to create order. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (completed) {
@@ -60,14 +99,22 @@ export default function CheckoutPage() {
         <CheckCircle2 className="h-12 w-12 text-[var(--accent)]" />
         <h1 className="text-3xl font-semibold text-slate-900">Order placed successfully</h1>
         <p className="max-w-md text-sm text-slate-600">
-          Our concierge team will reach out within the next business day to confirm delivery timelines and payment preferences.
+          Your order number is <span className="font-semibold text-slate-900">{orderNumber}</span>. Our concierge team will reach out within the next business day to confirm delivery timelines and payment preferences.
         </p>
-        <Link
-          href="/shop"
-          className="inline-flex items-center gap-3 rounded-full border border-slate-200 px-5 py-3 text-xs font-semibold uppercase tracking-[0.35em] text-slate-600 transition hover:border-slate-300 hover:text-slate-900"
-        >
-          Continue Shopping
-        </Link>
+        <div className="flex flex-col gap-3 sm:flex-row">
+          <Link
+            href={`/track-order?number=${orderNumber}`}
+            className="inline-flex items-center gap-3 rounded-full bg-[var(--accent)] px-5 py-3 text-xs font-semibold uppercase tracking-[0.35em] text-white transition hover:bg-neutral-800"
+          >
+            Track Order
+          </Link>
+          <Link
+            href="/shop"
+            className="inline-flex items-center gap-3 rounded-full border border-slate-200 px-5 py-3 text-xs font-semibold uppercase tracking-[0.35em] text-slate-600 transition hover:border-slate-300 hover:text-slate-900"
+          >
+            Continue Shopping
+          </Link>
+        </div>
       </div>
     );
   }
@@ -85,6 +132,13 @@ export default function CheckoutPage() {
         </header>
 
         <form onSubmit={handleSubmit} className="space-y-7">
+          {error && (
+            <div className="flex items-center gap-3 rounded-[24px] border border-red-200 bg-red-50 p-4 text-sm text-red-600">
+              <AlertCircle size={20} />
+              <p>{error}</p>
+            </div>
+          )}
+          
           <div className="rounded-[24px] border border-slate-200 bg-white p-7 shadow-sm">
             <h2 className="text-lg font-semibold text-slate-900">Contact information</h2>
             <div className="mt-3 grid gap-3.5 md:grid-cols-2">
@@ -92,6 +146,7 @@ export default function CheckoutPage() {
                 First name
                 <input
                   required
+                  name="firstName"
                   type="text"
                   className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:border-[var(--accent)] focus:outline-none"
                 />
@@ -100,6 +155,7 @@ export default function CheckoutPage() {
                 Last name
                 <input
                   required
+                  name="lastName"
                   type="text"
                   className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:border-[var(--accent)] focus:outline-none"
                 />
@@ -108,8 +164,8 @@ export default function CheckoutPage() {
                 Email address
                 <input
                   required
+                  name="email"
                   type="email"
-                  defaultValue="kolaqalagbo53@gmail.com"
                   className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:border-[var(--accent)] focus:outline-none"
                 />
               </label>
@@ -117,14 +173,16 @@ export default function CheckoutPage() {
                 Phone number
                 <input
                   required
+                  name="phone"
                   type="tel"
-                  defaultValue="+2348157065742"
+                  placeholder="+234"
                   className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:border-[var(--accent)] focus:outline-none"
                 />
               </label>
               <label className="text-sm text-slate-600">
                 Company / venue (optional)
                 <input
+                  name="company"
                   type="text"
                   className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:border-[var(--accent)] focus:outline-none"
                 />
@@ -139,6 +197,7 @@ export default function CheckoutPage() {
                 Address line
                 <input
                   required
+                  name="address"
                   type="text"
                   className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:border-[var(--accent)] focus:outline-none"
                 />
@@ -147,6 +206,7 @@ export default function CheckoutPage() {
                 City
                 <input
                   required
+                  name="city"
                   type="text"
                   className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:border-[var(--accent)] focus:outline-none"
                 />
@@ -155,6 +215,7 @@ export default function CheckoutPage() {
                 State / Region
                 <input
                   required
+                  name="state"
                   type="text"
                   className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:border-[var(--accent)] focus:outline-none"
                 />
@@ -162,6 +223,7 @@ export default function CheckoutPage() {
               <label className="text-sm text-slate-600">
                 Postal code
                 <input
+                  name="postalCode"
                   type="text"
                   className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:border-[var(--accent)] focus:outline-none"
                 />
@@ -170,6 +232,7 @@ export default function CheckoutPage() {
                 Country
                 <input
                   required
+                  name="country"
                   type="text"
                   defaultValue="Nigeria"
                   className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:border-[var(--accent)] focus:outline-none"
@@ -185,14 +248,14 @@ export default function CheckoutPage() {
             </p>
             <div className="mt-3 grid gap-3.5 md:grid-cols-2">
               <label className="flex items-center gap-3 rounded-2xl border border-slate-200 p-4 text-sm text-slate-600">
-                <input type="radio" name="payment" defaultChecked />
+                <input type="radio" name="payment" value="Paystack" defaultChecked />
                 <div>
                   <p className="font-semibold text-slate-900">Paystack (₦)</p>
                   <p className="text-xs text-slate-500">Instant checkout for cards, bank transfer, and USSD.</p>
                 </div>
               </label>
               <label className="flex items-center gap-3 rounded-2xl border border-slate-200 p-4 text-sm text-slate-600">
-                <input type="radio" name="payment" />
+                <input type="radio" name="payment" value="Stripe" />
                 <div>
                   <p className="font-semibold text-slate-900">Stripe (USD)</p>
                   <p className="text-xs text-slate-500">Hosted checkout link delivered by concierge team.</p>
