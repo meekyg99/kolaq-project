@@ -1,83 +1,13 @@
-import Link from "next/link";
 import { Metadata } from "next";
-import { ArrowLeft, ShieldCheck } from "lucide-react";
+import { SignupForm } from "./signup-form";
 
 export const metadata: Metadata = {
   title: "Create Account | KOLAQ ALAGBO BITTERS",
 };
 
 export default function SignupPage() {
-  return (
-    <div className="container grid min-h-[75vh] items-center gap-10 py-10 md:grid-cols-2">
-      <div className="space-y-4">
-        <Link href="/" className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.35em] text-slate-500 transition hover:text-slate-900">
-          <ArrowLeft size={16} /> Back home
-        </Link>
-        <h1 className="text-3xl font-semibold text-slate-900">Create your trade account</h1>
-        <p className="text-sm text-slate-600">
-          Unlock wholesale pricing, concierge fulfillment, and early access to limited KOLAQ ALAGBO BITTERS bottlings tailored for premium hospitality programs.
-        </p>
-        <div className="hidden rounded-[28px] border border-slate-200 bg-white/60 p-6 shadow-sm md:block">
-          <div className="flex items-center gap-3 text-sm font-semibold text-slate-900">
-            <ShieldCheck className="h-5 w-5 text-[var(--accent)]" />
-            Compliance ready
-          </div>
-          <p className="mt-3 text-sm text-slate-600">
-            Verified accounts receive NAFDAC-compliant labels, export-ready documentation, and custom logistics planning across markets.
-          </p>
-        </div>
-      </div>
-
-      <div className="rounded-[28px] border border-slate-200 bg-white p-7 shadow-sm">
-        <form className="space-y-5">
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-1.5">
-              <label htmlFor="firstName" className="text-xs uppercase tracking-[0.35em] text-slate-500">
-                First name
-              </label>
-              <input
-                id="firstName"
-                type="text"
-                placeholder="Ada"
-                className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-700 transition focus:border-[var(--accent)] focus:outline-none"
-                required
-              />
-            </div>
-            <div className="space-y-1.5">
-              <label htmlFor="lastName" className="text-xs uppercase tracking-[0.35em] text-slate-500">
-                Last name
-              </label>
-              <input
-                id="lastName"
-                type="text"
-                placeholder="Okafor"
-                className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-700 transition focus:border-[var(--accent)] focus:outline-none"
-                required
-              />
-            </div>
-          </div>
-
-          <div className="space-y-1.5">
-            <label htmlFor="company" className="text-xs uppercase tracking-[0.35em] text-slate-500">
-              Company or venue
-            </label>
-            <input
-              id="company"
-              type="text"
-              placeholder="Lagos Social House"
-              className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-700 transition focus:border-[var(--accent)] focus:outline-none"
-              required
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <label htmlFor="email" className="text-xs uppercase tracking-[0.35em] text-slate-500">
-              Business email
-            </label>
-            <input
-              id="email"
-              type="email"
-              placeholder="you@business.com"
+  return <SignupForm />;
+}
               className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-700 transition focus:border-[var(--accent)] focus:outline-none"
               required
             />

@@ -6,7 +6,6 @@ import { motion } from "framer-motion";
 import type { Product } from "@/data/products";
 import { formatCurrency } from "@/lib/currency";
 import type { Currency } from "@/data/products";
-import { useCart } from "@/components/providers/cart-provider";
 
 interface ProductCardProps {
   product: Product;
@@ -14,12 +13,7 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product, currency }: ProductCardProps) {
-  const { addItem } = useCart();
   const isDynamicImage = product.image.startsWith("http") || product.image.startsWith("data:");
-
-  const handleAdd = () => {
-    addItem(product, 1);
-  };
 
   // Calculate price range if variants exist
   const getPriceDisplay = () => {

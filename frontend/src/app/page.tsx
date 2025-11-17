@@ -51,6 +51,17 @@ export default function Home() {
     [productList]
   );
 
+  if (isLoading) {
+    return (
+      <div className="container flex items-center justify-center py-20">
+        <div className="text-center space-y-4">
+          <div className="animate-spin h-12 w-12 border-4 border-slate-200 border-t-[var(--accent)] rounded-full mx-auto"></div>
+          <p className="text-sm text-slate-600">Loading products...</p>
+        </div>
+      </div>
+    );
+  }
+
   if (!heroProduct) {
     return (
       <div className="container space-y-6 py-20 text-center">

@@ -2,16 +2,25 @@ import { apiClient } from './client';
 
 export interface LoginRequest {
   email: string;
-  passcode: string;
+  password: string;
+}
+
+export interface RegisterRequest {
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  phone?: string;
 }
 
 export interface AuthResponse {
   accessToken: string;
-  refreshToken: string;
+  refreshToken?: string;
   user: {
     id: string;
     email: string;
-    name: string;
+    firstName?: string;
+    lastName?: string;
     role: string;
   };
 }
@@ -19,6 +28,11 @@ export interface AuthResponse {
 export const authApi = {
   login: async (data: LoginRequest): Promise<AuthResponse> => {
     const response = await apiClient.post('/api/v1/auth/login', data);
+    return response.data;
+  },
+
+  register: async (data: RegisterRequest): Promise<AuthResponse> => {
+    const response = await apiClient.post('/api/v1/auth/register', data);
     return response.data;
   },
 
@@ -36,6 +50,7 @@ export const authApi = {
     if (typeof window !== 'undefined') {
       localStorage.removeItem('access_token');
       localStorage.removeItem('refresh_token');
+      localStorage.removeItem('user');
     }
   },
 };
