@@ -9,6 +9,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AdminModule = void 0;
 const common_1 = require("@nestjs/common");
 const admin_service_1 = require("./admin.service");
+const analytics_service_1 = require("./analytics.service");
 const admin_controller_1 = require("./admin.controller");
 const prisma_module_1 = require("../prisma/prisma.module");
 const notification_module_1 = require("../notification/notification.module");
@@ -19,8 +20,8 @@ exports.AdminModule = AdminModule = __decorate([
     (0, common_1.Module)({
         imports: [prisma_module_1.PrismaModule, notification_module_1.NotificationModule],
         controllers: [admin_controller_1.AdminController],
-        providers: [admin_service_1.AdminService],
-        exports: [admin_service_1.AdminService],
+        providers: [admin_service_1.AdminService, analytics_service_1.AnalyticsService],
+        exports: [admin_service_1.AdminService, analytics_service_1.AnalyticsService],
     })
 ], AdminModule);
 //# sourceMappingURL=admin.module.js.map

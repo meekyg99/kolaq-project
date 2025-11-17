@@ -15,14 +15,18 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AdminController = void 0;
 const common_1 = require("@nestjs/common");
 const admin_service_1 = require("./admin.service");
+const analytics_service_1 = require("./analytics.service");
 const broadcast_notification_dto_1 = require("./dto/broadcast-notification.dto");
 const query_activity_dto_1 = require("./dto/query-activity.dto");
+const analytics_dto_1 = require("./dto/analytics.dto");
 const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
 const roles_guard_1 = require("../auth/guards/roles.guard");
 const roles_decorator_1 = require("../auth/decorators/roles.decorator");
+const swagger_1 = require("@nestjs/swagger");
 let AdminController = class AdminController {
-    constructor(adminService) {
+    constructor(adminService, analyticsService) {
         this.adminService = adminService;
+        this.analyticsService = analyticsService;
     }
     getDashboard() {
         return this.adminService.getDashboardStats();
@@ -56,6 +60,21 @@ let AdminController = class AdminController {
             ipAddress: req.ip,
             userAgent: req.headers['user-agent'],
         });
+    }
+    getSalesMetrics(query) {
+        return this.analyticsService.getSalesMetrics(query);
+    }
+    getProductPerformance(query) {
+        return this.analyticsService.getProductPerformance(query);
+    }
+    getInventoryStatus() {
+        return this.analyticsService.getInventoryStatus();
+    }
+    getInventoryForecast(query) {
+        return this.analyticsService.getInventoryForecast(query.days, query.productId);
+    }
+    getCustomerMetrics(query) {
+        return this.analyticsService.getCustomerMetrics(query);
     }
 };
 exports.AdminController = AdminController;
@@ -113,10 +132,51 @@ __decorate([
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", void 0)
 ], AdminController.prototype, "logActivity", null);
+__decorate([
+    (0, common_1.Get)('analytics/sales'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get sales metrics and revenue data' }),
+    __param(0, (0, common_1.Query)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [analytics_dto_1.AnalyticsQueryDto]),
+    __metadata("design:returntype", void 0)
+], AdminController.prototype, "getSalesMetrics", null);
+__decorate([
+    (0, common_1.Get)('analytics/products'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get product performance metrics' }),
+    __param(0, (0, common_1.Query)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [analytics_dto_1.AnalyticsQueryDto]),
+    __metadata("design:returntype", void 0)
+], AdminController.prototype, "getProductPerformance", null);
+__decorate([
+    (0, common_1.Get)('analytics/inventory'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get inventory status and stock levels' }),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], AdminController.prototype, "getInventoryStatus", null);
+__decorate([
+    (0, common_1.Get)('analytics/forecast'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get inventory forecast and reorder recommendations' }),
+    __param(0, (0, common_1.Query)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [analytics_dto_1.ForecastQueryDto]),
+    __metadata("design:returntype", void 0)
+], AdminController.prototype, "getInventoryForecast", null);
+__decorate([
+    (0, common_1.Get)('analytics/customers'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get customer acquisition and retention metrics' }),
+    __param(0, (0, common_1.Query)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [analytics_dto_1.AnalyticsQueryDto]),
+    __metadata("design:returntype", void 0)
+], AdminController.prototype, "getCustomerMetrics", null);
 exports.AdminController = AdminController = __decorate([
+    (0, swagger_1.ApiTags)('Admin'),
     (0, common_1.Controller)('api/v1/admin'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, roles_decorator_1.Roles)('admin'),
-    __metadata("design:paramtypes", [admin_service_1.AdminService])
+    __metadata("design:paramtypes", [admin_service_1.AdminService,
+        analytics_service_1.AnalyticsService])
 ], AdminController);
 //# sourceMappingURL=admin.controller.js.map
