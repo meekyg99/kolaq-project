@@ -151,7 +151,7 @@ export default function ProductPage() {
               Paystack checkout activates instantly for ₦ orders. USD checkout via Stripe ships as soon as keys are provisioned.
             </p>
             <div className="mt-5">
-              <AddToCartButtons product={product} />
+              <AddToCartButtons product={product} selectedVariant={selectedVariant} />
             </div>
           </div>
 
