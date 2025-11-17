@@ -4,13 +4,13 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import { Bot, ChevronRight, ShieldCheck } from "lucide-react";
+import { Bot, ChevronRight, ShieldCheck, Loader2 } from "lucide-react";
 
 import { formatCurrency } from "@/lib/currency";
 import { ProductCard } from "@/components/ui/product-card";
 import { AddToCartButtons } from "@/components/ui/add-to-cart-buttons";
 import { ProductVariantSelector } from "@/components/ui/product-variant-selector";
-import { useInventory } from "@/components/providers/inventory-provider";
+import { useAPIProducts } from "@/components/providers/api-products-provider";
 import { useCurrency } from "@/components/providers/currency-provider";
 import type { ProductVariant } from "@/data/products";
 
@@ -18,9 +18,7 @@ export default function ProductPage() {
   const params = useParams<{ slug: string }>();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const {
-    state: { products },
-  } = useInventory();
+  const { products, isLoading } = useAPIProducts();
   const { currency, setCurrency } = useCurrency();
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null);
 
@@ -52,6 +50,15 @@ export default function ProductPage() {
     () => products.filter((item) => item.slug !== product?.slug).slice(0, 3),
     [product?.slug, products]
   );
+
+  if (isLoading) {
+    return (
+      <div className="container flex items-center justify-center py-20">
+        <Loader2 className="h-8 w-8 animate-spin text-slate-400" />
+        <span className="ml-3 text-sm text-slate-600">Loading product...</span>
+      </div>
+    );
+  }
 
   if (!product) {
     return (

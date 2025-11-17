@@ -3,15 +3,15 @@
 import { useMemo, useState } from "react";
 import type { ProductCategory } from "@/data/products";
 import { ProductCard } from "@/components/ui/product-card";
-import { Search, SlidersHorizontal } from "lucide-react";
-import { useProducts } from "@/components/providers/inventory-provider";
+import { Search, SlidersHorizontal, Loader2 } from "lucide-react";
+import { useAPIProducts } from "@/components/providers/api-products-provider";
 import { useProductSearch } from "@/components/providers/product-search-provider";
 import { useCurrency } from "@/components/providers/currency-provider";
 
 export default function ShopPage() {
   const { currency } = useCurrency();
   const [activeCategory, setActiveCategory] = useState("All");
-  const productList = useProducts();
+  const { products: productList, isLoading, error } = useAPIProducts();
   const { open } = useProductSearch();
 
   const categories = useMemo(() => {
@@ -69,11 +69,26 @@ export default function ShopPage() {
         })}
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
-        {visibleProducts.map((product) => (
-          <ProductCard key={product.id} product={product} currency={currency} />
-        ))}
-      </div>
+      {isLoading ? (
+        <div className="flex items-center justify-center py-20">
+          <Loader2 className="h-8 w-8 animate-spin text-slate-400" />
+          <span className="ml-3 text-sm text-slate-600">Loading products...</span>
+        </div>
+      ) : error ? (
+        <div className="rounded-lg border border-red-200 bg-red-50 p-8 text-center">
+          <p className="text-sm text-red-600">Failed to load products. Please try again later.</p>
+        </div>
+      ) : visibleProducts.length === 0 ? (
+        <div className="rounded-lg border border-slate-200 bg-slate-50 p-8 text-center">
+          <p className="text-sm text-slate-600">No products available in this category.</p>
+        </div>
+      ) : (
+        <div className="grid gap-4 md:grid-cols-3">
+          {visibleProducts.map((product) => (
+            <ProductCard key={product.id} product={product} currency={currency} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

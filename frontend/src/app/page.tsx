@@ -8,7 +8,7 @@ import { useMemo } from "react";
 
 import { ProductCard } from "@/components/ui/product-card";
 import { formatCurrency } from "@/lib/currency";
-import { useProducts } from "@/components/providers/inventory-provider";
+import { useAPIProducts } from "@/components/providers/api-products-provider";
 import { useCurrency } from "@/components/providers/currency-provider";
 
 const heroStats = [
@@ -37,7 +37,7 @@ const sellingPoints = [
 
 export default function Home() {
   const { currency } = useCurrency();
-  const productList = useProducts();
+  const { products: productList, isLoading } = useAPIProducts();
 
   const heroProduct = useMemo(() => {
     if (productList.length === 0) {
