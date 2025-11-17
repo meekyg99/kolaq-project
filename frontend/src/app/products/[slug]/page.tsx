@@ -10,8 +10,11 @@ import { formatCurrency } from "@/lib/currency";
 import { ProductCard } from "@/components/ui/product-card";
 import { AddToCartButtons } from "@/components/ui/add-to-cart-buttons";
 import { ProductVariantSelector } from "@/components/ui/product-variant-selector";
+import { ProductImageZoom } from "@/components/ui/product-image-zoom";
+import { ProductReviews } from "@/components/ui/product-reviews";
 import { useAPIProducts } from "@/components/providers/api-products-provider";
 import { useCurrency } from "@/components/providers/currency-provider";
+import { useRecentlyViewed } from "@/hooks/use-recently-viewed";
 import type { ProductVariant } from "@/data/products";
 
 export default function ProductPage() {
@@ -26,6 +29,19 @@ export default function ProductPage() {
     () => products.find((item) => item.slug === params?.slug),
     [params?.slug, products]
   );
+
+  const { addToRecentlyViewed, getRecentlyViewedProducts } = useRecentlyViewed(product?.id);
+  const recentlyViewedProducts = useMemo(
+    () => getRecentlyViewedProducts(products),
+    [products, getRecentlyViewedProducts]
+  );
+
+  // Track product view
+  useEffect(() => {
+    if (product?.id) {
+      addToRecentlyViewed(product.id);
+    }
+  }, [product?.id, addToRecentlyViewed]);
 
   useEffect(() => {
     if (product?.variants && product.variants.length > 0 && !selectedVariant) {
@@ -91,16 +107,11 @@ export default function ProductPage() {
       </nav>
 
       <div className="grid gap-8 md:grid-cols-[1.1fr_1fr]">
-        <div className="relative flex items-center justify-center rounded-[32px] border border-slate-200 bg-white p-8 shadow-sm">
-          <Image
-            src={product.image}
-            alt={product.name}
-            width={380}
-            height={480}
-            className="h-auto w-full max-w-sm drop-shadow-[0_25px_60px_rgba(74,222,128,0.35)]"
-            unoptimized={isDynamicImage}
-          />
-        </div>
+        <ProductImageZoom 
+          src={product.image}
+          alt={product.name}
+          isDynamic={isDynamicImage}
+        />
 
         <div className="space-y-6">
           <header className="space-y-2.5">
@@ -177,7 +188,7 @@ export default function ProductPage() {
               </div>
             </div>
             <Link
-              href="https://wa.me/2349027342185"
+              href="https://wa.me/2348157065742"
               rel="noreferrer"
               target="_blank"
               className="mt-4 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.3em] text-[var(--brand-whatsapp)] transition hover:text-[#16a34a]"
@@ -187,6 +198,23 @@ export default function ProductPage() {
           </div>
         </div>
       </div>
+
+      {/* Reviews Section */}
+      <div className="mt-8">
+        <ProductReviews productId={product.id} />
+      </div>
+
+      {/* Recently Viewed Products */}
+      {recentlyViewedProducts.length > 0 && (
+        <div className="space-y-5">
+          <h2 className="text-xl font-semibold text-slate-900">Recently Viewed</h2>
+          <div className="grid gap-5 md:grid-cols-4">
+            {recentlyViewedProducts.map((item) => (
+              <ProductCard key={item.id} product={item} currency={currency} />
+            ))}
+          </div>
+        </div>
+      )}
 
       {related.length > 0 && (
         <div className="space-y-5">
