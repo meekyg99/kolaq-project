@@ -185,22 +185,6 @@ export default function Home() {
           ))}
         </div>
 
-        <div className="rounded-[24px] border border-slate-200 bg-white p-7 shadow-sm md:p-8">
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div className="space-y-2">
-              <h3 className="text-2xl font-semibold text-slate-900">Ready to stock KOLAQ ALAGBO BITTERS?</h3>
-              <p className="max-w-xl text-sm text-slate-600">
-                Review our catalogue, request reseller pricing, and integrate Paystack-powered checkout for instant fulfilment. Stripe flows ship as soon as API keys arrive.
-              </p>
-            </div>
-            <Link
-              href="/promo"
-              className="inline-flex items-center gap-3 rounded-full border border-slate-200 px-5 py-3 text-xs font-semibold uppercase tracking-[0.35em] text-slate-600 transition hover:border-slate-300 hover:text-slate-900"
-            >
-              View Active Promos
-            </Link>
-          </div>
-        </div>
       </section>
     </div>
   );

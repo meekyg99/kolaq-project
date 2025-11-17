@@ -111,8 +111,20 @@ export function SiteFooter() {
           </div>
         ))}
       </div>
-      <div className="border-t border-slate-200 py-6 text-center text-xs text-slate-500">
-        © {new Date().getFullYear()} KOLAQ ALAGBO BITTERS. All rights reserved.
+      <div className="border-t border-slate-200 py-6">
+        <div className="container flex flex-col items-center justify-between gap-4 sm:flex-row">
+          <p className="text-xs text-slate-500">
+            © {new Date().getFullYear()} KOLAQ ALAGBO BITTERS. All rights reserved.
+          </p>
+          <div className="flex items-center gap-3">
+            <span className="text-xs text-slate-400">We accept:</span>
+            <div className="flex items-center gap-2">
+              <Image src="/images/visa.svg" alt="Visa" width={40} height={24} className="h-6 w-auto" />
+              <Image src="/images/mastercard.svg" alt="Mastercard" width={40} height={24} className="h-6 w-auto" />
+              <Image src="/images/verve.svg" alt="Verve" width={40} height={24} className="h-6 w-auto" />
+            </div>
+          </div>
+        </div>
       </div>
       <a
         href="https://wa.me/2348157065742"
