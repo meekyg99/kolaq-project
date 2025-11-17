@@ -4,6 +4,8 @@ import "./globals.css";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { Providers } from "@/components/providers";
+import { defaultMetadata, generateOrganizationSchema, generateWebsiteSchema } from "@/lib/seo";
+import { SchemaMarkup } from "@/components/seo/schema-markup";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -16,22 +18,24 @@ const inter = Inter({
   variable: "--font-inter",
 });
 
-export const metadata: Metadata = {
-  title: "KOLAQ ALAGBO BITTERS",
-  description:
-    "Premium herbal drink experience with international ordering and a modern shopping interface from KOLAQ ALAGBO BITTERS.",
-};
+export const metadata: Metadata = defaultMetadata;
 
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const organizationSchema = generateOrganizationSchema();
+  const websiteSchema = generateWebsiteSchema();
+
   return (
     <html
       lang="en"
       className={`${poppins.variable} ${inter.variable} bg-[var(--background)] text-[var(--foreground)]`}
     >
+      <head>
+        <SchemaMarkup schema={[organizationSchema, websiteSchema]} />
+      </head>
       <body className="min-h-screen bg-[var(--background)] text-[var(--foreground)] antialiased">
         <Providers>
           <div className="pointer-events-none fixed inset-0 -z-10 accent-gradient opacity-70" aria-hidden />

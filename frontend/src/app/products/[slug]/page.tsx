@@ -12,6 +12,7 @@ import { AddToCartButtons } from "@/components/ui/add-to-cart-buttons";
 import { ProductVariantSelector } from "@/components/ui/product-variant-selector";
 import { ProductImageZoom } from "@/components/ui/product-image-zoom";
 import { ProductReviews } from "@/components/ui/product-reviews";
+import { ProductSchema } from "@/components/seo/product-schema";
 import { useAPIProducts } from "@/components/providers/api-products-provider";
 import { useCurrency } from "@/components/providers/currency-provider";
 import { useRecentlyViewed } from "@/hooks/use-recently-viewed";
@@ -97,8 +98,10 @@ export default function ProductPage() {
   const isDynamicImage = product.image.startsWith("http") || product.image.startsWith("data:");
 
   return (
-    <div className="container space-y-10">
-      <nav className="flex items-center gap-2 text-xs uppercase tracking-[0.3em] text-slate-400">
+    <>
+      <ProductSchema product={product} selectedVariant={selectedVariant} currency={currency} />
+      <div className="container space-y-10">
+        <nav className="flex items-center gap-2 text-xs uppercase tracking-[0.3em] text-slate-400">
         <Link href="/shop" className="transition hover:text-slate-900">
           Shop
         </Link>
@@ -226,6 +229,7 @@ export default function ProductPage() {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </>
   );
 }
