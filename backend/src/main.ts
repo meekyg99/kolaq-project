@@ -24,6 +24,8 @@ async function bootstrap() {
     origin: [
       'http://localhost:3000',
       'http://localhost:3001',
+      'https://kolaqbitters.com',
+      'https://www.kolaqbitters.com',
       'https://kolaq-project-production.up.railway.app',
       /\.netlify\.app$/,
       /\.vercel\.app$/,

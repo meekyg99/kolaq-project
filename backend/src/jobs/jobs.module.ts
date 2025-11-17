@@ -16,18 +16,24 @@ import { PrismaService } from '../modules/prisma/prisma.service';
       useFactory: async (config: ConfigService) => {
         const redisUrl = config.get('REDIS_URL');
         
-        // If REDIS_URL is provided (Railway format), use it
-        if (redisUrl) {
-          return { redis: redisUrl };
+        // If Redis is not configured, return a dummy config
+        // Bull will fail gracefully and jobs won't run
+        if (!redisUrl) {
+          console.warn('⚠️  Redis not configured - Background jobs will be disabled');
+          return {
+            redis: {
+              host: 'localhost',
+              port: 6379,
+              maxRetriesPerRequest: 1,
+              enableOfflineQueue: false,
+              connectTimeout: 1000,
+              lazyConnect: true,
+            },
+          };
         }
         
-        // Otherwise fall back to host/port
-        return {
-          redis: {
-            host: config.get('REDIS_HOST') || 'localhost',
-            port: parseInt(config.get('REDIS_PORT') || '6379', 10),
-          },
-        };
+        // If REDIS_URL is provided (Railway format), use it
+        return { redis: redisUrl };
       },
     }),
     BullModule.registerQueue(
@@ -43,6 +49,4 @@ import { PrismaService } from '../modules/prisma/prisma.service';
     InventoryScheduler,
     PrismaService,
   ],
-  exports: [BullModule, EmailService],
-})
-export class JobsModule {}
+  exports: [BullModule, EmailService]
