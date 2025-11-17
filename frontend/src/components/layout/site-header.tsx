@@ -7,7 +7,7 @@ import { ChevronDown, Search, ShoppingCart, UserRound } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { CurrencyToggle } from "@/components/ui/currency-toggle";
-import { useCartCount } from "@/components/providers/cart-provider";
+import { useCartStore } from "@/lib/store/cartStore";
 import { useProductSearch } from "@/components/providers/product-search-provider";
 
 const navLinks = [
@@ -23,8 +23,13 @@ export function SiteHeader() {
   const [mobileDropdownOpen, setMobileDropdownOpen] = useState(false);
   const [mobileProfileOpen, setMobileProfileOpen] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
-  const cartCount = useCartCount();
+  const { cart, fetchCart } = useCartStore();
   const { open } = useProductSearch();
+  const cartCount = cart?.itemCount || 0;
+
+  useEffect(() => {
+    fetchCart();
+  }, [fetchCart]);
 
   const homeLink = navLinks[0];
   const secondaryLinks = navLinks.slice(1);
