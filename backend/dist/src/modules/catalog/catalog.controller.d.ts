@@ -36,6 +36,21 @@ export declare class CatalogController {
                 amount: import("@prisma/client/runtime/library").Decimal;
                 productId: string;
             }[];
+            variants: {
+                name: string;
+                image: string | null;
+                id: string;
+                createdAt: Date;
+                updatedAt: Date;
+                productId: string;
+                sku: string | null;
+                bottleSize: string;
+                priceNGN: import("@prisma/client/runtime/library").Decimal;
+                priceUSD: import("@prisma/client/runtime/library").Decimal;
+                stock: number;
+                isActive: boolean;
+                sortOrder: number;
+            }[];
         } & {
             slug: string;
             name: string;
@@ -150,6 +165,21 @@ export declare class CatalogController {
             currency: import(".prisma/client").$Enums.Currency;
             amount: import("@prisma/client/runtime/library").Decimal;
             productId: string;
+        }[];
+        variants: {
+            name: string;
+            image: string | null;
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            productId: string;
+            sku: string | null;
+            bottleSize: string;
+            priceNGN: import("@prisma/client/runtime/library").Decimal;
+            priceUSD: import("@prisma/client/runtime/library").Decimal;
+            stock: number;
+            isActive: boolean;
+            sortOrder: number;
         }[];
     } & {
         slug: string;

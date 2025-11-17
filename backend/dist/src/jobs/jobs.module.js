@@ -27,15 +27,20 @@ exports.JobsModule = JobsModule = __decorate([
                 inject: [config_1.ConfigService],
                 useFactory: async (config) => {
                     const redisUrl = config.get('REDIS_URL');
-                    if (redisUrl) {
-                        return { redis: redisUrl };
+                    if (!redisUrl) {
+                        console.warn('⚠️  Redis not configured - Background jobs will be disabled');
+                        return {
+                            redis: {
+                                host: 'localhost',
+                                port: 6379,
+                                maxRetriesPerRequest: 1,
+                                enableOfflineQueue: false,
+                                connectTimeout: 1000,
+                                lazyConnect: true,
+                            },
+                        };
                     }
-                    return {
-                        redis: {
-                            host: config.get('REDIS_HOST') || 'localhost',
-                            port: parseInt(config.get('REDIS_PORT') || '6379', 10),
-                        },
-                    };
+                    return { redis: redisUrl };
                 },
             }),
             bull_1.BullModule.registerQueue({ name: 'emails' }, { name: 'inventory' }, { name: 'webhooks' }),

@@ -49,4 +49,6 @@ import { PrismaService } from '../modules/prisma/prisma.service';
     InventoryScheduler,
     PrismaService,
   ],
-  exports: [BullModule, EmailService]
+  exports: [BullModule, EmailService],
+})
+export class JobsModule {}

@@ -64,6 +64,9 @@ let CatalogService = CatalogService_1 = class CatalogService {
             where,
             include: {
                 prices: currency ? { where: { currency } } : true,
+                variants: {
+                    orderBy: { sortOrder: 'asc' },
+                },
             },
             take: limit,
             skip: offset,
@@ -145,6 +148,9 @@ let CatalogService = CatalogService_1 = class CatalogService {
             data: updateData,
             include: {
                 prices: true,
+                variants: {
+                    orderBy: { sortOrder: 'asc' },
+                },
             },
         });
         this.logger.log(`Updated product: ${product.name} (${product.id})`);
