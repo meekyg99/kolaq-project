@@ -14,6 +14,7 @@ const footerLinks = [
     title: "Support",
     items: [
       { label: "Help Center", href: "/support" },
+      { label: "Track Order", href: "/track-order" },
       { label: "Shipping", href: "/shipping" },
       { label: "support@kolaqbitters.com", href: "mailto:support@kolaqbitters.com" },
     ],

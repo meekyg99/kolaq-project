@@ -14,6 +14,7 @@ const navLinks = [
   { href: "/", label: "Home" },
   { href: "/shop", label: "Shop" },
   { href: "/promo", label: "Promotions" },
+  { href: "/track-order", label: "Track Order" },
 ];
 
 export function SiteHeader() {
