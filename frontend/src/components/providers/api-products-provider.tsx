@@ -27,6 +27,13 @@ export function APIProductsProvider({ children }: { children: React.ReactNode })
       // Transform API products to frontend format
       const transformed = response.products.map((apiProduct: APIProduct) => {
         const base = transformProduct(apiProduct);
+        
+        // Validate image URL - reject data URLs
+        let validImage = base.image || "/images/bottle.png";
+        if (validImage.startsWith("data:")) {
+          validImage = "/images/bottle.png";
+        }
+        
         return {
           id: base.id,
           slug: base.slug,
@@ -36,7 +43,7 @@ export function APIProductsProvider({ children }: { children: React.ReactNode })
           sku: `SKU-${base.id.slice(0, 8).toUpperCase()}`,
           stock: 50, // Default stock
           isFeatured: base.isFeatured,
-          image: base.image || "/placeholder-product.png",
+          image: validImage,
           tastingNotes: ["Herbal", "Aromatic", "Smooth"], // Default tasting notes
           category: base.category as any,
           size: base.size || "750ml",

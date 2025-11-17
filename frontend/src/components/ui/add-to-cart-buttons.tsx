@@ -22,10 +22,12 @@ export function AddToCartButtons({ product, selectedVariant }: AddToCartButtonsP
     setAdding(true);
     try {
       await addToCart(product.id, 1);
-      // Show success feedback
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to add to cart:', error);
-      alert('Failed to add item to cart. Please try again.');
+      const errorMsg = error?.message || 'Failed to add item to cart';
+      if (typeof window !== 'undefined') {
+        alert(errorMsg);
+      }
     } finally {
       setAdding(false);
     }
@@ -37,9 +39,12 @@ export function AddToCartButtons({ product, selectedVariant }: AddToCartButtonsP
     try {
       await addToCart(product.id, 1);
       router.push("/cart");
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to add to cart:', error);
-      alert('Failed to add item to cart. Please try again.');
+      const errorMsg = error?.message || 'Failed to add item to cart';
+      if (typeof window !== 'undefined') {
+        alert(errorMsg);
+      }
       setAdding(false);
     }
   };

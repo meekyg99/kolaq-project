@@ -51,10 +51,12 @@ export const useCartStore = create<CartState>()(
           set({ cart, isLoading: false });
         } catch (error: any) {
           console.error('Add to cart error:', error);
+          const errorMsg = error.response?.data?.message || 'Failed to add item';
           set({
-            error: error.response?.data?.message || 'Failed to add item',
+            error: errorMsg,
             isLoading: false,
           });
+          throw new Error(errorMsg);
         }
       },
 

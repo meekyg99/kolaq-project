@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { useState } from "react";
 import type { Product } from "@/data/products";
 import { formatCurrency } from "@/lib/currency";
 import type { Currency } from "@/data/products";
@@ -13,7 +14,20 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product, currency }: ProductCardProps) {
-  const isDynamicImage = product.image.startsWith("http") || product.image.startsWith("data:");
+  const [imageError, setImageError] = useState(false);
+  
+  // Validate image URL - reject data URLs and non-standard URLs
+  const getValidImageUrl = () => {
+    if (!product.image || imageError) return "/images/bottle.png";
+    if (product.image.startsWith("data:")) return "/images/bottle.png";
+    if (product.image.startsWith("http") || product.image.startsWith("/")) {
+      return product.image;
+    }
+    return "/images/bottle.png";
+  };
+
+  const imageUrl = getValidImageUrl();
+  const isExternalImage = imageUrl.startsWith("http");
 
   // Calculate price range if variants exist
   const getPriceDisplay = () => {
@@ -51,12 +65,13 @@ export function ProductCard({ product, currency }: ProductCardProps) {
             transition={{ repeat: Infinity, duration: 6 }}
           />
           <Image
-            src={product.image}
+            src={imageUrl}
             alt={product.name}
             width={280}
             height={280}
             className="h-auto w-48 max-w-full object-contain drop-shadow-[0_24px_40px_rgba(0,0,0,0.28)]"
-            unoptimized={isDynamicImage}
+            unoptimized={isExternalImage}
+            onError={() => setImageError(true)}
           />
         </div>
         <div className="flex-1 space-y-2.5">
