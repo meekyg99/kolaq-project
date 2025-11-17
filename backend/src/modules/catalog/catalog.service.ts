@@ -82,6 +82,9 @@ export class CatalogService {
       where,
       include: {
         prices: currency ? { where: { currency } } : true,
+        variants: {
+          orderBy: { sortOrder: 'asc' },
+        },
       },
       take: limit,
       skip: offset,
@@ -182,6 +185,9 @@ export class CatalogService {
       data: updateData,
       include: {
         prices: true,
+        variants: {
+          orderBy: { sortOrder: 'asc' },
+        },
       },
     });
 

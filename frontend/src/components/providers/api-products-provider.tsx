@@ -40,6 +40,7 @@ export function APIProductsProvider({ children }: { children: React.ReactNode })
           tastingNotes: ["Herbal", "Aromatic", "Smooth"], // Default tasting notes
           category: base.category as any,
           size: base.size || "750ml",
+          variants: base.variants || [], // Include variants from backend
         } as Product;
       });
       

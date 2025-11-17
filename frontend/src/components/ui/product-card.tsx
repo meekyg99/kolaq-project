@@ -21,6 +21,28 @@ export function ProductCard({ product, currency }: ProductCardProps) {
     addItem(product, 1);
   };
 
+  // Calculate price range if variants exist
+  const getPriceDisplay = () => {
+    if (product.variants && product.variants.length > 0) {
+      const prices = product.variants
+        .filter(v => v.isActive)
+        .map(v => currency === 'NGN' ? v.priceNGN : v.priceUSD);
+      
+      if (prices.length === 0) return formatCurrency(product.price[currency], currency);
+      
+      const minPrice = Math.min(...prices);
+      const maxPrice = Math.max(...prices);
+      
+      if (minPrice === maxPrice) {
+        return formatCurrency(minPrice, currency);
+      }
+      
+      return `${formatCurrency(minPrice, currency)} - ${formatCurrency(maxPrice, currency)}`;
+    }
+    
+    return formatCurrency(product.price[currency], currency);
+  };
+
   return (
     <motion.article
       whileHover={{ y: -6, scale: 1.02 }}
@@ -52,6 +74,12 @@ export function ProductCard({ product, currency }: ProductCardProps) {
           <span>{product.size}</span>
           <span className="text-slate-300">•</span>
           <span>{product.sku}</span>
+          {product.variants && product.variants.length > 0 && (
+            <>
+              <span className="text-slate-300">•</span>
+              <span className="text-[var(--accent)] font-semibold">{product.variants.length} sizes</span>
+            </>
+          )}
         </p>
         <p className="text-sm leading-relaxed text-slate-600 line-clamp-3">{product.description}</p>
         <ul className="flex flex-wrap gap-1.5 text-xs text-slate-500">
@@ -65,7 +93,7 @@ export function ProductCard({ product, currency }: ProductCardProps) {
       <div className="mt-4 space-y-2.5">
         <div className="flex items-center justify-between">
           <span className="text-lg font-semibold text-slate-900">
-            {formatCurrency(product.price[currency], currency)}
+            {getPriceDisplay()}
           </span>
           <Link
             href={`/products/${product.slug}`}

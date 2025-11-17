@@ -6,6 +6,22 @@ export interface Price {
   amount: number;
 }
 
+export interface ProductVariantAPI {
+  id: string;
+  productId: string;
+  name: string;
+  sku?: string;
+  bottleSize: string;
+  priceNGN: number;
+  priceUSD: number;
+  image?: string;
+  stock: number;
+  isActive: boolean;
+  sortOrder: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface Product {
   id: string;
   slug: string;
@@ -16,6 +32,7 @@ export interface Product {
   size?: string;
   isFeatured: boolean;
   prices: Price[];
+  variants?: ProductVariantAPI[];
   createdAt: string;
   updatedAt: string;
 }
@@ -95,4 +112,16 @@ export const transformProduct = (apiProduct: Product) => ({
     acc[p.currency] = p.amount;
     return acc;
   }, {} as Record<'NGN' | 'USD', number>),
+  variants: apiProduct.variants?.map(v => ({
+    id: v.id,
+    name: v.name,
+    sku: v.sku,
+    bottleSize: v.bottleSize,
+    priceNGN: Number(v.priceNGN),
+    priceUSD: Number(v.priceUSD),
+    image: v.image,
+    stock: v.stock,
+    isActive: v.isActive,
+    sortOrder: v.sortOrder,
+  })) || [],
 });
