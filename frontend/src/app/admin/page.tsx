@@ -77,7 +77,9 @@ export default function AdminDashboardPage() {
     try {
       const response = await authApi.login({ email, password });
       window.localStorage.setItem('access_token', response.accessToken);
-      window.localStorage.setItem('refresh_token', response.refreshToken);
+      if (response.refreshToken) {
+        window.localStorage.setItem('refresh_token', response.refreshToken);
+      }
       window.localStorage.setItem(AUTH_STORAGE_KEY, 'true');
       setAuthenticated(true);
     } catch (error: any) {
