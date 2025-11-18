@@ -18,6 +18,7 @@ import {
 } from '@/components/providers/inventory-provider';
 import { AnalyticsPanel } from '@/components/admin/AnalyticsPanel';
 import { useAPIProducts } from '@/components/providers/api-products-provider';
+import { authApi } from '@/lib/api/auth';
 
 type AdminTab = 'overview' | 'inventory' | 'users' | 'notifications' | 'activity' | 'analytics';
 
@@ -49,8 +50,6 @@ type NotificationFormState = {
   severity: AdminNotification['severity'];
 };
 
-const ADMIN_EMAIL = 'admin@kolaqbitters.com';
-const ADMIN_PASSCODE = 'Herbal#2025';
 const AUTH_STORAGE_KEY = 'kolaq-admin-auth-v1';
 
 export default function AdminDashboardPage() {
@@ -60,28 +59,39 @@ export default function AdminDashboardPage() {
     if (!isBrowser) {
       return false;
     }
-    return window.localStorage.getItem(AUTH_STORAGE_KEY) === 'true';
+    return window.localStorage.getItem(AUTH_STORAGE_KEY) === 'true' && !!window.localStorage.getItem('access_token');
   });
   const authChecked = isBrowser;
   const [loginError, setLoginError] = useState('');
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
-  const handleLogin = (event: FormEvent<HTMLFormElement>) => {
+  const handleLogin = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
     const email = String(form.get('email') ?? '').trim();
-    const passcode = String(form.get('passcode') ?? '').trim();
+    const password = String(form.get('passcode') ?? '').trim();
 
-    if (email === ADMIN_EMAIL && passcode === ADMIN_PASSCODE) {
+    setIsLoggingIn(true);
+    setLoginError('');
+
+    try {
+      const response = await authApi.login({ email, password });
+      window.localStorage.setItem('access_token', response.accessToken);
+      window.localStorage.setItem('refresh_token', response.refreshToken);
       window.localStorage.setItem(AUTH_STORAGE_KEY, 'true');
       setAuthenticated(true);
-      setLoginError('');
-    } else {
-      setLoginError('Invalid credentials. Use the issued admin email and passcode.');
+    } catch (error: any) {
+      console.error('Login failed:', error);
+      setLoginError(error.response?.data?.message || 'Invalid credentials. Please try again.');
+    } finally {
+      setIsLoggingIn(false);
     }
   };
 
   const handleSignOut = () => {
     window.localStorage.removeItem(AUTH_STORAGE_KEY);
+    window.localStorage.removeItem('access_token');
+    window.localStorage.removeItem('refresh_token');
     setAuthenticated(false);
   };
 
@@ -102,7 +112,7 @@ export default function AdminDashboardPage() {
           <div className="space-y-2 text-center">
             <h1 className="text-2xl font-semibold text-slate-900">Admin Access</h1>
             <p className="text-sm text-slate-600">
-              Enter your assigned email and passcode to manage inventory, users, and notifications.
+              Enter your admin email and password to manage inventory, users, and notifications.
             </p>
           </div>
           <form onSubmit={handleLogin} className="space-y-4">
@@ -115,33 +125,36 @@ export default function AdminDashboardPage() {
                 name="email"
                 type="email"
                 required
-                className="w-full rounded-[18px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-[var(--accent)]"
+                disabled={isLoggingIn}
+                className="w-full rounded-[18px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-[var(--accent)] disabled:opacity-50"
                 placeholder="admin@kolaqbitters.com"
               />
             </div>
             <div className="space-y-2">
               <label htmlFor="passcode" className="text-xs uppercase tracking-[0.3em] text-slate-400">
-                Passcode
+                Password
               </label>
               <input
                 id="passcode"
                 name="passcode"
                 type="password"
                 required
-                className="w-full rounded-[18px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-[var(--accent)]"
-                placeholder="Your secure passcode"
+                disabled={isLoggingIn}
+                className="w-full rounded-[18px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-[var(--accent)] disabled:opacity-50"
+                placeholder="Your secure password"
               />
             </div>
             {loginError && <p className="text-sm text-red-500">{loginError}</p>}
             <button
               type="submit"
-              className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[var(--accent)] px-5 py-3 text-xs font-semibold uppercase tracking-[0.35em] text-white transition hover:bg-neutral-800"
+              disabled={isLoggingIn}
+              className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[var(--accent)] px-5 py-3 text-xs font-semibold uppercase tracking-[0.35em] text-white transition hover:bg-neutral-800 disabled:opacity-50"
             >
-              Unlock Dashboard
+              {isLoggingIn ? 'Logging in...' : 'Unlock Dashboard'}
             </button>
           </form>
           <p className="text-center text-xs text-slate-400">
-            Tip: Use the default demo credentials ({ADMIN_EMAIL}) until the auth backend is connected.
+            Use your backend admin credentials (admin@kolaqbitters.com)
           </p>
         </div>
       </div>
