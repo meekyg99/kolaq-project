@@ -12,12 +12,12 @@ import {
   useAdminNotifications,
   useAdminUsers,
   useInventory,
-  useProducts,
   type AdminActivity,
   type AdminNotification,
   type AdminUser,
 } from '@/components/providers/inventory-provider';
 import { AnalyticsPanel } from '@/components/admin/AnalyticsPanel';
+import { useAPIProducts } from '@/components/providers/api-products-provider';
 
 type AdminTab = 'overview' | 'inventory' | 'users' | 'notifications' | 'activity' | 'analytics';
 
@@ -156,7 +156,8 @@ function AdminWorkspace({ activeTab, onTabChange, onSignOut }: {
   onTabChange: (tab: AdminTab) => void;
   onSignOut: () => void;
 }) {
-  const products = useProducts();
+  const { products: apiProducts, refetch } = useAPIProducts();
+  const products = apiProducts;
   const {
     state: { activity },
     adjustStock,
@@ -403,12 +404,12 @@ function InventoryManager({
 }: {
   products: Product[];
   activity: AdminActivity[];
-  onAddProduct: (input: Omit<Product, 'id' | 'slug'> & { slug?: string }) => Product;
-  onUpdateProduct: (productId: string, updates: Partial<Product>) => void;
-  onDeleteProduct: (productId: string) => void;
+  onAddProduct: (input: Omit<Product, 'id' | 'slug'> & { slug?: string }) => Promise<Product>;
+  onUpdateProduct: (productId: string, updates: Partial<Product>) => Promise<void>;
+  onDeleteProduct: (productId: string) => Promise<void>;
   onAdjustStock: (productId: string, stock: number) => void;
   onRaiseNotification: (input: Omit<AdminNotification, 'id' | 'createdAt' | 'read'>) => AdminNotification;
-}) {
+}){
   const [searchTerm, setSearchTerm] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
@@ -425,37 +426,55 @@ function InventoryManager({
     return activity.filter((entry) => entry.entityId === trackingProductId).slice(0, 8);
   }, [activity, trackingProductId]);
 
-  const handleCreate = (data: Omit<Product, 'id' | 'slug'> & { slug?: string }) => {
-    const created = onAddProduct(data);
-    if (created.stock < 15) {
-      onRaiseNotification({
-        title: 'New product low stock warning',
-        message: `${created.name} launched with only ${created.stock} units.`,
-        audience: 'admin',
-        severity: 'warning',
-      });
+  const handleCreate = async (data: Omit<Product, 'id' | 'slug'> & { slug?: string }) => {
+    try {
+      const created = await onAddProduct(data);
+      if (created.stock < 15) {
+        onRaiseNotification({
+          title: 'New product low stock warning',
+          message: `${created.name} launched with only ${created.stock} units.`,
+          audience: 'admin',
+          severity: 'warning',
+        });
+      }
+      setShowForm(false);
+      window.location.reload(); // Reload to fetch updated products
+    } catch (error) {
+      console.error('Failed to create product:', error);
+      alert('Failed to create product. Please try again.');
     }
-    setShowForm(false);
   };
 
-  const handleUpdate = (productId: string, updates: Partial<Product>) => {
-    onUpdateProduct(productId, updates);
-    if (updates.stock !== undefined && updates.stock < 10) {
-      const product = products.find((item) => item.id === productId);
-      onRaiseNotification({
-        title: 'Stock critically low',
-        message: `${product?.name ?? 'Product'} stock dropped to ${updates.stock}.`,
-        audience: 'admin',
-        severity: 'critical',
-      });
+  const handleUpdate = async (productId: string, updates: Partial<Product>) => {
+    try {
+      await onUpdateProduct(productId, updates);
+      if (updates.stock !== undefined && updates.stock < 10) {
+        const product = products.find((item) => item.id === productId);
+        onRaiseNotification({
+          title: 'Stock critically low',
+          message: `${product?.name ?? 'Product'} stock dropped to ${updates.stock}.`,
+          audience: 'admin',
+          severity: 'critical',
+        });
+      }
+      setShowForm(false);
+      setEditingProduct(null);
+      window.location.reload(); // Reload to fetch updated products
+    } catch (error) {
+      console.error('Failed to update product:', error);
+      alert('Failed to update product. Please try again.');
     }
-    setShowForm(false);
-    setEditingProduct(null);
   };
 
-  const handleDelete = (product: Product) => {
+  const handleDelete = async (product: Product) => {
     if (window.confirm(`Remove ${product.name} from the catalogue?`)) {
-      onDeleteProduct(product.id);
+      try {
+        await onDeleteProduct(product.id);
+        window.location.reload(); // Reload to fetch updated products
+      } catch (error) {
+        console.error('Failed to delete product:', error);
+        alert('Failed to delete product. Please try again.');
+      }
     }
   };
 
@@ -622,9 +641,9 @@ function ProductEditor({
 }: {
   initialProduct?: Product;
   onClose: () => void;
-  onCreate: (input: Omit<Product, 'id' | 'slug'> & { slug?: string }) => void;
-  onUpdate: (updates: Partial<Product>) => void;
-}) {
+  onCreate: (input: Omit<Product, 'id' | 'slug'> & { slug?: string }) => Promise<void>;
+  onUpdate: (updates: Partial<Product>) => Promise<void>;
+}){
   const [form, setForm] = useState<ProductFormState>(() =>
     initialProduct
       ? {
@@ -682,7 +701,7 @@ function ProductEditor({
     reader.readAsDataURL(file);
   };
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!form.name.trim() || !form.sku.trim()) {
       setError('Name and SKU are required.');
@@ -714,12 +733,16 @@ function ProductEditor({
       isFeatured: form.isFeatured,
     };
 
-    if (initialProduct) {
-      onUpdate({ ...payload });
-    } else {
-      onCreate(payload);
+    try {
+      if (initialProduct) {
+        await onUpdate({ ...payload });
+      } else {
+        await onCreate(payload);
+      }
+      onClose();
+    } catch (error) {
+      setError('Operation failed. Please try again.');
     }
-    onClose();
   };
 
   return (

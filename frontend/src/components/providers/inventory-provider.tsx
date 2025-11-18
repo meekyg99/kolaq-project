@@ -1,7 +1,9 @@
 "use client";
 
-import { createContext, useContext, useEffect, useMemo, useReducer } from "react";
+import { createContext, useContext, useEffect, useMemo, useReducer, useState } from "react";
 import { products as seedProducts, type Product } from "@/data/products";
+import { productsApi } from "@/lib/api/products";
+import { useAPIProducts } from "./api-products-provider";
 
 export type AdminRole = "admin" | "staff" | "viewer";
 export type AccountStatus = "active" | "suspended" | "invited";
@@ -67,9 +69,9 @@ const STORAGE_KEY = "kolaq-admin-state-v1";
 
 const InventoryContext = createContext<{
   state: InventoryState;
-  addProduct: (input: ProductInput) => Product;
-  updateProduct: (productId: string, updates: Partial<Product>) => void;
-  deleteProduct: (productId: string) => void;
+  addProduct: (input: ProductInput) => Promise<Product>;
+  updateProduct: (productId: string, updates: Partial<Product>) => Promise<void>;
+  deleteProduct: (productId: string) => Promise<void>;
   adjustStock: (productId: string, stock: number) => void;
   addUser: (user: Omit<AdminUser, "id">) => AdminUser;
   updateUser: (userId: string, updates: Partial<AdminUser>) => void;
@@ -243,94 +245,136 @@ export function InventoryProvider({ children }: { children: React.ReactNode }) {
   }, [state]);
 
   const contextValue = useMemo(() => {
-    const addProduct = (input: ProductInput): Product => {
+    const addProduct = async (input: ProductInput): Promise<Product> => {
       const baseSlug = input.slug ? slugify(input.slug) : slugify(input.name);
-      let slug = baseSlug || generateId("product");
-      let attempt = 1;
-      const existingSlugs = new Set(state.products.map((product) => product.slug));
-      while (existingSlugs.has(slug)) {
-        slug = `${baseSlug}-${attempt}`;
-        attempt += 1;
+      const slug = baseSlug || generateId("product");
+
+      try {
+        // Create product via API
+        const apiProduct = await productsApi.create({
+          slug,
+          name: input.name,
+          description: input.description,
+          image: input.image,
+          category: input.category,
+          size: input.size,
+          isFeatured: input.isFeatured,
+          prices: [
+            { currency: 'NGN', amount: input.price.NGN },
+            { currency: 'USD', amount: input.price.USD }
+          ]
+        });
+
+        // Create local product object
+        const product: Product = {
+          id: apiProduct.id,
+          slug: apiProduct.slug,
+          name: input.name,
+          description: input.description,
+          price: input.price,
+          sku: input.sku,
+          stock: input.stock,
+          isFeatured: input.isFeatured,
+          image: input.image,
+          tastingNotes: input.tastingNotes,
+          category: input.category,
+          size: input.size,
+        };
+
+        dispatch({ type: "ADD_PRODUCT", payload: product });
+        dispatch({
+          type: "LOG_ACTIVITY",
+          payload: {
+            id: generateId("activity"),
+            entityType: "product",
+            entityId: product.id,
+            summary: `Product created: ${product.name}`,
+            createdAt: new Date().toISOString(),
+            author: "Admin",
+            severity: "info",
+          },
+        });
+
+        return product;
+      } catch (error) {
+        console.error('Failed to create product:', error);
+        throw error;
       }
-
-      const product: Product = {
-        id: generateId("product"),
-        slug,
-        name: input.name,
-        description: input.description,
-        price: input.price,
-        sku: input.sku,
-        stock: input.stock,
-        isFeatured: input.isFeatured,
-        image: input.image,
-        tastingNotes: input.tastingNotes,
-        category: input.category,
-        size: input.size,
-      };
-
-      dispatch({ type: "ADD_PRODUCT", payload: product });
-      dispatch({
-        type: "LOG_ACTIVITY",
-        payload: {
-          id: generateId("activity"),
-          entityType: "product",
-          entityId: product.id,
-          summary: `Product created: ${product.name}`,
-          createdAt: new Date().toISOString(),
-          author: "Admin",
-          severity: "info",
-        },
-      });
-
-      return product;
     };
 
-    const updateProduct = (productId: string, updates: Partial<Product>) => {
+    const updateProduct = async (productId: string, updates: Partial<Product>) => {
       const product = state.products.find((item) => item.id === productId);
       if (!product) return;
 
-      let slug = product.slug;
-      if (updates.name && updates.name !== product.name) {
-        const baseSlug = slugify(updates.name);
-        let attempt = 1;
-        slug = baseSlug;
-        while (state.products.some((item) => item.id !== productId && item.slug === slug)) {
-          slug = `${baseSlug}-${attempt}`;
-          attempt += 1;
+      try {
+        // Prepare API update payload
+        const apiUpdates: any = {};
+        if (updates.name) apiUpdates.name = updates.name;
+        if (updates.description) apiUpdates.description = updates.description;
+        if (updates.image) apiUpdates.image = updates.image;
+        if (updates.category) apiUpdates.category = updates.category;
+        if (updates.size) apiUpdates.size = updates.size;
+        if (updates.isFeatured !== undefined) apiUpdates.isFeatured = updates.isFeatured;
+        if (updates.price) {
+          apiUpdates.prices = [
+            { currency: 'NGN', amount: updates.price.NGN },
+            { currency: 'USD', amount: updates.price.USD }
+          ];
         }
-      }
 
-      dispatch({ type: "UPDATE_PRODUCT", productId, payload: { ...updates, slug } });
-      dispatch({
-        type: "LOG_ACTIVITY",
-        payload: {
-          id: generateId("activity"),
-          entityType: "product",
-          entityId: productId,
-          summary: `Product updated: ${updates.name ?? product.name}`,
-          details: `Fields changed: ${Object.keys(updates).join(", ") || "n/a"}`,
-          createdAt: new Date().toISOString(),
-          author: "Admin",
-          severity: "info",
-        },
-      });
+        // Update via API
+        await productsApi.update(productId, apiUpdates);
+
+        let slug = product.slug;
+        if (updates.name && updates.name !== product.name) {
+          const baseSlug = slugify(updates.name);
+          slug = baseSlug;
+        }
+
+        dispatch({ type: "UPDATE_PRODUCT", productId, payload: { ...updates, slug } });
+        dispatch({
+          type: "LOG_ACTIVITY",
+          payload: {
+            id: generateId("activity"),
+            entityType: "product",
+            entityId: productId,
+            summary: `Product updated: ${updates.name ?? product.name}`,
+            details: `Fields changed: ${Object.keys(updates).join(", ") || "n/a"}`,
+            createdAt: new Date().toISOString(),
+            author: "Admin",
+            severity: "info",
+          },
+        });
+      } catch (error) {
+        console.error('Failed to update product:', error);
+        throw error;
+      }
     };
 
-    const deleteProduct = (productId: string) => {
+    const deleteProduct = async (productId: string) => {
       const product = state.products.find((item) => item.id === productId);
-      dispatch({ type: "DELETE_PRODUCT", productId });
-      dispatch({
-        type: "LOG_ACTIVITY",
-        payload: {
-          id: generateId("activity"),
-          entityType: "product",
-          entityId: productId,
-          summary: `Product removed: ${product?.name ?? productId}`,
-          createdAt: new Date().toISOString(),
-          author: "Admin",
-          severity: "warning",
-        },
-      });
+      
+      try {
+        // Delete via API
+        await productsApi.delete(productId);
+        
+        dispatch({ type: "DELETE_PRODUCT", productId });
+        dispatch({
+          type: "LOG_ACTIVITY",
+          payload: {
+            id: generateId("activity"),
+            entityType: "product",
+            entityId: productId,
+            summary: `Product removed: ${product?.name ?? productId}`,
+            createdAt: new Date().toISOString(),
+            author: "Admin",
+            severity: "warning",
+          },
+        });
+      } catch (error) {
+        console.error('Failed to delete product:', error);
+        throw error;
+      }
     };
 
     const addNotification = (
