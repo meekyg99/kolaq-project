@@ -156,7 +156,7 @@ function AdminWorkspace({ activeTab, onTabChange, onSignOut }: {
   onTabChange: (tab: AdminTab) => void;
   onSignOut: () => void;
 }) {
-  const { products: apiProducts, refetch } = useAPIProducts();
+  const { products: apiProducts, refetch: refetchProducts } = useAPIProducts();
   const products = apiProducts;
   const {
     state: { activity },
@@ -270,6 +270,7 @@ function AdminWorkspace({ activeTab, onTabChange, onSignOut }: {
             onDeleteProduct={deleteProduct}
             onAdjustStock={adjustStock}
             onRaiseNotification={addNotification}
+            refetch={refetchProducts}
           />
         )}
         {activeTab === 'users' && (
@@ -401,6 +402,7 @@ function InventoryManager({
   onDeleteProduct,
   onAdjustStock,
   onRaiseNotification,
+  refetch,
 }: {
   products: Product[];
   activity: AdminActivity[];
@@ -409,6 +411,7 @@ function InventoryManager({
   onDeleteProduct: (productId: string) => Promise<void>;
   onAdjustStock: (productId: string, stock: number) => void;
   onRaiseNotification: (input: Omit<AdminNotification, 'id' | 'createdAt' | 'read'>) => AdminNotification;
+  refetch: () => Promise<void>;
 }){
   const [searchTerm, setSearchTerm] = useState('');
   const [showForm, setShowForm] = useState(false);
@@ -438,7 +441,7 @@ function InventoryManager({
         });
       }
       setShowForm(false);
-      window.location.reload(); // Reload to fetch updated products
+      await refetch();
     } catch (error) {
       console.error('Failed to create product:', error);
       alert('Failed to create product. Please try again.');
@@ -459,7 +462,7 @@ function InventoryManager({
       }
       setShowForm(false);
       setEditingProduct(null);
-      window.location.reload(); // Reload to fetch updated products
+      await refetch();
     } catch (error) {
       console.error('Failed to update product:', error);
       alert('Failed to update product. Please try again.');
@@ -470,7 +473,7 @@ function InventoryManager({
     if (window.confirm(`Remove ${product.name} from the catalogue?`)) {
       try {
         await onDeleteProduct(product.id);
-        window.location.reload(); // Reload to fetch updated products
+        await refetch();
       } catch (error) {
         console.error('Failed to delete product:', error);
         alert('Failed to delete product. Please try again.');
@@ -746,8 +749,8 @@ function ProductEditor({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm">
-      <div className="w-full max-w-2xl rounded-[28px] border border-slate-200 bg-white p-6 shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-slate-900/40 backdrop-blur-sm p-4">
+      <div className="w-full max-w-2xl my-8 rounded-[28px] border border-slate-200 bg-white p-6 shadow-2xl">
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-lg font-semibold text-slate-900">
@@ -764,7 +767,7 @@ function ProductEditor({
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="mt-6 space-y-4 text-sm text-slate-700">
+        <form onSubmit={handleSubmit} className="mt-6 space-y-4 text-sm text-slate-700 max-h-[70vh] overflow-y-auto pr-2">
           <div className="grid gap-4 md:grid-cols-2">
             <FormField label="Product name" required>
               <input
