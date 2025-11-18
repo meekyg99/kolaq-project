@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 
+// Admin password update script
 const prisma = new PrismaClient();
 
 async function updateAdminPassword() {
