@@ -626,7 +626,7 @@ function InventoryManager({
             setEditingProduct(null);
           }}
           onCreate={handleCreate}
-          onUpdate={(updates) => editingProduct && handleUpdate(editingProduct.id, updates)}
+          onUpdate={(updates) => editingProduct ? handleUpdate(editingProduct.id, updates) : Promise.resolve()}
         />
       )}
     </div>
