@@ -49,7 +49,7 @@ type NotificationFormState = {
   severity: AdminNotification['severity'];
 };
 
-const ADMIN_EMAIL = 'admin@kolaqalagbobitters.com';
+const ADMIN_EMAIL = 'admin@kolaqbitters.com';
 const ADMIN_PASSCODE = 'Herbal#2025';
 const AUTH_STORAGE_KEY = 'kolaq-admin-auth-v1';
 
@@ -116,7 +116,7 @@ export default function AdminDashboardPage() {
                 type="email"
                 required
                 className="w-full rounded-[18px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-[var(--accent)]"
-                placeholder="admin@kolaqalagbobitters.com"
+                placeholder="admin@kolaqbitters.com"
               />
             </div>
             <div className="space-y-2">
