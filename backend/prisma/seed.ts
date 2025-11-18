@@ -7,7 +7,7 @@ async function main() {
   console.log('🌱 Seeding database...');
 
   const adminEmail = 'admin@kolaqbitters.com';
-  const adminPasscode = 'admin123'; // Change this in production
+  const adminPasscode = 'Herbal#2025';
 
   const existingAdmin = await prisma.adminUser.findUnique({
     where: { email: adminEmail },
