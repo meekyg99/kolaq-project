@@ -35,7 +35,7 @@ async function updateAdminPassword() {
       console.log('Updated admin password');
     }
   } finally {
-    await prisma.\$disconnect\();
+    await prisma.$disconnect();
   }
 }
 
