@@ -293,8 +293,8 @@ Authorization: Bearer <accessToken>
 ```
 
 ## Admin Credentials (Seeded)
-- **Email**: admin@kolaqbitters.com
-- **Password**: admin123 (⚠️ Change after first login!)
+- **Email**: support@kolaqalagbo.org
+- **Password**: Lallana99$ (⚠️ Change after first login!)
 
 ---
 

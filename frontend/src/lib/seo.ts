@@ -136,7 +136,7 @@ export function generateOrganizationSchema() {
       '@type': 'ContactPoint',
       telephone: '+234-815-706-5742',
       contactType: 'Customer Service',
-      email: 'support@kolaqbitters.com',
+      email: 'support@kolaqalagbo.org',
     },
     sameAs: [
       'https://facebook.com/kolaqbitters',

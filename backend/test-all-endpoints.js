@@ -103,7 +103,7 @@ async function runTests() {
     'Admin Login',
     'POST',
     '/api/v1/auth/login',
-    { email: 'admin@kolaqbitters.com', passcode: 'admin123' }
+    { email: 'support@kolaqalagbo.org', passcode: 'Lallana99$' }
   );
   results.total++;
   

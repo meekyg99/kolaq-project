@@ -78,12 +78,12 @@ export class NotificationService {
     }
 
     try {
-      const fromEmail = this.configService.get<string>('FROM_EMAIL', 'noreply@kolaqbitters.com');
+      const fromEmail = this.configService.get<string>('EMAIL_FROM', 'KOLAQ ALAGBO <support@kolaqalagbo.org>');
       
       const result = await this.resend.emails.send({
         from: fromEmail,
         to: dto.recipient,
-        subject: dto.subject || 'Notification from KOLAQ Bitters',
+        subject: dto.subject || 'Notification from KOLAQ ALAGBO',
         html: dto.message,
       });
 

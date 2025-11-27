@@ -53,7 +53,7 @@ let EmailService = EmailService_1 = class EmailService {
         });
     }
     async sendLowStockAlert(productName, currentStock) {
-        const adminEmail = this.config.get('ADMIN_EMAIL', 'admin@kolaqbitters.com');
+        const adminEmail = this.config.get('ADMIN_EMAIL', 'support@kolaqalagbo.org');
         return this.sendEmail({
             to: adminEmail,
             subject: `Low Stock Alert: ${productName}`,

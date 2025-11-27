@@ -82,11 +82,11 @@ let NotificationService = NotificationService_1 = class NotificationService {
             return;
         }
         try {
-            const fromEmail = this.configService.get('FROM_EMAIL', 'noreply@kolaqbitters.com');
+            const fromEmail = this.configService.get('EMAIL_FROM', 'KOLAQ ALAGBO <support@kolaqalagbo.org>');
             const result = await this.resend.emails.send({
                 from: fromEmail,
                 to: dto.recipient,
-                subject: dto.subject || 'Notification from KOLAQ Bitters',
+                subject: dto.subject || 'Notification from KOLAQ ALAGBO',
                 html: dto.message,
             });
             await this.prisma.notification.update({

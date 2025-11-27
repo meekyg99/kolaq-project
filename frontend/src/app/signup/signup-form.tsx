@@ -4,10 +4,11 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, ShieldCheck, Loader2 } from "lucide-react";
-import { authApi } from "@/lib/api/auth";
+import { useAuth } from "@/lib/hooks";
 
 export function SignupForm() {
   const router = useRouter();
+  const { register, error: authError, isLoading, clearError } = useAuth();
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -16,8 +17,9 @@ export function SignupForm() {
     confirmPassword: "",
     phone: "",
   });
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [localError, setLocalError] = useState("");
+
+  const error = localError || authError;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({
@@ -28,22 +30,21 @@ export function SignupForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
+    setLocalError("");
+    clearError();
 
     if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match");
+      setLocalError("Passwords do not match");
       return;
     }
 
     if (formData.password.length < 6) {
-      setError("Password must be at least 6 characters");
+      setLocalError("Password must be at least 6 characters");
       return;
     }
 
-    setIsLoading(true);
-
     try {
-      const response = await authApi.register({
+      await register({
         email: formData.email,
         password: formData.password,
         firstName: formData.firstName,
@@ -51,22 +52,11 @@ export function SignupForm() {
         phone: formData.phone,
       });
 
-      // Store tokens
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('access_token', response.accessToken);
-        if (response.refreshToken) {
-          localStorage.setItem('refresh_token', response.refreshToken);
-        }
-        localStorage.setItem('user', JSON.stringify(response.user));
-      }
-
       // Redirect to shop
       router.push('/shop');
     } catch (err: any) {
       console.error('Signup error:', err);
-      setError(err.response?.data?.message || 'Failed to create account. Please try again.');
-    } finally {
-      setIsLoading(false);
+      setLocalError(err.response?.data?.message || 'Failed to create account. Please try again.');
     }
   };
 

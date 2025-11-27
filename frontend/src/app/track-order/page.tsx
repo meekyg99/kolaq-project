@@ -288,7 +288,7 @@ export default function TrackOrderPage() {
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <a
-                  href="mailto:support@kolaqbitters.com"
+                  href="mailto:support@kolaqalagbo.org"
                   className="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 text-center transition-colors"
                 >
                   Email Support

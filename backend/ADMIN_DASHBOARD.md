@@ -220,7 +220,7 @@ Auto-captures:
       "id": "log_123",
       "type": "PRODUCT_UPDATED",
       "userId": "user_456",
-      "userEmail": "admin@kolaqbitters.com",
+      "userEmail": "support@kolaqalagbo.org",
       "action": "Updated product price",
       "description": "Changed price from ₦5000 to ₦5500",
       "ipAddress": "192.168.1.1",
@@ -349,8 +349,8 @@ Unauthorized access returns `401 Unauthorized`
 # Login as admin
 POST /api/v1/auth/login
 {
-  "email": "admin@kolaqbitters.com",
-  "passcode": "admin123"
+  "email": "support@kolaqalagbo.org",
+  "passcode": "Lallana99$"
 }
 
 # Get dashboard

@@ -19,8 +19,8 @@ export declare class OrderController {
             currency: import(".prisma/client").$Enums.Currency;
             productId: string;
             price: import("@prisma/client/runtime/library").Decimal;
-            quantity: number;
             orderId: string;
+            quantity: number;
         })[];
     } & {
         id: string;
@@ -56,8 +56,8 @@ export declare class OrderController {
                 currency: import(".prisma/client").$Enums.Currency;
                 productId: string;
                 price: import("@prisma/client/runtime/library").Decimal;
-                quantity: number;
                 orderId: string;
+                quantity: number;
             })[];
         } & {
             id: string;
@@ -108,8 +108,8 @@ export declare class OrderController {
             currency: import(".prisma/client").$Enums.Currency;
             productId: string;
             price: import("@prisma/client/runtime/library").Decimal;
-            quantity: number;
             orderId: string;
+            quantity: number;
         })[];
     } & {
         id: string;
@@ -144,8 +144,8 @@ export declare class OrderController {
             currency: import(".prisma/client").$Enums.Currency;
             productId: string;
             price: import("@prisma/client/runtime/library").Decimal;
-            quantity: number;
             orderId: string;
+            quantity: number;
         })[];
     } & {
         id: string;
@@ -186,8 +186,8 @@ export declare class OrderController {
             currency: import(".prisma/client").$Enums.Currency;
             productId: string;
             price: import("@prisma/client/runtime/library").Decimal;
-            quantity: number;
             orderId: string;
+            quantity: number;
         })[];
     } & {
         id: string;

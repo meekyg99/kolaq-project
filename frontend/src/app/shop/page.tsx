@@ -85,7 +85,12 @@ export default function ShopPage() {
       ) : (
         <div className="grid gap-4 md:grid-cols-3">
           {visibleProducts.map((product) => (
-            <ProductCard key={product.id} product={product} currency={currency} />
+            <ProductCard
+              key={product.id}
+              product={product}
+              currency={currency}
+              showAddToCart
+            />
           ))}
         </div>
       )}

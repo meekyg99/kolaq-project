@@ -6,8 +6,8 @@ const prisma = new PrismaClient();
 async function main() {
   console.log('🌱 Seeding database...');
 
-  const adminEmail = 'admin@kolaqbitters.com';
-  const adminPasscode = 'Herbal#2025';
+  const adminEmail = 'support@kolaqalagbo.org';
+  const adminPasscode = 'Lallana99$';
 
   const existingAdmin = await prisma.adminUser.findUnique({
     where: { email: adminEmail },

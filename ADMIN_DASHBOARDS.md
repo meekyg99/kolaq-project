@@ -14,7 +14,7 @@ POST /api/v1/auth/login
 Content-Type: application/json
 
 {
-  "email": "admin@kolaqbitters.com",
+  "email": "support@kolaqalagbo.org",
   "password": "Kolaqbitters$"
 }
 ```
@@ -25,7 +25,7 @@ Response:
   "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
   "user": {
     "id": "uuid",
-    "email": "admin@kolaqbitters.com",
+    "email": "support@kolaqalagbo.org",
     "role": "admin"
   }
 }
@@ -263,7 +263,7 @@ curl -X GET "https://kolaq-project-production.up.railway.app/api/v1/admin/activi
       "id": "uuid",
       "type": "ADMIN_ACTION",
       "userId": "uuid",
-      "userEmail": "admin@kolaqbitters.com",
+      "userEmail": "support@kolaqalagbo.org",
       "action": "UPDATE_PRODUCT",
       "description": "Updated product inventory",
       "metadata": {
@@ -533,7 +533,7 @@ API_URL="https://kolaq-project-production.up.railway.app"
 # Login and get token
 TOKEN=$(curl -X POST "$API_URL/api/v1/auth/login" \
   -H "Content-Type: application/json" \
-  -d '{"email":"admin@kolaqbitters.com","password":"Kolaqbitters$"}' \
+  -d '{"email":"support@kolaqalagbo.org","password":"Kolaqbitters$"}' \
   | jq -r '.access_token')
 
 echo "Token: $TOKEN"

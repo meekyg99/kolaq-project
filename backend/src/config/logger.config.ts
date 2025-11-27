@@ -21,21 +21,29 @@ export const loggerConfig: Params = {
       userEmail: req.user?.email,
     }),
     serializers: {
-      req: (req) => ({
-        id: req.id,
-        method: req.method,
-        url: req.url,
-        query: req.query,
-        params: req.params,
-        headers: {
-          host: req.headers.host,
-          'user-agent': req.headers['user-agent'],
-          referer: req.headers.referer,
-        },
-      }),
-      res: (res) => ({
-        statusCode: res.statusCode,
-      }),
+      req: (req) => {
+        if (!req) return {};
+        return {
+          id: req.id,
+          method: req.method,
+          url: req.url,
+          query: req.query,
+          params: req.params,
+          headers: req.headers
+            ? {
+                host: req.headers.host,
+                'user-agent': req.headers['user-agent'],
+                referer: req.headers.referer,
+              }
+            : undefined,
+        };
+      },
+      res: (res) => {
+        if (!res) return {};
+        return {
+          statusCode: res.statusCode,
+        };
+      },
     },
     redact: {
       paths: [

@@ -16,7 +16,7 @@ const footerLinks = [
       { label: "Help Center", href: "/support" },
       { label: "Track Order", href: "/track-order" },
       { label: "Shipping", href: "/shipping" },
-      { label: "support@kolaqbitters.com", href: "mailto:support@kolaqbitters.com" },
+      { label: "support@kolaqalagbo.org", href: "mailto:support@kolaqalagbo.org" },
     ],
   },
   {
@@ -56,11 +56,11 @@ export function SiteFooter() {
             Premium herbal infusions crafted from ancient Yoruba recipes and refined for the modern world.
           </p>
           <div className="space-y-2 text-sm text-slate-600">
-            <a href="mailto:support@kolaqbitters.com" className="flex items-center gap-2 hover:text-slate-900">
+            <a href="mailto:support@kolaqalagbo.org" className="flex items-center gap-2 hover:text-slate-900">
               <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-slate-100 text-slate-500">
                 <Mail size={14} />
               </span>
-              support@kolaqbitters.com
+              support@kolaqalagbo.org
             </a>
             <ul className="space-y-2">
               {phoneNumbers.map((phone) => (

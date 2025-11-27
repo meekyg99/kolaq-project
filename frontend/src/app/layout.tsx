@@ -6,6 +6,7 @@ import { SiteFooter } from "@/components/layout/site-footer";
 import { Providers } from "@/components/providers";
 import { defaultMetadata, generateOrganizationSchema, generateWebsiteSchema } from "@/lib/seo";
 import { SchemaMarkup } from "@/components/seo/schema-markup";
+import { Toaster } from "sonner";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -38,6 +39,7 @@ export default function RootLayout({
       </head>
       <body className="min-h-screen bg-[var(--background)] text-[var(--foreground)] antialiased">
         <Providers>
+          <Toaster position="top-right" richColors closeButton />
           <div className="pointer-events-none fixed inset-0 -z-10 accent-gradient opacity-70" aria-hidden />
           <div className="pointer-events-none fixed inset-0 -z-10 noisy" aria-hidden />
           <SiteHeader />

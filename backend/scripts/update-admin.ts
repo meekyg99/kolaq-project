@@ -5,7 +5,7 @@ import * as bcrypt from 'bcrypt';
 const prisma = new PrismaClient();
 
 async function updateAdminPassword() {
-  const adminEmail = 'admin@kolaqbitters.com';
+  const adminEmail = 'support@kolaqalagbo.org';
   const newPasscode = 'Herbal#2025';
 
   try {

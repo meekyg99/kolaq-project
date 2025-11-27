@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "sonner";
 import type { Product, ProductVariant } from "@/data/products";
 import { useCartStore } from "@/lib/store/cartStore";
 
@@ -22,12 +23,11 @@ export function AddToCartButtons({ product, selectedVariant }: AddToCartButtonsP
     setAdding(true);
     try {
       await addToCart(product.id, 1);
+      toast.success(`${product.name} added to cart`);
     } catch (error: any) {
       console.error('Failed to add to cart:', error);
       const errorMsg = error?.message || 'Failed to add item to cart';
-      if (typeof window !== 'undefined') {
-        alert(errorMsg);
-      }
+      toast.error(errorMsg);
     } finally {
       setAdding(false);
     }
@@ -42,9 +42,8 @@ export function AddToCartButtons({ product, selectedVariant }: AddToCartButtonsP
     } catch (error: any) {
       console.error('Failed to add to cart:', error);
       const errorMsg = error?.message || 'Failed to add item to cart';
-      if (typeof window !== 'undefined') {
-        alert(errorMsg);
-      }
+      toast.error(errorMsg);
+    } finally {
       setAdding(false);
     }
   };

@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   ConflictException,
+  BadRequestException,
   Logger,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
@@ -198,15 +199,35 @@ export class CatalogService {
   async deleteProduct(id: string) {
     const product = await this.prisma.product.findUnique({
       where: { id },
+      include: {
+        orderItems: true,
+      },
     });
 
     if (!product) {
       throw new NotFoundException(`Product with ID '${id}' not found`);
     }
 
-    await this.prisma.product.delete({
-      where: { id },
-    });
+    // Check if product has order history - prevent deletion if it does
+    if (product.orderItems.length > 0) {
+      throw new BadRequestException(
+        `Cannot delete product '${product.name}' because it has ${product.orderItems.length} order(s) associated with it. Consider deactivating it instead.`,
+      );
+    }
+
+    // Delete related records in a transaction
+    await this.prisma.$transaction([
+      // Delete prices
+      this.prisma.price.deleteMany({ where: { productId: id } }),
+      // Delete cart items
+      this.prisma.cartItem.deleteMany({ where: { productId: id } }),
+      // Delete inventory events
+      this.prisma.inventoryEvent.deleteMany({ where: { productId: id } }),
+      // Delete variants (already cascades, but just to be safe)
+      this.prisma.productVariant.deleteMany({ where: { productId: id } }),
+      // Finally delete the product
+      this.prisma.product.delete({ where: { id } }),
+    ]);
 
     this.logger.log(`Deleted product: ${product.name} (${product.id})`);
     return { message: 'Product deleted successfully' };

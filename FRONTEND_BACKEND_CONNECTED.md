@@ -37,7 +37,7 @@ The frontend is now successfully connected to the live backend API on Railway.
   - Sunrise Vitality Tonic
 
 ✅ Admin user created:
-  - Email: admin@kolaqbitters.com
+  - Email: support@kolaqalagbo.org
   - Passcode: admin123
 
 ## Testing
@@ -51,7 +51,7 @@ curl https://kolaq-project-production.up.railway.app/api/v1/products
 ```bash
 curl -X POST https://kolaq-project-production.up.railway.app/api/v1/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"email":"admin@kolaqbitters.com","passcode":"admin123"}'
+  -d '{"email":"support@kolaqalagbo.org","passcode":"admin123"}'
 ```
 
 ## Next Steps

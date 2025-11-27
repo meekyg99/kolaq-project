@@ -1,8 +1,9 @@
 'use client';
 
 import Image from 'next/image';
-import { type ChangeEvent, type ComponentType, type FormEvent, type ReactNode, useMemo, useState } from 'react';
+import { type ChangeEvent, type ComponentType, type FormEvent, type ReactNode, useEffect, useMemo, useState } from 'react';
 import { Bell, Check, Edit, Filter, LogOut, Package, Pencil, Plus, Search, Trash2, TrendingUp, X } from 'lucide-react';
+import { toast } from 'sonner';
 
 
 import type { Product, ProductCategory } from '@/data/products';
@@ -18,7 +19,7 @@ import {
 } from '@/components/providers/inventory-provider';
 import { AnalyticsPanel } from '@/components/admin/AnalyticsPanel';
 import { useAPIProducts } from '@/components/providers/api-products-provider';
-import { authApi } from '@/lib/api/auth';
+import { useAuth } from '@/lib/hooks';
 
 type AdminTab = 'overview' | 'inventory' | 'users' | 'notifications' | 'activity' | 'analytics';
 
@@ -54,16 +55,12 @@ const AUTH_STORAGE_KEY = 'kolaq-admin-auth-v1';
 
 export default function AdminDashboardPage() {
   const [activeTab, setActiveTab] = useState<AdminTab>('overview');
-  const isBrowser = typeof window !== 'undefined';
-  const [isAuthenticated, setAuthenticated] = useState(() => {
-    if (!isBrowser) {
-      return false;
-    }
-    return window.localStorage.getItem(AUTH_STORAGE_KEY) === 'true' && !!window.localStorage.getItem('access_token');
-  });
-  const authChecked = isBrowser;
+  const { user, isAuthenticated, isLoading, login, logout, error: authError, clearError } = useAuth();
   const [loginError, setLoginError] = useState('');
   const [isLoggingIn, setIsLoggingIn] = useState(false);
+
+  // Check if user is admin
+  const isAdmin = user?.role === 'admin' || user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN';
 
   const handleLogin = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -73,15 +70,12 @@ export default function AdminDashboardPage() {
 
     setIsLoggingIn(true);
     setLoginError('');
+    clearError();
 
     try {
-      const response = await authApi.login({ email, password });
-      window.localStorage.setItem('access_token', response.accessToken);
-      if (response.refreshToken) {
-        window.localStorage.setItem('refresh_token', response.refreshToken);
-      }
+      await login(email, password);
+      // Mark admin session
       window.localStorage.setItem(AUTH_STORAGE_KEY, 'true');
-      setAuthenticated(true);
     } catch (error: any) {
       console.error('Login failed:', error);
       setLoginError(error.response?.data?.message || 'Invalid credentials. Please try again.');
@@ -92,21 +86,22 @@ export default function AdminDashboardPage() {
 
   const handleSignOut = () => {
     window.localStorage.removeItem(AUTH_STORAGE_KEY);
-    window.localStorage.removeItem('access_token');
-    window.localStorage.removeItem('refresh_token');
-    setAuthenticated(false);
+    logout();
   };
 
-  if (!authChecked) {
+  // Show loading state while checking auth
+  if (isLoading) {
     return (
-      <div className="container flex min-h-[60vh] items-center justify-center">
-        <div className="rounded-[24px] border border-slate-200 bg-white px-12 py-16 text-center shadow-sm">
-          <p className="text-sm text-slate-500">Checking admin credentials…</p>
+      <div className="container flex min-h-[70vh] items-center justify-center py-12">
+        <div className="flex flex-col items-center gap-4">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-200 border-t-[var(--accent)]" />
+          <p className="text-sm text-slate-500">Loading...</p>
         </div>
       </div>
     );
   }
 
+  // Show login form if not authenticated
   if (!isAuthenticated) {
     return (
       <div className="container flex min-h-[70vh] items-center justify-center py-12">
@@ -129,7 +124,7 @@ export default function AdminDashboardPage() {
                 required
                 disabled={isLoggingIn}
                 className="w-full rounded-[18px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-[var(--accent)] disabled:opacity-50"
-                placeholder="admin@kolaqbitters.com"
+                placeholder="support@kolaqalagbo.org"
               />
             </div>
             <div className="space-y-2">
@@ -146,7 +141,7 @@ export default function AdminDashboardPage() {
                 placeholder="Your secure password"
               />
             </div>
-            {loginError && <p className="text-sm text-red-500">{loginError}</p>}
+            {(loginError || authError) && <p className="text-sm text-red-500">{loginError || authError}</p>}
             <button
               type="submit"
               disabled={isLoggingIn}
@@ -155,9 +150,28 @@ export default function AdminDashboardPage() {
               {isLoggingIn ? 'Logging in...' : 'Unlock Dashboard'}
             </button>
           </form>
-          <p className="text-center text-xs text-slate-400">
-            Use your backend admin credentials (admin@kolaqbitters.com)
-          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show access denied if authenticated but not admin
+  if (!isAdmin) {
+    return (
+      <div className="container flex min-h-[70vh] items-center justify-center py-12">
+        <div className="w-full max-w-md space-y-6 rounded-[28px] border border-red-200 bg-red-50 p-8 shadow-lg">
+          <div className="space-y-2 text-center">
+            <h1 className="text-2xl font-semibold text-red-900">Access Denied</h1>
+            <p className="text-sm text-red-700">
+              You don't have admin privileges to access this dashboard.
+            </p>
+          </div>
+          <button
+            onClick={handleSignOut}
+            className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-red-600 px-5 py-3 text-xs font-semibold uppercase tracking-[0.35em] text-white transition hover:bg-red-700"
+          >
+            Sign Out
+          </button>
         </div>
       </div>
     );
@@ -456,10 +470,11 @@ function InventoryManager({
         });
       }
       setShowForm(false);
+      toast.success('Product created successfully');
       await refetch();
     } catch (error) {
       console.error('Failed to create product:', error);
-      alert('Failed to create product. Please try again.');
+      toast.error('Failed to create product. Please try again.');
     }
   };
 
@@ -477,10 +492,11 @@ function InventoryManager({
       }
       setShowForm(false);
       setEditingProduct(null);
+      toast.success('Product updated successfully');
       await refetch();
     } catch (error) {
       console.error('Failed to update product:', error);
-      alert('Failed to update product. Please try again.');
+      toast.error('Failed to update product. Please try again.');
     }
   };
 
@@ -488,10 +504,11 @@ function InventoryManager({
     if (window.confirm(`Remove ${product.name} from the catalogue?`)) {
       try {
         await onDeleteProduct(product.id);
+        toast.success(`${product.name} removed from catalogue`);
         await refetch();
       } catch (error) {
         console.error('Failed to delete product:', error);
-        alert('Failed to delete product. Please try again.');
+        toast.error('Failed to delete product. Please try again.');
       }
     }
   };

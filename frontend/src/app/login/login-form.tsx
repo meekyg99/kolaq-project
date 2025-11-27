@@ -4,44 +4,41 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Loader2 } from "lucide-react";
-import { authApi } from "@/lib/api/auth";
+import { useAuth } from "@/lib/hooks";
 
 export function LoginForm() {
   const router = useRouter();
+  const { login, error: authError, isLoading: authLoading, clearError } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [localError, setLocalError] = useState("");
+
+  const error = localError || authError;
+  const isLoading = authLoading;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
-    setIsLoading(true);
+    setLocalError("");
+    clearError();
 
     try {
-      const response = await authApi.login({ email, password });
+      await login(email, password);
       
-      // Store tokens
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('access_token', response.accessToken);
-        if (response.refreshToken) {
-          localStorage.setItem('refresh_token', response.refreshToken);
-        }
-        localStorage.setItem('user', JSON.stringify(response.user));
-      }
+      // Get updated user from store after login
+      const userStr = localStorage.getItem('auth-storage');
+      const authData = userStr ? JSON.parse(userStr) : null;
+      const user = authData?.state?.user;
 
       // Redirect based on user role
-      if (response.user.role === 'ADMIN' || response.user.role === 'SUPER_ADMIN') {
+      if (user?.role === 'admin' || user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN') {
         router.push('/admin');
       } else {
         router.push('/shop');
       }
     } catch (err: any) {
       console.error('Login error:', err);
-      setError(err.response?.data?.message || 'Invalid email or password');
-    } finally {
-      setIsLoading(false);
+      setLocalError(err.response?.data?.message || 'Invalid email or password');
     }
   };
 

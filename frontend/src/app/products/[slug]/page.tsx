@@ -39,9 +39,8 @@ export default function ProductPage() {
 
   // Track product view
   useEffect(() => {
-    if (product?.id) {
-      addToRecentlyViewed(product.id);
-    }
+    if (!product?.id) return;
+    addToRecentlyViewed(product.id);
   }, [product?.id, addToRecentlyViewed]);
 
   useEffect(() => {
@@ -213,7 +212,12 @@ export default function ProductPage() {
           <h2 className="text-xl font-semibold text-slate-900">Recently Viewed</h2>
           <div className="grid gap-5 md:grid-cols-4">
             {recentlyViewedProducts.map((item) => (
-              <ProductCard key={item.id} product={item} currency={currency} />
+              <ProductCard
+                key={item.id}
+                product={item}
+                currency={currency}
+                showAddToCart
+              />
             ))}
           </div>
         </div>
@@ -224,7 +228,12 @@ export default function ProductPage() {
           <h2 className="container text-xl font-semibold text-slate-900">You may also like</h2>
           <div className="container grid gap-5 md:grid-cols-3">
             {related.map((item) => (
-              <ProductCard key={item.id} product={item} currency={currency} />
+              <ProductCard
+                key={item.id}
+                product={item}
+                currency={currency}
+                showAddToCart
+              />
             ))}
           </div>
         </div>

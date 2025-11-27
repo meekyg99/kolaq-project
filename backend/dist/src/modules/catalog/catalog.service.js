@@ -159,13 +159,23 @@ let CatalogService = CatalogService_1 = class CatalogService {
     async deleteProduct(id) {
         const product = await this.prisma.product.findUnique({
             where: { id },
+            include: {
+                orderItems: true,
+            },
         });
         if (!product) {
             throw new common_1.NotFoundException(`Product with ID '${id}' not found`);
         }
-        await this.prisma.product.delete({
-            where: { id },
-        });
+        if (product.orderItems.length > 0) {
+            throw new common_1.BadRequestException(`Cannot delete product '${product.name}' because it has ${product.orderItems.length} order(s) associated with it. Consider deactivating it instead.`);
+        }
+        await this.prisma.$transaction([
+            this.prisma.price.deleteMany({ where: { productId: id } }),
+            this.prisma.cartItem.deleteMany({ where: { productId: id } }),
+            this.prisma.inventoryEvent.deleteMany({ where: { productId: id } }),
+            this.prisma.productVariant.deleteMany({ where: { productId: id } }),
+            this.prisma.product.delete({ where: { id } }),
+        ]);
         this.logger.log(`Deleted product: ${product.name} (${product.id})`);
         return { message: 'Product deleted successfully' };
     }

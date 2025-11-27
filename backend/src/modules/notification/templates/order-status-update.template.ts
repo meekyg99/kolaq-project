@@ -34,7 +34,7 @@ export function orderStatusUpdateTemplate(data: {
   };
 
   const config = statusConfig[data.status] || {
-    color: '#667eea',
+    color: '#1a1a2e',
     icon: 'ℹ',
     title: 'Order Update',
   };
@@ -45,7 +45,7 @@ export function orderStatusUpdateTemplate(data: {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Order Update - KOLAQ Bitters</title>
+  <title>Order Update - KOLAQ ALAGBO</title>
 </head>
 <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
   <div style="background: ${config.color}; padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
@@ -76,8 +76,8 @@ export function orderStatusUpdateTemplate(data: {
     }
 
     <div style="margin-top: 30px; text-align: center; color: #666; font-size: 14px;">
-      <p>Need help? Contact us at <a href="mailto:support@kolaqbitters.com" style="color: ${config.color};">support@kolaqbitters.com</a></p>
-      <p style="margin-top: 20px;">&copy; ${new Date().getFullYear()} KOLAQ Bitters. All rights reserved.</p>
+      <p>Need help? Contact us at <a href="mailto:support@kolaqalagbo.org" style="color: ${config.color};">support@kolaqalagbo.org</a></p>
+      <p style="margin-top: 20px;">&copy; ${new Date().getFullYear()} KOLAQ ALAGBO. All rights reserved.</p>
     </div>
   </div>
 </body>

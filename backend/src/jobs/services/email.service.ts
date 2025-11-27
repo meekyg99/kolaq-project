@@ -52,7 +52,7 @@ export class EmailService {
   }
 
   async sendLowStockAlert(productName: string, currentStock: number) {
-    const adminEmail = this.config.get('ADMIN_EMAIL', 'admin@kolaqbitters.com');
+    const adminEmail = this.config.get('ADMIN_EMAIL', 'support@kolaqalagbo.org');
     
     return this.sendEmail({
       to: adminEmail,

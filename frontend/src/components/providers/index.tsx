@@ -1,6 +1,5 @@
 "use client";
 
-import { CartProvider } from "./cart-provider";
 import { CurrencyProvider } from "./currency-provider";
 import { InventoryProvider } from "./inventory-provider";
 import { APIProductsProvider } from "./api-products-provider";
@@ -11,9 +10,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
     <CurrencyProvider>
       <APIProductsProvider>
         <InventoryProvider>
-          <CartProvider>
-            <ProductSearchProvider>{children}</ProductSearchProvider>
-          </CartProvider>
+          <ProductSearchProvider>{children}</ProductSearchProvider>
         </InventoryProvider>
       </APIProductsProvider>
     </CurrencyProvider>

@@ -9,6 +9,7 @@ export const useAuth = () => {
     isLoading,
     error,
     login,
+    register,
     logout,
     clearError,
     checkAuth,
@@ -27,6 +28,7 @@ export const useAuth = () => {
     isLoading,
     error,
     login,
+    register,
     logout,
     clearError,
   };

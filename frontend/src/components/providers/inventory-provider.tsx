@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useMemo, useReducer, useState } from "react";
-import { products as seedProducts, type Product } from "@/data/products";
+import type { Product } from "@/data/products";
 import { productsApi } from "@/lib/api/products";
 import { useAPIProducts } from "./api-products-provider";
 
@@ -96,7 +96,7 @@ function slugify(name: string) {
 function normalizeState(state?: InventoryState): InventoryState {
   if (!state) {
     return {
-      products: seedProducts,
+      products: [],
       users: [
         {
           id: "user-admin",
@@ -155,22 +155,12 @@ function normalizeState(state?: InventoryState): InventoryState {
           read: true,
         },
       ],
-      activity: [
-        {
-          id: "activity-seed",
-          entityType: "system",
-          summary: "Inventory system initialised",
-          details: "Seed data loaded for products, users, and notifications.",
-          createdAt: new Date().toISOString(),
-          author: "System",
-          severity: "info",
-        },
-      ],
+      activity: [],
     };
   }
 
   return {
-    products: state.products ?? seedProducts,
+    products: state.products ?? [],
     users: state.users ?? [],
     notifications: state.notifications ?? [],
     activity: state.activity ?? [],

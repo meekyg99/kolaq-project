@@ -4,17 +4,32 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useState } from "react";
+import { toast } from "sonner";
 import type { Product } from "@/data/products";
 import { formatCurrency } from "@/lib/currency";
 import type { Currency } from "@/data/products";
+import { useCartStore } from "@/lib/store/cartStore";
 
 interface ProductCardProps {
   product: Product;
   currency: Currency;
+  showAddToCart?: boolean;
+  borderless?: boolean;
+  hidePrice?: boolean;
+  imageFill?: boolean;
 }
 
-export function ProductCard({ product, currency }: ProductCardProps) {
+export function ProductCard({
+  product,
+  currency,
+  showAddToCart = false,
+  borderless = false,
+  hidePrice = false,
+  imageFill = false,
+}: ProductCardProps) {
   const [imageError, setImageError] = useState(false);
+  const { addToCart, isLoading } = useCartStore();
+  const [isAdding, setIsAdding] = useState(false);
   
   // Validate image URL - reject data URLs and non-standard URLs
   const getValidImageUrl = () => {
@@ -51,14 +66,40 @@ export function ProductCard({ product, currency }: ProductCardProps) {
     return formatCurrency(product.price[currency], currency);
   };
 
+  const handleAddToCart = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (isAdding || isLoading) return;
+    setIsAdding(true);
+    try {
+      await addToCart(product.id, 1);
+      toast.success(`${product.name} added to cart`);
+    } catch (error) {
+      console.error("Failed to add to cart from card:", error);
+      toast.error("Failed to add item to cart");
+    } finally {
+      setIsAdding(false);
+    }
+  };
+
+  const articleClasses = [
+    "group relative flex h-full flex-col overflow-hidden rounded-[24px] bg-white cursor-pointer",
+    borderless ? "border-0 shadow-none p-0" : "border border-slate-200 p-5 shadow-sm",
+  ].join(" ");
+
+  const imageWrapperClasses = [
+    "relative flex items-center justify-center overflow-hidden bg-slate-100",
+    imageFill ? "h-full" : "h-72 mb-5 rounded-[20px]",
+  ].join(" ");
+
   return (
     <Link href={`/products/${product.slug}`}>
       <motion.article
         whileHover={{ y: -6, scale: 1.02 }}
         transition={{ type: "spring", stiffness: 280, damping: 22 }}
-        className="group relative flex h-full flex-col overflow-hidden rounded-[24px] border border-slate-200 bg-white p-5 shadow-sm cursor-pointer"
+        className={articleClasses}
       >
-        <div className="relative mb-5 flex h-72 items-center justify-center overflow-hidden rounded-[20px] bg-slate-100">
+        <div className={imageWrapperClasses}>
           <motion.div
             className="absolute inset-0 bg-gradient-to-br from-white via-transparent to-transparent"
             animate={{ opacity: [0.4, 0.15, 0.4] }}
@@ -67,18 +108,34 @@ export function ProductCard({ product, currency }: ProductCardProps) {
           <Image
             src={imageUrl}
             alt={product.name}
-            width={280}
-            height={280}
-            className="h-auto w-48 max-w-full object-contain drop-shadow-[0_24px_40px_rgba(0,0,0,0.28)]"
+            width={320}
+            height={320}
+            className={
+              imageFill
+                ? "h-full w-full object-contain drop-shadow-[0_24px_40px_rgba(0,0,0,0.28)]"
+                : "h-auto w-48 max-w-full object-contain drop-shadow-[0_24px_40px_rgba(0,0,0,0.28)]"
+            }
             unoptimized={isExternalImage}
             onError={() => setImageError(true)}
           />
         </div>
-        <div className="flex-1 space-y-2.5">
+        <div className="flex-1 space-y-2.5 p-5 pt-4">
           <h3 className="text-lg font-semibold text-slate-900">{product.name}</h3>
-          <span className="text-lg font-semibold text-slate-900">
-            {getPriceDisplay()}
-          </span>
+          {!hidePrice && (
+            <span className="text-lg font-semibold text-slate-900">
+              {getPriceDisplay()}
+            </span>
+          )}
+          {showAddToCart && (
+            <button
+              type="button"
+              onClick={handleAddToCart}
+              disabled={isAdding || isLoading}
+              className="mt-3 inline-flex w-full items-center justify-center rounded-full bg-black px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-900 disabled:cursor-not-allowed disabled:opacity-70"
+            >
+              {isAdding || isLoading ? "Adding..." : "Add to cart"}
+            </button>
+          )}
         </div>
       </motion.article>
     </Link>

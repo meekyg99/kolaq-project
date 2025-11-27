@@ -1,14 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { CheckCircle2, CreditCard, ShieldCheck, AlertCircle } from "lucide-react";
 
 import type { Currency } from "@/data/products";
-import { useCart } from "@/components/providers/cart-provider";
+import { useCartStore } from "@/lib/store/cartStore";
 import { formatCurrency } from "@/lib/currency";
 import { useCurrency } from "@/components/providers/currency-provider";
 import { ordersApi } from "@/lib/api/orders";
+import { getSessionId } from "@/lib/api/cart";
 
 const shippingRates: Record<Currency, number> = {
   NGN: 4500,
@@ -16,19 +17,33 @@ const shippingRates: Record<Currency, number> = {
 };
 
 export default function CheckoutPage() {
-  const { items, clearCart } = useCart();
+  const { cart, isLoading, fetchCart, clearCart } = useCartStore();
   const { currency } = useCurrency();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [completed, setCompleted] = useState(false);
   const [orderNumber, setOrderNumber] = useState<string>("");
   const [error, setError] = useState<string>("");
 
+  useEffect(() => {
+    fetchCart();
+  }, [fetchCart]);
+
+  const items = cart?.items || [];
+
   const totals = useMemo(() => {
-    const subtotal = items.reduce((sum, item) => sum + item.product.price[currency] * item.quantity, 0);
+    const subtotal = items.reduce((sum, item) => sum + (item.itemTotal || 0), 0);
     const shipping = items.length > 0 ? shippingRates[currency] : 0;
     const total = subtotal + shipping;
     return { subtotal, shipping, total };
   }, [items, currency]);
+
+  if (isLoading && !completed) {
+    return (
+      <div className="container flex flex-col items-center gap-5 py-16 text-center">
+        <p className="text-sm text-slate-600">Loading your cart...</p>
+      </div>
+    );
+  }
 
   if (items.length === 0 && !completed) {
     return (
@@ -68,7 +83,9 @@ export default function CheckoutPage() {
       const paymentMethod = formData.get("payment") as string;
 
       const shippingAddress = `${address}, ${city}, ${state}${postalCode ? ', ' + postalCode : ''}, ${country}`;
-      
+
+      const sessionId = getSessionId();
+
       const order = await ordersApi.create({
         customerEmail: email,
         customerName: `${firstName} ${lastName}`,
@@ -80,6 +97,7 @@ export default function CheckoutPage() {
           quantity: item.quantity,
         })),
         notes: company ? `Company: ${company} | Payment: ${paymentMethod}` : `Payment: ${paymentMethod}`,
+        sessionId,
       });
 
       setOrderNumber(order.orderNumber);
@@ -103,10 +121,10 @@ export default function CheckoutPage() {
         </p>
         <div className="flex flex-col gap-3 sm:flex-row">
           <Link
-            href={`/track-order?number=${orderNumber}`}
+            href={`/orders/${orderNumber}`}
             className="inline-flex items-center gap-3 rounded-full bg-[var(--accent)] px-5 py-3 text-xs font-semibold uppercase tracking-[0.35em] text-white transition hover:bg-neutral-800"
           >
-            Track Order
+            View Order
           </Link>
           <Link
             href="/shop"
@@ -287,14 +305,14 @@ export default function CheckoutPage() {
         </div>
 
         <div className="space-y-3.5">
-          {items.map(({ product, quantity }) => (
-            <div key={product.id} className="flex items-center justify-between text-sm text-slate-600">
+          {items.map((item) => (
+            <div key={item.id} className="flex items-center justify-between text-sm text-slate-600">
               <div>
-                <p className="font-semibold text-slate-900">{product.name}</p>
-                <p className="text-xs text-slate-500">Qty {quantity}</p>
+                <p className="font-semibold text-slate-900">{item.product.name}</p>
+                <p className="text-xs text-slate-500">Qty {item.quantity}</p>
               </div>
               <div className="text-sm font-semibold text-slate-900">
-                {formatCurrency(product.price[currency] * quantity, currency)}
+                {formatCurrency(item.itemTotal || 0, item.currency as Currency)}
               </div>
             </div>
           ))}
@@ -315,7 +333,7 @@ export default function CheckoutPage() {
           </div>
         </dl>
         <p className="text-xs text-slate-500">
-          Need assistance? Email <a href="mailto:support@kolaqbitters.com" className="underline">support@kolaqbitters.com</a> or call <a href="tel:+2348157065742" className="underline">+234 815 706 5742</a>, <a href="tel:+2349027342185" className="underline">+234 902 734 2185</a>, or <a href="tel:+2347038580268" className="underline">+234 703 858 0268</a>.
+          Need assistance? Email <a href="mailto:support@kolaqalagbo.org" className="underline">support@kolaqalagbo.org</a> or call <a href="tel:+2348157065742" className="underline">+234 815 706 5742</a>, <a href="tel:+2349027342185" className="underline">+234 902 734 2185</a>, or <a href="tel:+2347038580268" className="underline">+234 703 858 0268</a>.
         </p>
       </aside>
     </div>

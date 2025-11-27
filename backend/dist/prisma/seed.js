@@ -38,8 +38,8 @@ const bcrypt = __importStar(require("bcrypt"));
 const prisma = new client_1.PrismaClient();
 async function main() {
     console.log('🌱 Seeding database...');
-    const adminEmail = 'admin@kolaqbitters.com';
-    const adminPasscode = 'admin123';
+    const adminEmail = 'support@kolaqalagbo.org';
+    const adminPasscode = 'Lallana99$';
     const existingAdmin = await prisma.adminUser.findUnique({
         where: { email: adminEmail },
     });

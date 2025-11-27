@@ -82,7 +82,7 @@ Created comprehensive analytics panel with:
 
 ### For Admin Users
 1. **Login** to admin dashboard at `/admin`
-   - Email: `admin@kolaqbitters.com`
+   - Email: `support@kolaqalagbo.org`
    - Passcode: Your admin credentials
 
 2. **Navigate** to the "Analytics" tab

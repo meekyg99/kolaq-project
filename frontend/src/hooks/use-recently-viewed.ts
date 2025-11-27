@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import type { Product } from '@/data/products';
 
 const MAX_RECENTLY_VIEWED = 4;
@@ -9,9 +9,10 @@ const STORAGE_KEY = 'kolaq-recently-viewed';
 export function useRecentlyViewed(currentProductId?: string) {
   const [recentlyViewed, setRecentlyViewed] = useState<string[]>([]);
 
+  // Load from localStorage once on mount
   useEffect(() => {
-    // Load from localStorage
-    const stored = localStorage.getItem(STORAGE_KEY);
+    if (typeof window === 'undefined') return;
+    const stored = window.localStorage.getItem(STORAGE_KEY);
     if (stored) {
       try {
         setRecentlyViewed(JSON.parse(stored));
@@ -21,21 +22,23 @@ export function useRecentlyViewed(currentProductId?: string) {
     }
   }, []);
 
-  const addToRecentlyViewed = (productId: string) => {
+  // Persist whenever recentlyViewed changes
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(recentlyViewed));
+  }, [recentlyViewed]);
+
+  const addToRecentlyViewed = useCallback((productId: string) => {
     setRecentlyViewed((prev) => {
-      // Remove if already exists
       const filtered = prev.filter((id) => id !== productId);
-      // Add to beginning
       const updated = [productId, ...filtered].slice(0, MAX_RECENTLY_VIEWED);
-      // Save to localStorage
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
       return updated;
     });
-  };
+  }, []);
 
   const getRecentlyViewedProducts = (allProducts: Product[]) => {
     return recentlyViewed
-      .filter((id) => id !== currentProductId) // Exclude current product
+      .filter((id) => id !== currentProductId)
       .map((id) => allProducts.find((p) => p.id === id))
       .filter(Boolean) as Product[];
   };

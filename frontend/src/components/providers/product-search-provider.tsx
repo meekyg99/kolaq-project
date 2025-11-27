@@ -5,9 +5,10 @@ import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, X, ArrowRight, ShoppingBag } from "lucide-react";
+import { toast } from "sonner";
 
 import { useProducts } from "./inventory-provider";
-import { useCart } from "./cart-provider";
+import { useCartStore } from "@/lib/store/cartStore";
 import type { Product } from "@/data/products";
 
 interface ProductSearchContextValue {
@@ -74,7 +75,7 @@ function ProductSearchOverlay() {
   const mounted = useIsClient();
   const router = useRouter();
   const products = useProducts();
-  const { addItem } = useCart();
+  const { addToCart, isLoading } = useCartStore();
 
   useEffect(() => {
     if (!mounted) return undefined;
@@ -122,8 +123,17 @@ function ProductSearchOverlay() {
     close();
   };
 
-  const handleAddToCart = (product: Product) => {
-    addItem(product, 1);
+  const handleAddToCart = async (product: Product) => {
+    if (isLoading) return;
+    try {
+      await addToCart(product.id, 1);
+      toast.success(`${product.name} added to cart`);
+      close();
+    } catch (error: any) {
+      console.error("Failed to add to cart from search:", error);
+      const message = error?.message || "Could not add item to cart. Please try again.";
+      toast.error(message);
+    }
   };
 
   if (!mounted) return null;
@@ -206,9 +216,10 @@ function ProductSearchOverlay() {
                         <button
                           type="button"
                           onClick={() => handleAddToCart(product)}
-                          className="inline-flex items-center gap-2 rounded-full border border-slate-200 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.3em] text-slate-600 transition hover:border-slate-300 hover:text-slate-900"
+                          disabled={isLoading}
+                          className="inline-flex items-center gap-2 rounded-full border border-slate-200 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.3em] text-slate-600 transition hover:border-slate-300 hover:text-slate-900 disabled:cursor-not-allowed disabled:opacity-70"
                         >
-                          <ShoppingBag size={14} /> Add to cart
+                          <ShoppingBag size={14} /> {isLoading ? "Adding..." : "Add to cart"}
                         </button>
                       </div>
                     </li>
