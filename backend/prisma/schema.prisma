@@ -97,24 +97,26 @@ model CartItem {
 }
 
 model Order {
-  id              String        @id @default(cuid())
-  orderNumber     String        @unique
-  customerEmail   String
-  customerName    String
-  customerPhone   String?
-  shippingAddress String
-  currency        Currency
-  subtotal        Decimal       @db.Decimal(12, 2)
-  shippingCost    Decimal       @default(0) @db.Decimal(12, 2)
-  total           Decimal       @db.Decimal(12, 2)
-  status          OrderStatus   @default(PENDING)
-  paymentStatus   PaymentStatus @default(PENDING)
-  paymentMethod   String?
-  paymentRef      String?
-  notes           String?
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-  items           OrderItem[]
+  id               String        @id @default(cuid())
+  orderNumber      String        @unique
+  customerEmail    String
+  customerName     String
+  customerPhone    String?
+  shippingAddress  String
+  currency         Currency
+  subtotal         Decimal       @db.Decimal(12, 2)
+  shippingCost     Decimal       @default(0) @db.Decimal(12, 2)
+  total            Decimal       @db.Decimal(12, 2)
+  status           OrderStatus   @default(PENDING)
+  paymentStatus    PaymentStatus @default(PENDING)
+  paymentMethod    String?
+  paymentRef       String?
+  trackingNumber   String?
+  trackingUrl      String?
+  notes            String?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  items            OrderItem[]
 }
 
 model OrderItem {

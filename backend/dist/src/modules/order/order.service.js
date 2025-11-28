@@ -191,6 +191,12 @@ let OrderService = OrderService_1 = class OrderService {
             updateData.paymentStatus = 'COMPLETED';
             updateData.paymentRef = updateDto.paymentRef;
         }
+        if (updateDto.trackingNumber) {
+            updateData.trackingNumber = updateDto.trackingNumber;
+        }
+        if (updateDto.trackingUrl) {
+            updateData.trackingUrl = updateDto.trackingUrl;
+        }
         const updatedOrder = await this.prisma.order.update({
             where: { id },
             data: updateData,
@@ -204,8 +210,14 @@ let OrderService = OrderService_1 = class OrderService {
         });
         this.logger.log(`Updated order ${order.orderNumber} status: ${order.status} -> ${updateDto.status}`);
         if (this.notificationService && updateDto.status !== 'PENDING') {
+            const trackingInfo = {
+                trackingNumber: updateDto.trackingNumber,
+                trackingUrl: updateDto.trackingUrl,
+                carrier: updateDto.carrier,
+                estimatedDelivery: updateDto.estimatedDelivery,
+            };
             this.notificationService
-                .sendOrderStatusUpdate(order.id, updateDto.status)
+                .sendOrderStatusUpdate(order.id, updateDto.status, undefined, trackingInfo)
                 .catch((error) => {
                 this.logger.error(`Failed to send status update: ${error.message}`);
             });

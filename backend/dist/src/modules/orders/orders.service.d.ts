@@ -43,6 +43,8 @@ export declare class OrdersService {
         shippingAddress: string;
         notes: string | null;
         paymentRef: string | null;
+        trackingNumber: string | null;
+        trackingUrl: string | null;
         orderNumber: string;
         subtotal: import("@prisma/client/runtime/library").Decimal;
         shippingCost: import("@prisma/client/runtime/library").Decimal;
@@ -93,6 +95,8 @@ export declare class OrdersService {
             shippingAddress: string;
             notes: string | null;
             paymentRef: string | null;
+            trackingNumber: string | null;
+            trackingUrl: string | null;
             orderNumber: string;
             subtotal: import("@prisma/client/runtime/library").Decimal;
             shippingCost: import("@prisma/client/runtime/library").Decimal;
@@ -142,6 +146,8 @@ export declare class OrdersService {
         shippingAddress: string;
         notes: string | null;
         paymentRef: string | null;
+        trackingNumber: string | null;
+        trackingUrl: string | null;
         orderNumber: string;
         subtotal: import("@prisma/client/runtime/library").Decimal;
         shippingCost: import("@prisma/client/runtime/library").Decimal;
@@ -184,6 +190,8 @@ export declare class OrdersService {
         shippingAddress: string;
         notes: string | null;
         paymentRef: string | null;
+        trackingNumber: string | null;
+        trackingUrl: string | null;
         orderNumber: string;
         subtotal: import("@prisma/client/runtime/library").Decimal;
         shippingCost: import("@prisma/client/runtime/library").Decimal;
@@ -226,6 +234,8 @@ export declare class OrdersService {
         shippingAddress: string;
         notes: string | null;
         paymentRef: string | null;
+        trackingNumber: string | null;
+        trackingUrl: string | null;
         orderNumber: string;
         subtotal: import("@prisma/client/runtime/library").Decimal;
         shippingCost: import("@prisma/client/runtime/library").Decimal;

@@ -1,28 +1,29 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
-import { Resend } from 'resend';
 import { SendNotificationDto } from './dto/send-notification.dto';
 import { QueryNotificationDto } from './dto/query-notification.dto';
-import { orderConfirmationTemplate } from './templates/order-confirmation.template';
-import { orderStatusUpdateTemplate } from './templates/order-status-update.template';
+import { EmailFacadeService } from './email/email.service';
+import {
+  orderConfirmationTemplate,
+  orderProcessingTemplate,
+  orderShippedTemplate,
+  orderDeliveredTemplate,
+  welcomeEmailTemplate,
+  passwordResetTemplate,
+  lowStockAlertTemplate,
+} from './templates';
 
 @Injectable()
 export class NotificationService {
   private readonly logger = new Logger(NotificationService.name);
-  private resend: Resend | null = null;
+  private emailService: EmailFacadeService;
 
   constructor(
     private readonly prisma: PrismaService,
     private readonly configService: ConfigService,
   ) {
-    const resendApiKey = this.configService.get<string>('RESEND_API_KEY');
-    if (resendApiKey) {
-      this.resend = new Resend(resendApiKey);
-      this.logger.log('Resend email service initialized');
-    } else {
-      this.logger.warn('Resend API key not configured - email notifications disabled');
-    }
+    this.emailService = new EmailFacadeService(configService);
   }
 
   async sendNotification(dto: SendNotificationDto) {
@@ -65,39 +66,34 @@ export class NotificationService {
   }
 
   private async sendEmail(notificationId: string, dto: SendNotificationDto) {
-    if (!this.resend) {
-      this.logger.warn('Email notification skipped - Resend not configured');
-      await this.prisma.notification.update({
-        where: { id: notificationId },
-        data: {
-          status: 'FAILED',
-          error: 'Resend API key not configured',
-        },
-      });
-      return;
-    }
-
     try {
-      const fromEmail = this.configService.get<string>('EMAIL_FROM', 'KOLAQ ALAGBO <support@kolaqalagbo.org>');
-      
-      const result = await this.resend.emails.send({
-        from: fromEmail,
+      const result = await this.emailService.sendRawEmail({
         to: dto.recipient,
         subject: dto.subject || 'Notification from KOLAQ ALAGBO',
         html: dto.message,
       });
 
+      if (result.success) {
+        await this.prisma.notification.update({
+          where: { id: notificationId },
+          data: {
+            status: 'SENT',
+            sentAt: new Date(),
+            metadata: { ...dto.metadata, emailId: result.messageId, provider: result.provider },
+          },
+        });
+        this.logger.log(`Email sent to ${dto.recipient} via ${result.provider}`);
+      } else {
+        throw new Error(result.error || 'Failed to send email');
+      }
+    } catch (error) {
       await this.prisma.notification.update({
         where: { id: notificationId },
         data: {
-          status: 'SENT',
-          sentAt: new Date(),
-          metadata: { ...dto.metadata, emailId: result.data?.id },
+          status: 'FAILED',
+          error: error.message,
         },
       });
-
-      this.logger.log(`Email sent to ${dto.recipient}`);
-    } catch (error) {
       throw error;
     }
   }
@@ -174,6 +170,7 @@ export class NotificationService {
     orderId: string,
     status: string,
     customMessage?: string,
+    trackingInfo?: { trackingNumber?: string; trackingUrl?: string; carrier?: string; estimatedDelivery?: string },
   ) {
     const order = await this.prisma.order.findUnique({
       where: { id: orderId },
@@ -183,27 +180,100 @@ export class NotificationService {
       throw new Error(`Order ${orderId} not found`);
     }
 
-    const statusMessages = {
-      PAID: 'Your payment has been confirmed and your order is being processed.',
-      PROCESSING: 'Your order is being prepared for shipment.',
-      SHIPPED: 'Your order has been shipped and is on its way to you!',
-      DELIVERED: 'Your order has been delivered. We hope you enjoy your purchase!',
-      CANCELLED: 'Your order has been cancelled. If you have any questions, please contact us.',
-    };
+    let html: string;
+    let subject: string;
 
-    const html = orderStatusUpdateTemplate({
-      customerName: order.customerName,
-      orderNumber: order.orderNumber,
-      status,
-      statusMessage: customMessage || statusMessages[status] || 'Your order status has been updated.',
-    });
+    switch (status.toUpperCase()) {
+      case 'PROCESSING':
+      case 'PAID':
+        html = orderProcessingTemplate({
+          customerName: order.customerName,
+          orderNumber: order.orderNumber,
+          message: 'Your order is being prepared and will ship within 1-2 business days.',
+        });
+        subject = `Your Order is Being Prepared - ${order.orderNumber}`;
+        break;
+
+      case 'SHIPPED':
+        html = orderShippedTemplate({
+          customerName: order.customerName,
+          orderNumber: order.orderNumber,
+          trackingNumber: trackingInfo?.trackingNumber,
+          trackingUrl: trackingInfo?.trackingUrl,
+          estimatedDelivery: trackingInfo?.estimatedDelivery,
+          carrier: trackingInfo?.carrier,
+        });
+        subject = `Your Order Has Been Shipped - ${order.orderNumber}`;
+        break;
+
+      case 'DELIVERED':
+        html = orderDeliveredTemplate({
+          customerName: order.customerName,
+          orderNumber: order.orderNumber,
+        });
+        subject = `Your Order Has Been Delivered - ${order.orderNumber}`;
+        break;
+
+      default:
+        // Fallback for other statuses
+        html = orderProcessingTemplate({
+          customerName: order.customerName,
+          orderNumber: order.orderNumber,
+          message: customMessage || 'Your order status has been updated.',
+        });
+        subject = `Order Update - ${order.orderNumber}`;
+    }
 
     return this.sendNotification({
       type: 'EMAIL',
       recipient: order.customerEmail,
-      subject: `Order Update - ${order.orderNumber}`,
+      subject,
       message: html,
       metadata: { orderId, orderNumber: order.orderNumber, status },
+    });
+  }
+
+  async sendWelcomeEmail(email: string, name: string) {
+    const html = welcomeEmailTemplate({
+      customerName: name,
+    });
+
+    return this.sendNotification({
+      type: 'EMAIL',
+      recipient: email,
+      subject: 'Welcome to KOLAQ ALAGBO! 🌿',
+      message: html,
+      metadata: { type: 'welcome' },
+    });
+  }
+
+  async sendPasswordResetEmail(email: string, name: string, resetUrl: string) {
+    const html = passwordResetTemplate({
+      customerName: name,
+      resetUrl,
+    });
+
+    return this.sendNotification({
+      type: 'EMAIL',
+      recipient: email,
+      subject: 'Reset Your KOLAQ ALAGBO Password',
+      message: html,
+      metadata: { type: 'password-reset' },
+    });
+  }
+
+  async sendLowStockAlert(
+    adminEmail: string,
+    products: Array<{ name: string; currentStock: number; threshold: number; sku?: string }>,
+  ) {
+    const html = lowStockAlertTemplate({ products });
+
+    return this.sendNotification({
+      type: 'EMAIL',
+      recipient: adminEmail,
+      subject: `⚠️ Low Stock Alert: ${products.length} product(s) need attention`,
+      message: html,
+      metadata: { type: 'low-stock-alert', productCount: products.length },
     });
   }
 

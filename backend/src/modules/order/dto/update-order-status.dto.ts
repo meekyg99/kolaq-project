@@ -8,4 +8,20 @@ export class UpdateOrderStatusDto {
   @IsString()
   @IsOptional()
   paymentRef?: string;
+
+  @IsString()
+  @IsOptional()
+  trackingNumber?: string;
+
+  @IsString()
+  @IsOptional()
+  trackingUrl?: string;
+
+  @IsString()
+  @IsOptional()
+  carrier?: string;
+
+  @IsString()
+  @IsOptional()
+  estimatedDelivery?: string;
 }
