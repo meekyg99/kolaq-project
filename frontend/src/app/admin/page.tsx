@@ -124,7 +124,7 @@ export default function AdminDashboardPage() {
                 required
                 disabled={isLoggingIn}
                 className="w-full rounded-[18px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-[var(--accent)] disabled:opacity-50"
-                placeholder="support@kolaqalagbo.org"
+                placeholder="Enter your email"
               />
             </div>
             <div className="space-y-2">

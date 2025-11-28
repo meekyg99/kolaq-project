@@ -2,7 +2,7 @@
 builder = "nixpacks"
 
 [deploy]
-startCommand = "npm run postbuild && npm start"
+startCommand = "npm run postbuild && npm run db:seed:prod && npm start"
 healthcheckPath = "/api/v1/monitoring/health"
 healthcheckTimeout = 100
 restartPolicyType = "on_failure"

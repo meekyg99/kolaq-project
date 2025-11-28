@@ -32,7 +32,8 @@
     "db:migrate": "prisma migrate deploy",
     "db:push": "prisma db push",
     "db:studio": "prisma studio",
-    "db:seed": "ts-node prisma/seed.ts"
+    "db:seed": "ts-node prisma/seed.ts",
+    "db:seed:prod": "node dist/prisma/seed.js"
   },
   "dependencies": {
     "@nestjs/bull": "^11.0.4",
