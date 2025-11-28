@@ -16,6 +16,8 @@ async function bootstrap() {
         origin: [
             'http://localhost:3000',
             'http://localhost:3001',
+            'https://kolaqalagbo.org',
+            'https://www.kolaqalagbo.org',
             'https://kolaqbitters.com',
             'https://www.kolaqbitters.com',
             'https://kolaq-project-production.up.railway.app',
@@ -23,6 +25,8 @@ async function bootstrap() {
             /\.vercel\.app$/,
         ],
         credentials: true,
+        methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+        allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
     });
     app.useGlobalPipes(new common_1.ValidationPipe({
         whitelist: true,
