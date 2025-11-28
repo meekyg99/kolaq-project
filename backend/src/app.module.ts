@@ -23,6 +23,7 @@ import { ActivityModule } from './modules/activity/activity.module';
 import { OrdersModule } from './modules/orders/orders.module';
 import { JobsModule } from './jobs/jobs.module';
 import { MonitoringModule } from './modules/monitoring/monitoring.module';
+import { ReviewModule } from './modules/review/review.module';
 
 @Module({
   imports: [
@@ -63,6 +64,7 @@ import { MonitoringModule } from './modules/monitoring/monitoring.module';
     OrdersModule,
     JobsModule,
     MonitoringModule,
+    ReviewModule,
   ],
   controllers: [AppController],
   providers: [

@@ -45,6 +45,34 @@ export class CatalogController {
     return this.catalogService.getFeaturedProducts(currency);
   }
 
+  @Get('promo')
+  getPromo(@Query('currency') currency?: 'NGN' | 'USD') {
+    return this.catalogService.getPromoProducts(currency);
+  }
+
+  @Patch(':id/promo')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin', 'ADMIN', 'SUPER_ADMIN')
+  setPromoStatus(
+    @Param('id') id: string,
+    @Body() body: {
+      isPromo: boolean;
+      promoPrice?: number;
+      promoStartDate?: string;
+      promoEndDate?: string;
+      promoLabel?: string;
+    },
+  ) {
+    return this.catalogService.setPromoStatus(
+      id,
+      body.isPromo,
+      body.promoPrice,
+      body.promoStartDate,
+      body.promoEndDate,
+      body.promoLabel,
+    );
+  }
+
   @Get('slug/:slug')
   findBySlug(@Param('slug') slug: string) {
     return this.catalogService.findBySlug(slug);

@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsBoolean, IsArray, ValidateNested } from 'class-validator';
+import { IsString, IsOptional, IsBoolean, IsArray, ValidateNested, IsNumber, IsDateString } from 'class-validator';
 import { Type } from 'class-transformer';
 
 class PriceDto {
@@ -38,6 +38,27 @@ export class UpdateProductDto {
   @IsBoolean()
   @IsOptional()
   isFeatured?: boolean;
+
+  // Promo fields
+  @IsBoolean()
+  @IsOptional()
+  isPromo?: boolean;
+
+  @IsNumber()
+  @IsOptional()
+  promoPrice?: number;
+
+  @IsDateString()
+  @IsOptional()
+  promoStartDate?: string;
+
+  @IsDateString()
+  @IsOptional()
+  promoEndDate?: string;
+
+  @IsString()
+  @IsOptional()
+  promoLabel?: string;
 
   @IsArray()
   @ValidateNested({ each: true })

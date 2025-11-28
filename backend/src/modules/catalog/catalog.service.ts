@@ -259,6 +259,80 @@ export class CatalogService {
     return products;
   }
 
+  async getPromoProducts(currency?: 'NGN' | 'USD') {
+    const now = new Date();
+    
+    const products = await this.prisma.product.findMany({
+      where: {
+        isPromo: true,
+        OR: [
+          // Promo with dates: must be within range
+          {
+            promoStartDate: { lte: now },
+            promoEndDate: { gte: now },
+          },
+          // Promo without dates: always active
+          {
+            promoStartDate: null,
+            promoEndDate: null,
+          },
+        ],
+      },
+      include: {
+        prices: currency ? { where: { currency } } : true,
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    return products;
+  }
+
+  async setPromoStatus(
+    id: string,
+    isPromo: boolean,
+    promoPrice?: number,
+    promoStartDate?: string,
+    promoEndDate?: string,
+    promoLabel?: string,
+  ) {
+    const product = await this.prisma.product.findUnique({
+      where: { id },
+    });
+
+    if (!product) {
+      throw new NotFoundException(`Product with ID '${id}' not found`);
+    }
+
+    const updateData: any = {
+      isPromo,
+      updatedAt: new Date(),
+    };
+
+    if (isPromo) {
+      updateData.promoPrice = promoPrice ?? null;
+      updateData.promoStartDate = promoStartDate ? new Date(promoStartDate) : null;
+      updateData.promoEndDate = promoEndDate ? new Date(promoEndDate) : null;
+      updateData.promoLabel = promoLabel ?? null;
+    } else {
+      // Clear promo fields when disabling
+      updateData.promoPrice = null;
+      updateData.promoStartDate = null;
+      updateData.promoEndDate = null;
+      updateData.promoLabel = null;
+    }
+
+    const updatedProduct = await this.prisma.product.update({
+      where: { id },
+      data: updateData,
+      include: {
+        prices: true,
+      },
+    });
+
+    this.logger.log(`Updated promo status for product: ${updatedProduct.name} (${id}) - isPromo: ${isPromo}`);
+    return updatedProduct;
+  }
+
   // Product Variant Methods
   async createVariant(productId: string, createVariantDto: CreateVariantDto) {
     const product = await this.prisma.product.findUnique({

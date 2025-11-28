@@ -32,9 +32,17 @@ type ProductFormState = {
   stock: string;
   tastingNotes: string;
   image: string;
+  imageUrl: string; // For Cloudinary or external URLs
+  imageSource: 'file' | 'url'; // Toggle between file upload and URL
   category: ProductCategory;
   size: string;
   isFeatured: boolean;
+  // Promo fields
+  isPromo: boolean;
+  promoPrice: string;
+  promoStartDate: string;
+  promoEndDate: string;
+  promoLabel: string;
 };
 
 type UserFormState = {
@@ -679,6 +687,8 @@ function ProductEditor({
   onCreate: (input: Omit<Product, 'id' | 'slug'> & { slug?: string }) => Promise<void>;
   onUpdate: (updates: Partial<Product>) => Promise<void>;
 }){
+  const isExternalUrl = (url: string) => url.startsWith('http://') || url.startsWith('https://');
+  
   const [form, setForm] = useState<ProductFormState>(() =>
     initialProduct
       ? {
@@ -690,9 +700,16 @@ function ProductEditor({
           stock: String(initialProduct.stock),
           tastingNotes: initialProduct.tastingNotes.join(', '),
           image: initialProduct.image,
+          imageUrl: isExternalUrl(initialProduct.image) ? initialProduct.image : '',
+          imageSource: isExternalUrl(initialProduct.image) ? 'url' : 'file',
           category: initialProduct.category,
           size: initialProduct.size,
           isFeatured: initialProduct.isFeatured,
+          isPromo: (initialProduct as any).isPromo || false,
+          promoPrice: (initialProduct as any).promoPrice ? String((initialProduct as any).promoPrice) : '',
+          promoStartDate: (initialProduct as any).promoStartDate ? new Date((initialProduct as any).promoStartDate).toISOString().split('T')[0] : '',
+          promoEndDate: (initialProduct as any).promoEndDate ? new Date((initialProduct as any).promoEndDate).toISOString().split('T')[0] : '',
+          promoLabel: (initialProduct as any).promoLabel || '',
         }
       : {
           name: '',
@@ -703,18 +720,25 @@ function ProductEditor({
           stock: '40',
           tastingNotes: '',
           image: '',
+          imageUrl: '',
+          imageSource: 'file',
           category: 'Bitters',
           size: '750 ml',
           isFeatured: false,
+          isPromo: false,
+          promoPrice: '',
+          promoStartDate: '',
+          promoEndDate: '',
+          promoLabel: '',
         }
   );
   const [uploadPreview, setUploadPreview] = useState<string | null>(null);
   const [error, setError] = useState('');
 
   const handleInputChange = (field: keyof ProductFormState) => (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    if (field === 'isFeatured') {
+    if (field === 'isFeatured' || field === 'isPromo') {
       const checkboxEvent = event as ChangeEvent<HTMLInputElement>;
-      setForm((previous) => ({ ...previous, isFeatured: checkboxEvent.target.checked }));
+      setForm((previous) => ({ ...previous, [field]: checkboxEvent.target.checked }));
       return;
     }
     setForm((previous) => ({ ...previous, [field]: event.target.value }));
@@ -722,6 +746,13 @@ function ProductEditor({
 
   const handleSelectChange = (field: keyof ProductFormState) => (event: ChangeEvent<HTMLSelectElement>) => {
     setForm((previous) => ({ ...previous, [field]: event.target.value }));
+  };
+
+  const handleImageSourceChange = (source: 'file' | 'url') => {
+    setForm((previous) => ({ ...previous, imageSource: source }));
+    if (source === 'url') {
+      setUploadPreview(null);
+    }
   };
 
   const handleFile = (event: ChangeEvent<HTMLInputElement>) => {
@@ -755,17 +786,28 @@ function ProductEditor({
       .map((note) => note.trim())
       .filter(Boolean);
 
-    const payload: Omit<Product, 'id' | 'slug'> & { slug?: string } = {
+    // Use URL if image source is URL, otherwise use uploaded file
+    const imageToUse = form.imageSource === 'url' && form.imageUrl.trim() 
+      ? form.imageUrl.trim() 
+      : form.image || initialProduct?.image || '/images/products/essence-bitter.jpg';
+
+    const payload: Omit<Product, 'id' | 'slug'> & { slug?: string; isPromo?: boolean; promoPrice?: number; promoStartDate?: string; promoEndDate?: string; promoLabel?: string } = {
       name: form.name.trim(),
       sku: form.sku.trim(),
       description: form.description.trim(),
       price: { NGN: priceNGN, USD: priceUSD },
       stock,
       tastingNotes: tastingNotes.length > 0 ? tastingNotes : ['Premium crafted'],
-      image: form.image || initialProduct?.image || '/images/products/essence-bitter.jpg',
+      image: imageToUse,
       category: form.category,
       size: form.size,
       isFeatured: form.isFeatured,
+      // Promo fields
+      isPromo: form.isPromo,
+      promoPrice: form.promoPrice ? Number(form.promoPrice) : undefined,
+      promoStartDate: form.promoStartDate || undefined,
+      promoEndDate: form.promoEndDate || undefined,
+      promoLabel: form.promoLabel.trim() || undefined,
     };
 
     try {
@@ -872,6 +914,57 @@ function ProductEditor({
               </label>
             </FormField>
           </div>
+
+          {/* Promo Section */}
+          <div className="rounded-[16px] border border-amber-200 bg-amber-50 p-4 space-y-4">
+            <FormField label="Add to Promo Section">
+              <label className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.3em] text-slate-500">
+                <input type="checkbox" checked={form.isPromo} onChange={handleInputChange('isPromo')} />
+                Enable promo pricing
+              </label>
+            </FormField>
+            {form.isPromo && (
+              <div className="grid gap-4 md:grid-cols-2">
+                <FormField label="Promo Price (₦)">
+                  <input
+                    value={form.promoPrice}
+                    onChange={handleInputChange('promoPrice')}
+                    placeholder="Leave empty to show % off"
+                    className="w-full rounded-[16px] border border-slate-200 px-3 py-2"
+                    inputMode="numeric"
+                  />
+                </FormField>
+                <FormField label="Promo Label">
+                  <input
+                    value={form.promoLabel}
+                    onChange={handleInputChange('promoLabel')}
+                    placeholder="e.g., 20% OFF, SALE, LIMITED"
+                    className="w-full rounded-[16px] border border-slate-200 px-3 py-2"
+                  />
+                </FormField>
+                <FormField label="Promo Start Date">
+                  <input
+                    type="date"
+                    value={form.promoStartDate}
+                    onChange={handleInputChange('promoStartDate')}
+                    className="w-full rounded-[16px] border border-slate-200 px-3 py-2"
+                  />
+                </FormField>
+                <FormField label="Promo End Date">
+                  <input
+                    type="date"
+                    value={form.promoEndDate}
+                    onChange={handleInputChange('promoEndDate')}
+                    className="w-full rounded-[16px] border border-slate-200 px-3 py-2"
+                  />
+                </FormField>
+              </div>
+            )}
+            {form.isPromo && !form.promoStartDate && !form.promoEndDate && (
+              <p className="text-xs text-amber-600">⚠️ No dates set - promo will be active indefinitely</p>
+            )}
+          </div>
+
           <FormField label="Tasting notes (comma separated)">
             <input
               value={form.tastingNotes}
@@ -888,22 +981,76 @@ function ProductEditor({
               required
             />
           </FormField>
-          <FormField label="Product image">
-            <input type="file" accept="image/*" onChange={handleFile} />
-            {(uploadPreview || form.image) && (
-              <div className="mt-2 flex items-center gap-3">
-                <Image
-                  src={uploadPreview ?? form.image}
-                  alt="Preview"
-                  width={64}
-                  height={64}
-                  className="h-16 w-16 rounded-[14px] border border-slate-200 object-cover"
-                  unoptimized
+
+          {/* Image Section */}
+          <div className="rounded-[16px] border border-slate-200 p-4 space-y-4">
+            <div className="flex gap-4 mb-4">
+              <button
+                type="button"
+                onClick={() => handleImageSourceChange('file')}
+                className={`px-4 py-2 rounded-full text-xs font-semibold uppercase tracking-[0.2em] transition ${
+                  form.imageSource === 'file'
+                    ? 'bg-[var(--accent)] text-white'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                }`}
+              >
+                Upload File
+              </button>
+              <button
+                type="button"
+                onClick={() => handleImageSourceChange('url')}
+                className={`px-4 py-2 rounded-full text-xs font-semibold uppercase tracking-[0.2em] transition ${
+                  form.imageSource === 'url'
+                    ? 'bg-[var(--accent)] text-white'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                }`}
+              >
+                Image URL
+              </button>
+            </div>
+
+            {form.imageSource === 'file' ? (
+              <FormField label="Upload product image">
+                <input type="file" accept="image/*" onChange={handleFile} />
+                {(uploadPreview || (form.image && !form.image.startsWith('http'))) && (
+                  <div className="mt-2 flex items-center gap-3">
+                    <Image
+                      src={uploadPreview ?? form.image}
+                      alt="Preview"
+                      width={64}
+                      height={64}
+                      className="h-16 w-16 rounded-[14px] border border-slate-200 object-cover"
+                      unoptimized
+                    />
+                    <span className="text-xs text-slate-400">Preview</span>
+                  </div>
+                )}
+              </FormField>
+            ) : (
+              <FormField label="Image URL (Cloudinary, etc.)">
+                <input
+                  value={form.imageUrl}
+                  onChange={handleInputChange('imageUrl')}
+                  placeholder="https://res.cloudinary.com/..."
+                  className="w-full rounded-[16px] border border-slate-200 px-3 py-2"
                 />
-                <span className="text-xs text-slate-400">Preview</span>
-              </div>
+                {form.imageUrl && (
+                  <div className="mt-2 flex items-center gap-3">
+                    <Image
+                      src={form.imageUrl}
+                      alt="Preview"
+                      width={64}
+                      height={64}
+                      className="h-16 w-16 rounded-[14px] border border-slate-200 object-cover"
+                      unoptimized
+                    />
+                    <span className="text-xs text-slate-400">URL Preview</span>
+                  </div>
+                )}
+              </FormField>
             )}
-          </FormField>
+          </div>
+
           {error && <p className="text-sm text-red-500">{error}</p>}
           <div className="flex items-center justify-end gap-2">
             <button

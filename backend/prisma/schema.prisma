@@ -16,6 +16,12 @@ model Product {
   category        String
   size            String?
   isFeatured      Boolean          @default(false)
+  // Promo fields
+  isPromo         Boolean          @default(false)
+  promoPrice      Decimal?         @db.Decimal(12, 2)
+  promoStartDate  DateTime?
+  promoEndDate    DateTime?
+  promoLabel      String?          // e.g., "20% OFF", "SALE", "LIMITED TIME"
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
   cartItems       CartItem[]
@@ -23,6 +29,7 @@ model Product {
   orderItems      OrderItem[]
   prices          Price[]
   variants        ProductVariant[]
+  reviews         Review[]
 }
 
 model ProductVariant {
@@ -129,6 +136,26 @@ model OrderItem {
   createdAt DateTime @default(now())
   order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
   product   Product  @relation(fields: [productId], references: [id])
+}
+
+model Review {
+  id          String   @id @default(cuid())
+  productId   String
+  userId      String?
+  userName    String
+  userEmail   String
+  rating      Int      // 1-5 stars
+  title       String?
+  comment     String
+  isVerified  Boolean  @default(false) // Verified purchase
+  isApproved  Boolean  @default(false) // Admin approved
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+  @@index([isApproved])
+  @@index([rating])
 }
 
 model Notification {

@@ -6,6 +6,7 @@ import { ProductCard } from "@/components/ui/product-card";
 import { ProductGridSkeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
+import { PromoSection } from "@/components/ui/promo-section";
 import { Search, SlidersHorizontal, Loader2 } from "lucide-react";
 import { useAPIProducts } from "@/components/providers/api-products-provider";
 import { useProductSearch } from "@/components/providers/product-search-provider";
@@ -90,16 +91,21 @@ export default function ShopPage() {
           onAction={activeCategory !== "All" ? () => setActiveCategory("All") : undefined}
         />
       ) : (
-        <div className="grid gap-4 md:grid-cols-3">
-          {visibleProducts.map((product) => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              currency={currency}
-              showAddToCart
-            />
-          ))}
-        </div>
+        <>
+          {/* Promo Section - shows only if there are promo products */}
+          {activeCategory === "All" && <PromoSection products={productList} />}
+          
+          <div className="grid gap-4 md:grid-cols-3">
+            {visibleProducts.map((product) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                currency={currency}
+                showAddToCart
+              />
+            ))}
+          </div>
+        </>
       )}
     </div>
   );
