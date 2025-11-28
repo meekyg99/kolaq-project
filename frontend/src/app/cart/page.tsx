@@ -9,6 +9,8 @@ import type { Currency } from "@/data/products";
 import { useCartStore } from "@/lib/store/cartStore";
 import { formatCurrency } from "@/lib/currency";
 import { useCurrency } from "@/components/providers/currency-provider";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 
 const shippingRates: Record<Currency, number> = {
   NGN: 4500,
@@ -40,23 +42,16 @@ export default function CartPage() {
 
   if (items.length === 0) {
     return (
-      <div className="container flex flex-col items-center gap-5 py-20 text-center">
-        <h1 className="text-3xl font-semibold text-slate-900">Your cart is empty</h1>
-        <p className="max-w-md text-sm text-slate-600">
-          Explore the collection and add KOLAQ ALAGBO BITTERS signatures to continue to checkout.
-        </p>
-        <Link
-          href="/shop"
-          className="inline-flex items-center gap-3 rounded-full bg-[var(--accent)] px-5 py-3 text-xs font-semibold uppercase tracking-[0.35em] text-white transition hover:bg-neutral-800"
-        >
-          Browse Products
-        </Link>
+      <div className="container">
+        <EmptyState type="cart" />
       </div>
     );
   }
 
   return (
-    <div className="container grid gap-10 py-10 lg:grid-cols-[2fr_1fr]">
+    <div className="container space-y-6 py-6">
+      <Breadcrumbs />
+      <div className="grid gap-10 lg:grid-cols-[2fr_1fr]">
       <div className="space-y-5">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h1 className="text-3xl font-semibold text-slate-900">Cart</h1>
@@ -151,6 +146,7 @@ export default function CartPage() {
           Paystack handles local ₦ collections while international card payments are routed through Stripe. Taxes and duties are calculated offline.
         </p>
       </aside>
+      </div>
     </div>
   );
 }

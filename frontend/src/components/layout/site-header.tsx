@@ -3,9 +3,10 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/cn";
-import { ChevronDown, Search, ShoppingCart, UserRound } from "lucide-react";
+import { ChevronDown, Search, ShoppingCart, UserRound, X, Phone, Mail } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import { motion, AnimatePresence } from "framer-motion";
 import { CurrencyToggle } from "@/components/ui/currency-toggle";
 import { useCartStore } from "@/lib/store/cartStore";
 import { useProductSearch } from "@/components/providers/product-search-provider";
@@ -116,22 +117,27 @@ export function SiteHeader() {
           <button
             type="button"
             onClick={open}
-            className="inline-flex items-center gap-2 rounded-full border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:text-slate-900"
+            className="group inline-flex items-center gap-2 rounded-full border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-[var(--accent-green)] hover:text-[var(--accent-green)] hover:bg-[var(--accent-green)]/5"
           >
-            <Search size={16} />
+            <Search size={16} className="transition-transform group-hover:scale-110" />
             Search
           </button>
           <CurrencyToggle />
           <Link
             href="/cart"
-            className="inline-flex items-center gap-2 rounded-full border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
+            className="group inline-flex items-center gap-2 rounded-full border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-[var(--accent-green)] hover:text-[var(--accent-green)] hover:bg-[var(--accent-green)]/5"
           >
-            <ShoppingCart size={16} />
+            <ShoppingCart size={16} className="transition-transform group-hover:scale-110" />
             <span>Cart</span>
             {cartCount > 0 && (
-              <span className="inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-[var(--accent)] px-1 text-[11px] font-semibold text-white">
+              <motion.span 
+                key={cartCount}
+                initial={{ scale: 0.5, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                className="inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-[var(--accent-green)] px-1 text-[11px] font-semibold text-white shadow-sm"
+              >
                 {cartCount}
-              </span>
+              </motion.span>
             )}
           </Link>
           <div className="relative" ref={profileMenuRef}>
@@ -202,117 +208,173 @@ export function SiteHeader() {
       </div>
 
       {menuOpen && (
-        <div className="border-t border-slate-200 bg-white/95 backdrop-blur-md md:hidden">
-          <div className="container flex flex-col gap-4 py-4 text-sm font-medium text-slate-600">
-            {homeLink && (
-              <Link
-                key={homeLink.href}
-                href={homeLink.href}
-                className="flex items-center justify-between py-2"
-                onClick={() => setMenuOpen(false)}
-              >
-                {homeLink.label}
-                {pathname === homeLink.href && (
-                  <span className="h-1 w-1 rounded-full bg-[var(--accent)]" aria-hidden />
-                )}
-              </Link>
-            )}
-            <CurrencyToggle />
-            {secondaryLinks.length > 0 && (
-              <div className="rounded-2xl border border-slate-200 bg-white">
-                <button
-                  type="button"
-                  onClick={() => setMobileDropdownOpen((prev) => !prev)}
-                  className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-semibold text-slate-700"
-                >
-                  <span>Explore</span>
-                  <ChevronDown
-                    size={16}
-                    className={cn("transition", mobileDropdownOpen ? "rotate-180" : "rotate-0")}
-                  />
-                </button>
-                {mobileDropdownOpen && (
-                  <div className="border-t border-slate-200">
-                    {secondaryLinks.map((link) => (
-                      <Link
-                        key={link.href}
-                        href={link.href}
-                        className="flex items-center justify-between px-4 py-2 text-slate-600 hover:text-slate-900"
-                        onClick={() => {
-                          setMenuOpen(false);
-                          setMobileDropdownOpen(false);
-                        }}
-                      >
-                        {link.label}
-                        {pathname === link.href && (
-                          <span className="h-1 w-1 rounded-full bg-[var(--accent)]" aria-hidden />
-                        )}
-                      </Link>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-            <button
-              type="button"
-              onClick={() => {
-                open();
-                setMenuOpen(false);
-              }}
-              className="inline-flex items-center gap-2 rounded-full border border-slate-200 px-4 py-2 text-slate-700"
-            >
-              <Search size={16} /> Search
-            </button>
-            <Link
-              href="/cart"
-              className="inline-flex items-center gap-2 rounded-full border border-slate-200 px-4 py-2 text-slate-700"
-            >
-              <ShoppingCart size={16} /> Cart
-              {cartCount > 0 && (
-                <span className="inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-[var(--accent)] px-1 text-[11px] font-semibold text-white">
-                  {cartCount}
-                </span>
-              )}
-            </Link>
-            <div className="rounded-2xl border border-slate-200 bg-white">
+        <>
+          {/* Backdrop */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setMenuOpen(false)}
+            className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm md:hidden"
+          />
+          
+          {/* Slide-in Drawer */}
+          <motion.div
+            initial={{ x: "100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "100%" }}
+            transition={{ type: "spring", damping: 25, stiffness: 200 }}
+            className="fixed right-0 top-0 z-50 h-full w-80 bg-white shadow-2xl md:hidden"
+          >
+            {/* Drawer Header */}
+            <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4">
+              <span className="text-sm font-semibold uppercase tracking-widest text-slate-800">Menu</span>
               <button
-                type="button"
-                onClick={() => setMobileProfileOpen((prev) => !prev)}
-                className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-semibold text-slate-700"
+                onClick={() => setMenuOpen(false)}
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-600 transition hover:bg-slate-200"
               >
-                <span className="inline-flex items-center gap-2">
-                  <UserRound size={16} />
-                  Account
-                </span>
-                <ChevronDown
-                  size={16}
-                  className={cn("transition", mobileProfileOpen ? "rotate-180" : "rotate-0")}
-                />
+                <X size={20} />
               </button>
-              {mobileProfileOpen && (
-                <div className="border-t border-slate-200">
+            </div>
+            
+            {/* Drawer Content */}
+            <div className="flex h-[calc(100%-80px)] flex-col overflow-y-auto">
+              <nav className="flex-1 space-y-1 px-4 py-6">
+                {navLinks.map((link, index) => (
+                  <motion.div
+                    key={link.href}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                  >
+                    <Link
+                      href={link.href}
+                      onClick={() => setMenuOpen(false)}
+                      className={cn(
+                        "flex items-center justify-between rounded-xl px-4 py-3 text-base font-medium transition",
+                        pathname === link.href
+                          ? "bg-[var(--accent-green)]/10 text-[var(--accent-green)]"
+                          : "text-slate-700 hover:bg-slate-100"
+                      )}
+                    >
+                      {link.label}
+                      {pathname === link.href && (
+                        <span className="h-2 w-2 rounded-full bg-[var(--accent-green)]" />
+                      )}
+                    </Link>
+                  </motion.div>
+                ))}
+                
+                {/* Divider */}
+                <div className="my-4 h-px bg-slate-200" />
+                
+                {/* Search Button */}
+                <motion.button
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.2 }}
+                  onClick={() => {
+                    open();
+                    setMenuOpen(false);
+                  }}
+                  className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-base font-medium text-slate-700 transition hover:bg-slate-100"
+                >
+                  <Search size={20} />
+                  Search Products
+                </motion.button>
+                
+                {/* Cart */}
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.25 }}
+                >
+                  <Link
+                    href="/cart"
+                    onClick={() => setMenuOpen(false)}
+                    className="flex w-full items-center justify-between rounded-xl px-4 py-3 text-base font-medium text-slate-700 transition hover:bg-slate-100"
+                  >
+                    <span className="flex items-center gap-3">
+                      <ShoppingCart size={20} />
+                      Shopping Cart
+                    </span>
+                    {cartCount > 0 && (
+                      <span className="inline-flex h-6 min-w-[1.5rem] items-center justify-center rounded-full bg-[var(--accent-green)] px-2 text-xs font-semibold text-white">
+                        {cartCount}
+                      </span>
+                    )}
+                  </Link>
+                </motion.div>
+                
+                {/* Divider */}
+                <div className="my-4 h-px bg-slate-200" />
+                
+                {/* Currency Toggle */}
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.3 }}
+                  className="px-4 py-2"
+                >
+                  <p className="mb-2 text-xs uppercase tracking-widest text-slate-400">Currency</p>
+                  <CurrencyToggle />
+                </motion.div>
+                
+                {/* Divider */}
+                <div className="my-4 h-px bg-slate-200" />
+                
+                {/* Account Links */}
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.35 }}
+                  className="space-y-1"
+                >
+                  <p className="px-4 pb-2 text-xs uppercase tracking-widest text-slate-400">Account</p>
+                  <Link
+                    href="/login"
+                    onClick={() => setMenuOpen(false)}
+                    className="flex items-center gap-3 rounded-xl px-4 py-3 text-base font-medium text-slate-700 transition hover:bg-slate-100"
+                  >
+                    <UserRound size={20} />
+                    Log In
+                  </Link>
                   <Link
                     href="/signup"
-                    className="block px-4 py-2 text-xs uppercase tracking-[0.3em] text-slate-500 transition hover:text-slate-900"
                     onClick={() => setMenuOpen(false)}
+                    className="flex items-center gap-3 rounded-xl bg-[var(--accent-green)] px-4 py-3 text-base font-medium text-white transition hover:bg-[var(--accent-green-hover)]"
                   >
                     Create Account
                   </Link>
-                  <Link
-                    href="/login"
-                    className="block px-4 py-2 text-xs uppercase tracking-[0.3em] text-slate-500 transition hover:text-slate-900"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    Log In
-                  </Link>
-                </div>
-              )}
+                </motion.div>
+              </nav>
+              
+              {/* Footer */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.4 }}
+                className="border-t border-slate-200 px-6 py-4"
+              >
+                <p className="mb-3 text-xs uppercase tracking-widest text-slate-400">Contact Us</p>
+                <a 
+                  href="tel:+2348157065742" 
+                  className="flex items-center gap-2 text-sm text-slate-600 transition hover:text-slate-900"
+                >
+                  <Phone size={14} />
+                  +234 815 706 5742
+                </a>
+                <a 
+                  href="mailto:support@kolaqalagbo.org" 
+                  className="mt-2 flex items-center gap-2 text-sm text-slate-600 transition hover:text-slate-900"
+                >
+                  <Mail size={14} />
+                  support@kolaqalagbo.org
+                </a>
+              </motion.div>
             </div>
-            <a href="tel:+2348157065742" className="inline-flex items-center gap-2 text-slate-500 transition hover:text-slate-800">
-              +234 815 706 5742
-            </a>
-          </div>
-        </div>
+          </motion.div>
+        </>
       )}
     </header>
   );

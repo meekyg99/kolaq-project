@@ -3,6 +3,9 @@
 import { useMemo, useState } from "react";
 import type { ProductCategory } from "@/data/products";
 import { ProductCard } from "@/components/ui/product-card";
+import { ProductGridSkeleton } from "@/components/ui/skeleton";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { Search, SlidersHorizontal, Loader2 } from "lucide-react";
 import { useAPIProducts } from "@/components/providers/api-products-provider";
 import { useProductSearch } from "@/components/providers/product-search-provider";
@@ -27,7 +30,8 @@ export default function ShopPage() {
 
   return (
     <div className="container space-y-8">
-      <div className="flex flex-col gap-4 pt-6 md:flex-row md:items-center md:justify-between">
+      <Breadcrumbs />
+      <div className="flex flex-col gap-4 pt-2 md:flex-row md:items-center md:justify-between">
         <div className="space-y-2.5">
           <span className="text-xs uppercase tracking-[0.3em] text-slate-400">Shop</span>
           <h1 className="text-3xl font-semibold text-slate-900">Explore the KOLAQ ALAGBO BITTERS catalogue</h1>
@@ -59,7 +63,7 @@ export default function ShopPage() {
               onClick={() => setActiveCategory(category)}
               className={`rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] transition ${
                 isActive
-                  ? "border-[var(--accent)] bg-[var(--accent)] text-white"
+                  ? "border-[var(--accent-green)] bg-[var(--accent-green)] text-white"
                   : "border-slate-200 bg-white text-slate-500 hover:border-slate-300 hover:text-slate-900"
               }`}
             >
@@ -70,18 +74,21 @@ export default function ShopPage() {
       </div>
 
       {isLoading ? (
-        <div className="flex items-center justify-center py-20">
-          <Loader2 className="h-8 w-8 animate-spin text-slate-400" />
-          <span className="ml-3 text-sm text-slate-600">Loading products...</span>
-        </div>
+        <ProductGridSkeleton count={6} />
       ) : error ? (
-        <div className="rounded-lg border border-red-200 bg-red-50 p-8 text-center">
-          <p className="text-sm text-red-600">Failed to load products. Please try again later.</p>
-        </div>
+        <EmptyState 
+          type="error" 
+          onAction={() => window.location.reload()}
+          actionLabel="Refresh Page"
+        />
       ) : visibleProducts.length === 0 ? (
-        <div className="rounded-lg border border-slate-200 bg-slate-50 p-8 text-center">
-          <p className="text-sm text-slate-600">No products available in this category.</p>
-        </div>
+        <EmptyState 
+          type="products" 
+          title={activeCategory !== "All" ? `No ${activeCategory} products` : undefined}
+          description={activeCategory !== "All" ? `There are no products in the ${activeCategory} category yet.` : undefined}
+          actionLabel={activeCategory !== "All" ? "View All Products" : undefined}
+          onAction={activeCategory !== "All" ? () => setActiveCategory("All") : undefined}
+        />
       ) : (
         <div className="grid gap-4 md:grid-cols-3">
           {visibleProducts.map((product) => (

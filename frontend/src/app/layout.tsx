@@ -7,6 +7,9 @@ import { Providers } from "@/components/providers";
 import { defaultMetadata, generateOrganizationSchema, generateWebsiteSchema } from "@/lib/seo";
 import { SchemaMarkup } from "@/components/seo/schema-markup";
 import { Toaster } from "sonner";
+import { WhatsAppButton } from "@/components/ui/whatsapp-button";
+import { BackToTopButton } from "@/components/ui/back-to-top";
+import { BlackFridayBanner } from "@/components/ui/promo-banner";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -42,9 +45,12 @@ export default function RootLayout({
           <Toaster position="top-right" richColors closeButton />
           <div className="pointer-events-none fixed inset-0 -z-10 accent-gradient opacity-70" aria-hidden />
           <div className="pointer-events-none fixed inset-0 -z-10 noisy" aria-hidden />
+          <BlackFridayBanner />
           <SiteHeader />
           <main className="pb-14 pt-6 md:pb-16 md:pt-8">{children}</main>
           <SiteFooter />
+          <WhatsAppButton />
+          <BackToTopButton />
         </Providers>
       </body>
     </html>

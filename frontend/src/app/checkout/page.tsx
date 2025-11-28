@@ -10,6 +10,8 @@ import { formatCurrency } from "@/lib/currency";
 import { useCurrency } from "@/components/providers/currency-provider";
 import { ordersApi } from "@/lib/api/orders";
 import { getSessionId } from "@/lib/api/cart";
+import { CheckoutTrustSection } from "@/components/ui/trust-badges";
+import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 
 const shippingRates: Record<Currency, number> = {
   NGN: 4500,
@@ -114,7 +116,7 @@ export default function CheckoutPage() {
   if (completed) {
     return (
       <div className="container flex flex-col items-center gap-4 py-16 text-center">
-        <CheckCircle2 className="h-12 w-12 text-[var(--accent)]" />
+        <CheckCircle2 className="h-12 w-12 text-[var(--accent-green)]" />
         <h1 className="text-3xl font-semibold text-slate-900">Order placed successfully</h1>
         <p className="max-w-md text-sm text-slate-600">
           Your order number is <span className="font-semibold text-slate-900">{orderNumber}</span>. Our concierge team will reach out within the next business day to confirm delivery timelines and payment preferences.
@@ -138,7 +140,12 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="container grid gap-8 py-10 lg:grid-cols-[1.1fr_0.9fr]">
+    <div className="container space-y-6 py-6">
+      <Breadcrumbs items={[
+        { label: 'Cart', href: '/cart' },
+        { label: 'Checkout', href: '/checkout' },
+      ]} />
+      <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
       <section className="space-y-7">
         <header className="flex flex-wrap items-center justify-between gap-3">
           <div>
@@ -285,7 +292,7 @@ export default function CheckoutPage() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="inline-flex w-full items-center justify-center gap-3 rounded-full bg-[var(--accent)] px-5 py-3 text-xs font-semibold uppercase tracking-[0.35em] text-white transition hover:bg-neutral-800 disabled:cursor-not-allowed disabled:bg-neutral-600"
+            className="inline-flex w-full items-center justify-center gap-3 rounded-full bg-[var(--accent-green)] px-5 py-3 text-xs font-semibold uppercase tracking-[0.35em] text-white transition hover:bg-[var(--accent-green-hover)] disabled:cursor-not-allowed disabled:bg-neutral-600"
           >
             <CreditCard size={16} /> {isSubmitting ? "Processing..." : "Place Order"}
           </button>
@@ -297,7 +304,7 @@ export default function CheckoutPage() {
 
       <aside className="space-y-5 rounded-[24px] border border-slate-200 bg-white p-7 shadow-sm">
         <div className="flex items-center gap-3">
-          <ShieldCheck className="h-6 w-6 text-[var(--accent)]" />
+          <ShieldCheck className="h-6 w-6 text-[var(--accent-green)]" />
           <div>
             <h2 className="text-lg font-semibold text-slate-900">Order summary</h2>
             <p className="text-xs text-slate-500">Secure checkout with concierge verification.</p>
@@ -332,10 +339,14 @@ export default function CheckoutPage() {
             <dd>{formatCurrency(totals.total, currency)}</dd>
           </div>
         </dl>
+        
+        <CheckoutTrustSection />
+        
         <p className="text-xs text-slate-500">
           Need assistance? Email <a href="mailto:support@kolaqalagbo.org" className="underline">support@kolaqalagbo.org</a> or call <a href="tel:+2348157065742" className="underline">+234 815 706 5742</a>, <a href="tel:+2349027342185" className="underline">+234 902 734 2185</a>, or <a href="tel:+2347038580268" className="underline">+234 703 858 0268</a>.
         </p>
       </aside>
+      </div>
     </div>
   );
 }

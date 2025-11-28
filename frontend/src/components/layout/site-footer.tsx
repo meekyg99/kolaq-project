@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Mail, Phone, MessageCircle } from "lucide-react";
+import { Mail, Phone, Lock, ShieldCheck, Truck } from "lucide-react";
+import { NewsletterForm } from "@/components/ui/newsletter-form";
 
 const footerLinks = [
   {
@@ -75,23 +76,7 @@ export function SiteFooter() {
               ))}
             </ul>
           </div>
-            <form className="mt-2 flex w-full max-w-sm items-center gap-2 rounded-full border border-slate-200 bg-white/60 px-2 py-1">
-            <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-500">
-              <Mail size={16} />
-            </span>
-            <input
-              type="email"
-              required
-              placeholder="Email address"
-              className="flex-1 bg-transparent text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none"
-            />
-            <button
-              type="submit"
-              className="inline-flex items-center justify-center rounded-full bg-[var(--accent)] px-4 py-2 text-xs font-semibold uppercase tracking-[0.35em] text-white transition hover:bg-neutral-800"
-            >
-              Join
-            </button>
-          </form>
+            <NewsletterForm variant="footer" />
         </div>
 
         {footerLinks.map((section) => (
@@ -130,18 +115,24 @@ export function SiteFooter() {
               </div>
             </div>
           </div>
+          
+          {/* Trust Badges */}
+          <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-slate-500 md:justify-end">
+            <div className="flex items-center gap-1.5">
+              <Lock className="h-4 w-4 text-[var(--accent-green)]" />
+              <span>SSL Secure</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <ShieldCheck className="h-4 w-4 text-[var(--accent-green)]" />
+              <span>Verified</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <Truck className="h-4 w-4 text-[var(--accent-green)]" />
+              <span>Fast Delivery</span>
+            </div>
+          </div>
         </div>
       </div>
-      <a
-        href="https://wa.me/2348157065742"
-        target="_blank"
-        rel="noreferrer"
-        aria-label="Chat with KOLAQ ALAGBO BITTERS on WhatsApp"
-        className="fixed bottom-6 right-6 z-50 inline-flex items-center gap-2 rounded-full bg-[var(--brand-whatsapp)] px-5 py-3 text-sm font-semibold text-white shadow-xl transition hover:bg-[#16a34a]"
-      >
-        <MessageCircle size={18} className="text-white" />
-        Chat with us
-      </a>
     </footer>
   );
 }

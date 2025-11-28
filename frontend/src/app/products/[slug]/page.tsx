@@ -8,9 +8,10 @@ import { Bot, ChevronRight, ShieldCheck, Loader2 } from "lucide-react";
 
 import { formatCurrency } from "@/lib/currency";
 import { ProductCard } from "@/components/ui/product-card";
+import { ProductDetailSkeleton } from "@/components/ui/skeleton";
 import { AddToCartButtons } from "@/components/ui/add-to-cart-buttons";
 import { ProductVariantSelector } from "@/components/ui/product-variant-selector";
-import { ProductImageZoom } from "@/components/ui/product-image-zoom";
+import { ProductImageGallery, generateGalleryImages } from "@/components/ui/product-image-gallery";
 import { ProductReviews } from "@/components/ui/product-reviews";
 import { ProductSchema } from "@/components/seo/product-schema";
 import { useAPIProducts } from "@/components/providers/api-products-provider";
@@ -68,12 +69,7 @@ export default function ProductPage() {
   );
 
   if (isLoading) {
-    return (
-      <div className="container flex items-center justify-center py-20">
-        <Loader2 className="h-8 w-8 animate-spin text-slate-400" />
-        <span className="ml-3 text-sm text-slate-600">Loading product...</span>
-      </div>
-    );
+    return <ProductDetailSkeleton />;
   }
 
   if (!product) {
@@ -109,8 +105,8 @@ export default function ProductPage() {
       </nav>
 
       <div className="grid gap-8 md:grid-cols-[1.1fr_1fr]">
-        <ProductImageZoom 
-          src={product.image}
+        <ProductImageGallery 
+          images={generateGalleryImages(product.image)}
           alt={product.name}
           isDynamic={isDynamicImage}
         />

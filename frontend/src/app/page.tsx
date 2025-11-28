@@ -7,6 +7,9 @@ import { ArrowUpRight, Leaf, ShieldCheck, Sparkles, ShoppingCart } from "lucide-
 import { useMemo } from "react";
 
 import { ProductCard } from "@/components/ui/product-card";
+import { ProductGridSkeleton, HeroSkeleton } from "@/components/ui/skeleton";
+import { HeroAnimated } from "@/components/ui/hero-animated";
+import { TestimonialsSection } from "@/components/ui/testimonials";
 import { formatCurrency } from "@/lib/currency";
 import { useAPIProducts } from "@/components/providers/api-products-provider";
 import { useCurrency } from "@/components/providers/currency-provider";
@@ -53,11 +56,19 @@ export default function Home() {
 
   if (isLoading) {
     return (
-      <div className="container flex items-center justify-center py-20">
-        <div className="text-center space-y-4">
-          <div className="animate-spin h-12 w-12 border-4 border-slate-200 border-t-[var(--accent)] rounded-full mx-auto"></div>
-          <p className="text-sm text-slate-600">Loading products...</p>
-        </div>
+      <div className="space-y-16">
+        <section className="container pt-6">
+          <div className="relative flex items-center justify-center">
+            <HeroSkeleton />
+          </div>
+        </section>
+        <section className="container space-y-6">
+          <div className="space-y-2">
+            <span className="text-xs uppercase tracking-[0.3em] text-slate-400">Collections</span>
+            <h2 className="text-3xl font-semibold text-slate-900">Our Featured Signatures</h2>
+          </div>
+          <ProductGridSkeleton count={6} />
+        </section>
       </div>
     );
   }
@@ -82,42 +93,10 @@ export default function Home() {
           transition={{ duration: 0.7, ease: "easeOut" }}
           className="relative flex items-center justify-center"
         >
-          <div className="relative w-full max-w-5xl overflow-hidden rounded-[32px] bg-gradient-to-br from-white via-transparent to-transparent">
-            <div className="grid h-full w-full grid-cols-2 gap-0">
-              <div className="h-full w-full overflow-hidden">
-                <ProductCard
-                  product={heroProduct}
-                  currency={currency}
-                  hidePrice
-                  borderless
-                  imageFill
-                />
-              </div>
-              {featuredProducts
-                .filter((product) => product.id !== heroProduct.id)
-                .slice(0, 1)
-                .map((product) => (
-                  <div key={product.id} className="h-full w-full overflow-hidden">
-                    <ProductCard
-                      product={product}
-                      currency={currency}
-                      hidePrice
-                      borderless
-                      imageFill
-                    />
-                  </div>
-                ))}
-            </div>
-            <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-              <Link
-                href="#shop"
-                className="pointer-events-auto inline-flex items-center gap-2 rounded-full bg-black/90 px-6 py-2 text-sm font-medium text-white shadow-lg backdrop-blur-sm transition hover:bg-slate-900"
-              >
-                <span>Shop Now</span>
-                <ArrowUpRight className="h-4 w-4" />
-              </Link>
-            </div>
-          </div>
+          <HeroAnimated 
+            productImage={heroProduct.image?.startsWith('http') || heroProduct.image?.startsWith('/') ? heroProduct.image : "/images/bottle.png"}
+            productName={heroProduct.name}
+          />
         </motion.div>
       </section>
 
@@ -141,6 +120,9 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Testimonials */}
+      <TestimonialsSection />
+
       <section className="container space-y-5">
   <span className="text-xs uppercase tracking-[0.3em] text-slate-400">Why KOLAQ ALAGBO BITTERS</span>
         <h2 className="text-3xl font-semibold text-slate-900 md:max-w-3xl">
@@ -150,7 +132,7 @@ export default function Home() {
         <div className="grid gap-4 md:grid-cols-3">
           {sellingPoints.map((point) => (
             <div key={point.title} className="glass-panel flex flex-col gap-4 rounded-[28px] p-7">
-              <point.icon className="h-10 w-10 text-[var(--accent)]" />
+              <point.icon className="h-10 w-10 text-[var(--accent-green)]" />
               <h3 className="text-xl font-semibold text-slate-900">{point.title}</h3>
               <p className="text-sm leading-relaxed text-slate-600">{point.description}</p>
             </div>

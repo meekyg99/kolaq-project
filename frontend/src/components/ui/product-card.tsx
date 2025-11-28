@@ -127,14 +127,31 @@ export function ProductCard({
             </span>
           )}
           {showAddToCart && (
-            <button
+            <motion.button
               type="button"
               onClick={handleAddToCart}
               disabled={isAdding || isLoading}
-              className="mt-3 inline-flex w-full items-center justify-center rounded-full bg-black px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-900 disabled:cursor-not-allowed disabled:opacity-70"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="mt-3 inline-flex w-full items-center justify-center rounded-full bg-[var(--accent-green)] px-4 py-2.5 text-sm font-medium text-white shadow-lg shadow-[var(--accent-green)]/25 transition-all hover:bg-[var(--accent-green-hover)] hover:shadow-[var(--accent-green)]/40 disabled:cursor-not-allowed disabled:opacity-70 ripple"
             >
-              {isAdding || isLoading ? "Adding..." : "Add to cart"}
-            </button>
+              {isAdding || isLoading ? (
+                <motion.span
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="flex items-center gap-2"
+                >
+                  <motion.span
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                    className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full"
+                  />
+                  Adding...
+                </motion.span>
+              ) : (
+                "Add to cart"
+              )}
+            </motion.button>
           )}
         </div>
       </motion.article>

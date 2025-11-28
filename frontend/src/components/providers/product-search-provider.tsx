@@ -9,6 +9,7 @@ import { toast } from "sonner";
 
 import { useProducts } from "./inventory-provider";
 import { useCartStore } from "@/lib/store/cartStore";
+import { EmptyState } from "@/components/ui/empty-state";
 import type { Product } from "@/data/products";
 
 interface ProductSearchContextValue {
@@ -180,8 +181,13 @@ function ProductSearchOverlay() {
 
             <div className="max-h-[60vh] overflow-y-auto px-2 py-3">
               {results.length === 0 ? (
-                <div className="px-6 py-16 text-center text-sm text-slate-500">
-                  No products match “{query}”. Try a different keyword.
+                <div className="py-4">
+                  <EmptyState 
+                    type="search" 
+                    searchQuery={query}
+                    onAction={() => { setQuery(""); }}
+                    actionLabel="Clear Search"
+                  />
                 </div>
               ) : (
                 <ul className="space-y-2">
