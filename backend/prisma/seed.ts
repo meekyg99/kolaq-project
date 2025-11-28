@@ -46,7 +46,7 @@ async function main() {
         category: 'Bitters',
         size: '750ml',
         isFeatured: true,
-        image: '/images/products/original-bitters.jpg',
+        image: '/images/products/essence-bitter.jpg',
         prices: [
           { currency: 'NGN' as const, amount: 15000 },
           { currency: 'USD' as const, amount: 35 },
@@ -59,7 +59,7 @@ async function main() {
         category: 'Bitters',
         size: '750ml',
         isFeatured: true,
-        image: '/images/products/premium-bitters.jpg',
+        image: '/images/products/noir-botanica.jpg',
         prices: [
           { currency: 'NGN' as const, amount: 25000 },
           { currency: 'USD' as const, amount: 55 },
@@ -72,7 +72,7 @@ async function main() {
         category: 'Elixirs',
         size: '500ml',
         isFeatured: false,
-        image: '/images/products/herbal-elixir.jpg',
+        image: '/images/products/velvet-root.jpg',
         prices: [
           { currency: 'NGN' as const, amount: 18000 },
           { currency: 'USD' as const, amount: 42 },
