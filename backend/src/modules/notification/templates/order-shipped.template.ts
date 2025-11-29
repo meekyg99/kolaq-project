@@ -1,92 +1,103 @@
-import { getBaseTemplate } from './base.template';
+import { getBaseTemplate, getStatusBadge, getOrderTimeline, formatDate } from './base.template';
 
-interface OrderShippedData {
+interface ShippedEmailData {
   customerName: string;
   orderNumber: string;
   trackingNumber?: string;
   trackingUrl?: string;
   carrier?: string;
-  estimatedDelivery?: string;
+  estimatedDelivery?: Date;
+  shippingAddress: {
+    street: string;
+    city: string;
+    state: string;
+    country: string;
+  };
 }
 
-export function orderShippedTemplate(data: OrderShippedData): string {
+export function orderShippedTemplate(data: ShippedEmailData): string {
   const content = `
-    <div class="content">
-      <div style="text-align: center; margin-bottom: 30px;">
-        <div style="font-size: 60px; margin-bottom: 10px;">🚚</div>
-        <h2 style="color: #1a1a1a; margin: 0;">Your Order is On Its Way!</h2>
-        <p style="color: #888; margin: 10px 0 0;">Exciting news - your order has shipped!</p>
-      </div>
+    <div style="text-align: center; padding: 20px 0;">
+      <div style="font-size: 48px; margin-bottom: 16px;">📦</div>
+      <h1 style="color: #1F2937; margin: 0 0 8px 0; font-size: 28px;">Your Order is On Its Way!</h1>
+      <p style="color: #6B7280; margin: 0; font-size: 16px;">Order #${data.orderNumber}</p>
+    </div>
 
-      <p class="greeting">Hi <span class="highlight">${data.customerName}</span>,</p>
-      
-      <p class="message">
-        Your order <strong>#${data.orderNumber}</strong> has been shipped and is on its way to you! 
-        ${data.estimatedDelivery ? `Expected delivery: <strong>${data.estimatedDelivery}</strong>` : ''}
+    ${getOrderTimeline(3)}
+
+    <div style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); border-radius: 12px; padding: 24px; margin: 24px 0; text-align: center;">
+      ${getStatusBadge('SHIPPED')}
+      <p style="color: white; margin: 16px 0 0 0; font-size: 16px;">
+        Great news, ${data.customerName.split(' ')[0]}! Your order has been shipped and is on its way to you.
       </p>
+    </div>
 
-      ${data.trackingNumber ? `
-      <div style="background: linear-gradient(135deg, #1a1a1a 0%, #333 100%); padding: 25px; border-radius: 12px; margin: 25px 0; text-align: center;">
-        <p style="margin: 0 0 10px; color: #888; font-size: 13px; text-transform: uppercase; letter-spacing: 1px;">Tracking Number</p>
-        <p style="margin: 0; color: #4ADE80; font-size: 24px; font-weight: 700; letter-spacing: 2px;">${data.trackingNumber}</p>
-        ${data.carrier ? `<p style="margin: 10px 0 0; color: #aaa; font-size: 13px;">Carrier: ${data.carrier}</p>` : ''}
-      </div>
-      ` : ''}
+    ${data.trackingNumber ? `
+    <div style="background: #F9FAFB; border: 2px dashed #D1D5DB; border-radius: 12px; padding: 24px; margin: 24px 0;">
+      <h2 style="color: #1F2937; margin: 0 0 16px 0; font-size: 18px; text-align: center;">
+        📍 Track Your Package
+      </h2>
+      
+      <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 16px;">
+        ${data.carrier ? `
+        <tr>
+          <td style="padding: 8px 0; color: #6B7280;">Carrier:</td>
+          <td style="padding: 8px 0; color: #1F2937; font-weight: 600; text-align: right;">${data.carrier}</td>
+        </tr>
+        ` : ''}
+        <tr>
+          <td style="padding: 8px 0; color: #6B7280;">Tracking Number:</td>
+          <td style="padding: 8px 0; color: #1F2937; font-weight: 600; text-align: right; font-family: monospace;">${data.trackingNumber}</td>
+        </tr>
+        ${data.estimatedDelivery ? `
+        <tr>
+          <td style="padding: 8px 0; color: #6B7280;">Estimated Delivery:</td>
+          <td style="padding: 8px 0; color: #10B981; font-weight: 600; text-align: right;">${formatDate(data.estimatedDelivery)}</td>
+        </tr>
+        ` : ''}
+      </table>
 
       ${data.trackingUrl ? `
-      <div style="text-align: center; margin: 25px 0;">
-        <a href="${data.trackingUrl}" class="cta-button">Track Package</a>
+      <div style="text-align: center;">
+        <a href="${data.trackingUrl}" 
+           style="display: inline-block; background: #1F2937; color: white; padding: 14px 32px; 
+                  text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 14px;">
+          Track Your Package →
+        </a>
       </div>
       ` : ''}
+    </div>
+    ` : ''}
 
-      <div style="background: #f9f9f9; padding: 25px; border-radius: 8px; margin: 25px 0;">
-        <h3 style="margin: 0 0 15px; color: #1a1a1a; font-size: 16px;">Delivery Progress</h3>
-        <div style="display: flex; align-items: flex-start; margin-bottom: 15px;">
-          <div style="background: #4ADE80; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0;">✓</div>
-          <div style="margin-left: 12px;">
-            <strong style="color: #4ADE80;">Order Confirmed</strong>
-          </div>
-        </div>
-        <div style="display: flex; align-items: flex-start; margin-bottom: 15px;">
-          <div style="background: #4ADE80; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0;">✓</div>
-          <div style="margin-left: 12px;">
-            <strong style="color: #4ADE80;">Processing Complete</strong>
-          </div>
-        </div>
-        <div style="display: flex; align-items: flex-start; margin-bottom: 15px;">
-          <div style="background: #4ADE80; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0;">3</div>
-          <div style="margin-left: 12px;">
-            <strong style="color: #1a1a1a;">Shipped</strong> <span style="color: #4ADE80; font-size: 12px;">← Current status</span>
-            <p style="margin: 3px 0 0; color: #666; font-size: 13px;">Your package is in transit</p>
-          </div>
-        </div>
-        <div style="display: flex; align-items: flex-start;">
-          <div style="background: #ddd; color: #888; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0;">4</div>
-          <div style="margin-left: 12px;">
-            <strong style="color: #888;">Out for Delivery</strong>
-            <p style="margin: 3px 0 0; color: #999; font-size: 13px;">Almost there!</p>
-          </div>
-        </div>
-      </div>
-
-      <div style="background: #fff3cd; padding: 15px 20px; border-radius: 8px; border-left: 4px solid #ffc107; margin: 25px 0;">
-        <p style="margin: 0; color: #856404; font-size: 14px;">
-          <strong>📍 Delivery Tips:</strong><br>
-          • Ensure someone is available to receive the package<br>
-          • Check your phone for delivery updates<br>
-          • Contact us if you need to change delivery details
-        </p>
-      </div>
-
-      <hr class="divider">
-
-      <p class="message" style="font-size: 14px; text-align: center;">
-        Questions about your delivery?<br>
-        📧 <a href="mailto:support@kolaqalagbo.org" style="color: #4ADE80;">support@kolaqalagbo.org</a> | 
-        📱 <a href="https://wa.me/2348157065742" style="color: #4ADE80;">WhatsApp Us</a>
+    <div style="background: #FFF7ED; border-radius: 12px; padding: 20px; margin: 24px 0;">
+      <h3 style="color: #9A3412; margin: 0 0 12px 0; font-size: 16px;">🏠 Shipping To:</h3>
+      <p style="color: #1F2937; margin: 0; line-height: 1.6;">
+        <strong>${data.customerName}</strong><br>
+        ${data.shippingAddress.street}<br>
+        ${data.shippingAddress.city}, ${data.shippingAddress.state}<br>
+        ${data.shippingAddress.country}
       </p>
+    </div>
+
+    <div style="background: #F0FDF4; border-left: 4px solid #10B981; padding: 16px 20px; margin: 24px 0; border-radius: 0 8px 8px 0;">
+      <h3 style="color: #166534; margin: 0 0 8px 0; font-size: 14px;">💡 Delivery Tips</h3>
+      <ul style="color: #166534; margin: 0; padding-left: 20px; font-size: 14px; line-height: 1.8;">
+        <li>Ensure someone is available to receive the package</li>
+        <li>Check the tracking link for real-time updates</li>
+        <li>Contact us immediately if there are any delivery issues</li>
+      </ul>
+    </div>
+
+    <div style="text-align: center; padding: 24px 0;">
+      <p style="color: #6B7280; margin: 0 0 16px 0; font-size: 14px;">
+        Questions about your shipment? We're here to help!
+      </p>
+      <a href="mailto:support@kolaqalagbo.com" 
+         style="color: #10B981; text-decoration: none; font-weight: 600;">
+        Contact Support →
+      </a>
     </div>
   `;
 
-  return getBaseTemplate(content, `Your KOLAQ ALAGBO order #${data.orderNumber} has shipped! Track your package now.`);
+  return getBaseTemplate(content, `Your order #${data.orderNumber} has been shipped!`);
 }

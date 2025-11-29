@@ -161,7 +161,7 @@ export class CatalogService {
       }
     }
 
-    const { prices, ...productData } = updateProductDto;
+    const { prices, variants, ...productData } = updateProductDto;
 
     const updateData: any = {
       ...productData,
@@ -179,6 +179,66 @@ export class CatalogService {
           amount: price.amount,
         })),
       };
+    }
+
+    // Handle variants
+    if (variants !== undefined) {
+      // Get existing variant IDs
+      const existingVariants = await this.prisma.productVariant.findMany({
+        where: { productId: id },
+        select: { id: true },
+      });
+      const existingVariantIds = new Set(existingVariants.map(v => v.id));
+      
+      // Separate variants into updates and creates
+      const variantsToUpdate = variants.filter(v => v.id && existingVariantIds.has(v.id));
+      const variantsToCreate = variants.filter(v => !v.id);
+      const variantIdsToKeep = new Set(variantsToUpdate.map(v => v.id));
+      
+      // Delete variants that are no longer in the list
+      const variantsToDelete = [...existingVariantIds].filter(id => !variantIdsToKeep.has(id));
+      
+      if (variantsToDelete.length > 0) {
+        await this.prisma.productVariant.deleteMany({
+          where: { id: { in: variantsToDelete } },
+        });
+      }
+      
+      // Update existing variants
+      for (const variant of variantsToUpdate) {
+        await this.prisma.productVariant.update({
+          where: { id: variant.id },
+          data: {
+            name: variant.name,
+            sku: variant.sku || null,
+            bottleSize: variant.bottleSize,
+            priceNGN: variant.priceNGN,
+            priceUSD: variant.priceUSD,
+            image: variant.image || null,
+            stock: variant.stock ?? 0,
+            isActive: variant.isActive ?? true,
+            sortOrder: variant.sortOrder ?? 0,
+          },
+        });
+      }
+      
+      // Create new variants
+      if (variantsToCreate.length > 0) {
+        await this.prisma.productVariant.createMany({
+          data: variantsToCreate.map((v, index) => ({
+            productId: id,
+            name: v.name,
+            sku: v.sku || null,
+            bottleSize: v.bottleSize,
+            priceNGN: v.priceNGN,
+            priceUSD: v.priceUSD,
+            image: v.image || null,
+            stock: v.stock ?? 0,
+            isActive: v.isActive ?? true,
+            sortOrder: v.sortOrder ?? variantsToUpdate.length + index,
+          })),
+        });
+      }
     }
 
     const product = await this.prisma.product.update({

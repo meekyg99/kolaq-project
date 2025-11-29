@@ -3,7 +3,7 @@ export type Currency = "NGN" | "USD";
 export type ProductCategory = "Bitters" | "Elixirs" | "Aperitifs" | "Limited";
 
 export type ProductVariant = {
-  id: string;
+  id?: string;
   name: string;
   sku?: string;
   bottleSize: string;
@@ -12,7 +12,7 @@ export type ProductVariant = {
   image?: string;
   stock: number;
   isActive: boolean;
-  sortOrder: number;
+  sortOrder?: number;
 };
 
 export type Product = {

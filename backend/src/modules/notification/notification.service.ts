@@ -180,6 +180,16 @@ export class NotificationService {
       throw new Error(`Order ${orderId} not found`);
     }
 
+    // Parse shipping address
+    let shippingAddress = { street: '', city: '', state: '', country: '' };
+    try {
+      if (typeof order.shippingAddress === 'string') {
+        shippingAddress = JSON.parse(order.shippingAddress);
+      }
+    } catch {
+      shippingAddress = { street: order.shippingAddress || '', city: '', state: '', country: '' };
+    }
+
     let html: string;
     let subject: string;
 
@@ -200,8 +210,9 @@ export class NotificationService {
           orderNumber: order.orderNumber,
           trackingNumber: trackingInfo?.trackingNumber,
           trackingUrl: trackingInfo?.trackingUrl,
-          estimatedDelivery: trackingInfo?.estimatedDelivery,
+          estimatedDelivery: trackingInfo?.estimatedDelivery ? new Date(trackingInfo.estimatedDelivery) : undefined,
           carrier: trackingInfo?.carrier,
+          shippingAddress,
         });
         subject = `Your Order Has Been Shipped - ${order.orderNumber}`;
         break;

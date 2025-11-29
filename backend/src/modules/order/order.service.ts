@@ -155,8 +155,47 @@ export class OrderService {
 
     const total = await this.prisma.order.count({ where });
 
+    // Transform orders to include user info and proper structure for admin panel
+    const transformedOrders = orders.map(order => {
+      // Parse shipping address if it's a JSON string
+      let shippingAddress = order.shippingAddress;
+      try {
+        if (typeof order.shippingAddress === 'string') {
+          shippingAddress = JSON.parse(order.shippingAddress);
+        }
+      } catch {
+        // If parsing fails, create a basic structure
+        shippingAddress = {
+          street: order.shippingAddress,
+          city: '',
+          state: '',
+          country: '',
+        };
+      }
+
+      return {
+        ...order,
+        user: {
+          name: order.customerName,
+          email: order.customerEmail,
+        },
+        shippingAddress,
+        totalNGN: order.currency === 'NGN' ? Number(order.total) : 0,
+        totalUSD: order.currency === 'USD' ? Number(order.total) : 0,
+        items: order.items.map(item => ({
+          id: item.id,
+          productId: item.productId,
+          productName: item.product?.name || 'Unknown Product',
+          quantity: item.quantity,
+          priceNGN: item.currency === 'NGN' ? Number(item.price) : 0,
+          priceUSD: item.currency === 'USD' ? Number(item.price) : 0,
+          image: item.product?.image,
+        })),
+      };
+    });
+
     return {
-      orders,
+      orders: transformedOrders,
       total,
       limit,
       offset,
@@ -241,6 +280,12 @@ export class OrderService {
     }
     if (updateDto.trackingUrl) {
       updateData.trackingUrl = updateDto.trackingUrl;
+    }
+    if (updateDto.carrier) {
+      updateData.carrier = updateDto.carrier;
+    }
+    if (updateDto.estimatedDelivery) {
+      updateData.estimatedDelivery = new Date(updateDto.estimatedDelivery);
     }
 
     const updatedOrder = await this.prisma.order.update({

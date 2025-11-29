@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import { type ChangeEvent, type ComponentType, type FormEvent, type ReactNode, useEffect, useMemo, useState } from 'react';
-import { Bell, Check, Edit, Filter, LogOut, Package, Pencil, Plus, Search, Trash2, TrendingUp, X } from 'lucide-react';
+import { Bell, Check, Edit, Filter, LogOut, Package, Pencil, Plus, Search, ShoppingBag, Trash2, TrendingUp, X } from 'lucide-react';
 import { toast } from 'sonner';
 
 
@@ -18,10 +18,12 @@ import {
   type AdminUser,
 } from '@/components/providers/inventory-provider';
 import { AnalyticsPanel } from '@/components/admin/AnalyticsPanel';
+import { OrderManager } from '@/components/admin/OrderManager';
+import { VariantManager, type ProductVariantInput } from '@/components/admin/VariantManager';
 import { useAPIProducts } from '@/components/providers/api-products-provider';
 import { useAuth } from '@/lib/hooks';
 
-type AdminTab = 'overview' | 'inventory' | 'users' | 'notifications' | 'activity' | 'analytics';
+type AdminTab = 'overview' | 'inventory' | 'orders' | 'users' | 'notifications' | 'activity' | 'analytics';
 
 type ProductFormState = {
   name: string;
@@ -43,6 +45,8 @@ type ProductFormState = {
   promoStartDate: string;
   promoEndDate: string;
   promoLabel: string;
+  // Variants
+  variants: ProductVariantInput[];
 };
 
 type UserFormState = {
@@ -226,6 +230,7 @@ function AdminWorkspace({ activeTab, onTabChange, onSignOut }: {
   const tabs: { id: AdminTab; label: string }[] = [
     { id: 'overview', label: 'Overview' },
     { id: 'analytics', label: 'Analytics' },
+    { id: 'orders', label: 'Orders' },
     { id: 'inventory', label: 'Inventory' },
     { id: 'users', label: 'Users' },
     { id: 'notifications', label: 'Notifications' },
@@ -298,6 +303,7 @@ function AdminWorkspace({ activeTab, onTabChange, onSignOut }: {
           <OverviewPanel products={products} users={users} notifications={notifications} activity={activity} />
         )}
         {activeTab === 'analytics' && <AnalyticsPanel />}
+        {activeTab === 'orders' && <OrderManager />}
         {activeTab === 'inventory' && (
           <InventoryManager
             products={products}
@@ -710,6 +716,17 @@ function ProductEditor({
           promoStartDate: (initialProduct as any).promoStartDate ? new Date((initialProduct as any).promoStartDate).toISOString().split('T')[0] : '',
           promoEndDate: (initialProduct as any).promoEndDate ? new Date((initialProduct as any).promoEndDate).toISOString().split('T')[0] : '',
           promoLabel: (initialProduct as any).promoLabel || '',
+          variants: ((initialProduct as any).variants || []).map((v: any) => ({
+            id: v.id,
+            name: v.name || '',
+            sku: v.sku || '',
+            bottleSize: v.bottleSize || '750ml',
+            priceNGN: v.priceNGN ? String(v.priceNGN) : '',
+            priceUSD: v.priceUSD ? String(v.priceUSD) : '',
+            image: v.image || '',
+            stock: String(v.stock || 0),
+            isActive: v.isActive !== false,
+          })),
         }
       : {
           name: '',
@@ -730,6 +747,7 @@ function ProductEditor({
           promoStartDate: '',
           promoEndDate: '',
           promoLabel: '',
+          variants: [],
         }
   );
   const [uploadPreview, setUploadPreview] = useState<string | null>(null);
@@ -791,7 +809,7 @@ function ProductEditor({
       ? form.imageUrl.trim() 
       : form.image || initialProduct?.image || '/images/products/essence-bitter.jpg';
 
-    const payload: Omit<Product, 'id' | 'slug'> & { slug?: string; isPromo?: boolean; promoPrice?: number; promoStartDate?: string; promoEndDate?: string; promoLabel?: string } = {
+    const payload: Omit<Product, 'id' | 'slug'> & { slug?: string; isPromo?: boolean; promoPrice?: number; promoStartDate?: string; promoEndDate?: string; promoLabel?: string; variants?: Array<{ id?: string; name: string; sku?: string; bottleSize: string; priceNGN: number; priceUSD: number; image?: string; stock: number; isActive: boolean }> } = {
       name: form.name.trim(),
       sku: form.sku.trim(),
       description: form.description.trim(),
@@ -808,6 +826,18 @@ function ProductEditor({
       promoStartDate: form.promoStartDate || undefined,
       promoEndDate: form.promoEndDate || undefined,
       promoLabel: form.promoLabel.trim() || undefined,
+      // Variants
+      variants: form.variants.filter(v => v.name.trim() && v.priceNGN).map(v => ({
+        id: v.id || undefined,
+        name: v.name.trim(),
+        sku: v.sku.trim() || undefined,
+        bottleSize: v.bottleSize,
+        priceNGN: Number(v.priceNGN),
+        priceUSD: Number(v.priceUSD) || 0,
+        image: v.image.trim() || undefined,
+        stock: Number(v.stock) || 0,
+        isActive: v.isActive,
+      })),
     };
 
     try {
@@ -1049,6 +1079,14 @@ function ProductEditor({
                 )}
               </FormField>
             )}
+          </div>
+
+          {/* Product Variants Section */}
+          <div className="rounded-[16px] border border-slate-200 p-4">
+            <VariantManager 
+              variants={form.variants}
+              onChange={(variants) => setForm(prev => ({ ...prev, variants }))}
+            />
           </div>
 
           {error && <p className="text-sm text-red-500">{error}</p>}

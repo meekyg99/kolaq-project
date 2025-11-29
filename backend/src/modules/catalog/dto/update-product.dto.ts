@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsBoolean, IsArray, ValidateNested, IsNumber, IsDateString } from 'class-validator';
+import { IsString, IsOptional, IsBoolean, IsArray, ValidateNested, IsNumber, IsDateString, IsInt } from 'class-validator';
 import { Type } from 'class-transformer';
 
 class PriceDto {
@@ -8,6 +8,44 @@ class PriceDto {
 
   @IsOptional()
   amount?: number;
+}
+
+class VariantDto {
+  @IsString()
+  @IsOptional()
+  id?: string;
+
+  @IsString()
+  name: string;
+
+  @IsString()
+  @IsOptional()
+  sku?: string;
+
+  @IsString()
+  bottleSize: string;
+
+  @IsNumber()
+  priceNGN: number;
+
+  @IsNumber()
+  priceUSD: number;
+
+  @IsString()
+  @IsOptional()
+  image?: string;
+
+  @IsInt()
+  @IsOptional()
+  stock?: number;
+
+  @IsBoolean()
+  @IsOptional()
+  isActive?: boolean;
+
+  @IsInt()
+  @IsOptional()
+  sortOrder?: number;
 }
 
 export class UpdateProductDto {
@@ -65,4 +103,10 @@ export class UpdateProductDto {
   @Type(() => PriceDto)
   @IsOptional()
   prices?: PriceDto[];
+
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => VariantDto)
+  @IsOptional()
+  variants?: VariantDto[];
 }
