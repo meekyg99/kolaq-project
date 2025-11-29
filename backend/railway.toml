@@ -1,7 +1,7 @@
 [build]
 builder = "dockerfile"
-dockerfilePath = "Dockerfile.railway"
-buildCommand = "echo 'Using custom Dockerfile'"
+dockerfilePath = "Dockerfile"
+watchPatterns = ["backend/**"]
 
 [deploy]
 startCommand = "npm run start:prod"
