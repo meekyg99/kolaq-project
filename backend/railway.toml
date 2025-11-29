@@ -1,9 +1,10 @@
 [build]
-builder = "nixpacks"
+builder = "dockerfile"
+dockerfilePath = "Dockerfile"
 
 [deploy]
-startCommand = "npm run postbuild && npm run db:seed:prod && npm start"
-healthcheckPath = "/api/v1/monitoring/health"
+startCommand = "npm run start:prod"
+healthcheckPath = "/health"
 healthcheckTimeout = 100
 restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 10
