@@ -1,8 +1,8 @@
 # Dependencies
 node_modules/
 
-# Compiled output (keep dist for Railway deployment)
-# dist/
+# Compiled output
+dist/
 build/
 
 # Environment
