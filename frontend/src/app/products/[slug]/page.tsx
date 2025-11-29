@@ -48,7 +48,7 @@ export default function ProductPage() {
     if (product?.variants && product.variants.length > 0 && !selectedVariant) {
       const defaultVariant = product.variants
         .filter((v) => v.isActive)
-        .sort((a, b) => a.sortOrder - b.sortOrder)[0];
+        .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))[0];
       setSelectedVariant(defaultVariant || null);
     }
   }, [product, selectedVariant]);

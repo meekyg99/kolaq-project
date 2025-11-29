@@ -63,7 +63,8 @@ type InventoryAction =
   | { type: "ADD_NOTIFICATION"; payload: AdminNotification }
   | { type: "MARK_NOTIFICATION"; notificationId: string; read: boolean }
   | { type: "MARK_ALL_NOTIFICATIONS" }
-  | { type: "LOG_ACTIVITY"; payload: AdminActivity };
+  | { type: "LOG_ACTIVITY"; payload: AdminActivity }
+  | { type: "RESET_STATE" };
 
 const STORAGE_KEY = "kolaq-admin-state-v1";
 
@@ -79,6 +80,7 @@ const InventoryContext = createContext<{
   addNotification: (input: Omit<AdminNotification, "id" | "createdAt" | "read">) => AdminNotification;
   markNotification: (notificationId: string, read?: boolean) => void;
   markAllNotifications: () => void;
+  resetState: () => void;
 } | null>(null);
 
 function generateId(prefix: string) {
@@ -94,67 +96,12 @@ function slugify(name: string) {
 }
 
 function normalizeState(state?: InventoryState): InventoryState {
+  // Start with empty/clean defaults for proper real-time tracking
   if (!state) {
     return {
       products: [],
-      users: [
-        {
-          id: "user-admin",
-          name: "KOLAQ ALAGBO BITTERS Operations",
-          email: "ops@kolaqalagbobitters.com",
-          role: "admin",
-          status: "active",
-          lastActive: new Date().toISOString(),
-          totalOrdersManaged: 128,
-        },
-        {
-          id: "user-fulfilment",
-          name: "KOLAQ ALAGBO BITTERS Fulfilment",
-          email: "fulfilment@kolaqalagbobitters.com",
-          role: "staff",
-          status: "active",
-          lastActive: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString(),
-          totalOrdersManaged: 84,
-        },
-        {
-          id: "user-retail",
-          name: "KOLAQ ALAGBO BITTERS Retail Liaison",
-          email: "retail@kolaqalagbobitters.com",
-          role: "viewer",
-          status: "invited",
-          lastActive: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3).toISOString(),
-          totalOrdersManaged: 12,
-        },
-      ],
-      notifications: [
-        {
-          id: "notif-low-stock",
-          title: "Low stock alert",
-          message: "Emerald Reserve is below 10 bottles. Consider scheduling a new batch.",
-          audience: "admin",
-          severity: "warning",
-          createdAt: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
-          read: false,
-        },
-        {
-          id: "notif-new-order",
-          title: "Wholesale order",
-          message: "Velvet Root Elixir – 24 bottle wholesale order awaiting confirmation.",
-          audience: "admin",
-          severity: "info",
-          createdAt: new Date(Date.now() - 1000 * 60 * 60 * 6).toISOString(),
-          read: false,
-        },
-        {
-          id: "notif-user",
-          title: "Subscription reminder",
-          message: "A reminder email was sent to returning customers for the Noir Botanica reserve.",
-          audience: "user",
-          severity: "info",
-          createdAt: new Date(Date.now() - 1000 * 60 * 60 * 12).toISOString(),
-          read: true,
-        },
-      ],
+      users: [],
+      notifications: [],
       activity: [],
     };
   }
@@ -205,6 +152,12 @@ function inventoryReducer(state: InventoryState, action: InventoryAction): Inven
       };
     case "LOG_ACTIVITY":
       return { ...state, activity: [action.payload, ...state.activity].slice(0, 200) };
+    case "RESET_STATE":
+      // Clear localStorage and reset to clean state
+      if (typeof window !== "undefined") {
+        window.localStorage.removeItem(STORAGE_KEY);
+      }
+      return normalizeState();
     default:
       return state;
   }
@@ -481,6 +434,10 @@ export function InventoryProvider({ children }: { children: React.ReactNode }) {
       dispatch({ type: "MARK_ALL_NOTIFICATIONS" });
     };
 
+    const resetState = () => {
+      dispatch({ type: "RESET_STATE" });
+    };
+
     return {
       state,
       addProduct,
@@ -493,6 +450,7 @@ export function InventoryProvider({ children }: { children: React.ReactNode }) {
       addNotification,
       markNotification,
       markAllNotifications,
+      resetState,
     };
   }, [state]);
 

@@ -19,6 +19,18 @@ import { Roles } from '../auth/decorators/roles.decorator';
 export class ReviewController {
   constructor(private readonly reviewService: ReviewService) {}
 
+  // Public: Get top rated reviews for testimonials section
+  @Get('top-rated')
+  async getTopRated(
+    @Query('minRating') minRating?: string,
+    @Query('limit') limit?: string,
+  ) {
+    return this.reviewService.findTopRated(
+      minRating ? parseInt(minRating) : 4,
+      limit ? parseInt(limit) : 10,
+    );
+  }
+
   // Public: Submit a review (anyone can submit, but needs approval)
   @Post()
   async create(@Body() dto: CreateReviewDto) {

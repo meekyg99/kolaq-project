@@ -157,6 +157,54 @@ export class ReviewService {
     });
   }
 
+  async findTopRated(minRating = 4, limit = 10) {
+    // Get approved top-rated reviews for the testimonials section
+    const reviews = await this.prisma.review.findMany({
+      where: {
+        isApproved: true,
+        rating: { gte: minRating },
+      },
+      orderBy: [
+        { rating: 'desc' },
+        { createdAt: 'desc' },
+      ],
+      take: limit,
+      include: {
+        product: {
+          select: { id: true, name: true, slug: true },
+        },
+      },
+    });
+
+    // Calculate overall stats
+    const allApproved = await this.prisma.review.findMany({
+      where: { isApproved: true },
+      select: { rating: true },
+    });
+
+    const stats = {
+      averageRating: allApproved.length > 0
+        ? Math.round((allApproved.reduce((sum, r) => sum + r.rating, 0) / allApproved.length) * 10) / 10
+        : 0,
+      totalReviews: allApproved.length,
+    };
+
+    return {
+      reviews: reviews.map(review => ({
+        id: review.id,
+        rating: review.rating,
+        comment: review.comment,
+        createdAt: review.createdAt,
+        reviewer: {
+          name: review.userName,
+          email: review.userEmail,
+        },
+        product: review.product,
+      })),
+      stats,
+    };
+  }
+
   async approve(id: string) {
     const review = await this.prisma.review.findUnique({ where: { id } });
     
