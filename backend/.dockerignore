@@ -1,0 +1,43 @@
+# Dependencies
+node_modules/
+
+# Build artifacts that shouldn't be cached as directories
+*.tsbuildinfo
+tsconfig.tsbuildinfo
+dist/tsconfig.tsbuildinfo
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Testing
+coverage/
+test/
+
+# Git
+.git/
+.gitignore
+
+# Documentation
+*.md
+!README.md
+
+# Development files
+*.bat
+*.sh
