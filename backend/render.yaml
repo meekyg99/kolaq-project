@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: kolaq-backend
+    runtime: node
+    region: oregon
+    rootDir: backend
+    buildCommand: npm install && npm run build
+    startCommand: node dist/main.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 4000
+      - key: DATABASE_URL
+        sync: false  # You'll set this manually in Render dashboard
+      - key: JWT_SECRET
+        sync: false  # You'll set this manually in Render dashboard
+      - key: JWT_EXPIRATION
+        value: 3600m
+      - key: RESEND_API_KEY
+        sync: false  # You'll set this manually in Render dashboard
+      - key: EMAIL_FROM
+        value: "KOLAQ ALAGBO <support@kolaqalagbo.org>"
+    healthCheckPath: /health
+    autoDeploy: true
