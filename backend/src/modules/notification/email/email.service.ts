@@ -136,6 +136,12 @@ export class EmailService {
     trackingUrl?: string;
     carrier?: string;
     estimatedDelivery?: string;
+    shippingAddress?: {
+      street: string;
+      city: string;
+      state: string;
+      country: string;
+    };
   }): Promise<EmailResult> {
     const { orderShippedTemplate } = await import('../templates/order-shipped.template');
     return this.send({
