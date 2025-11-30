@@ -47,9 +47,10 @@ export const useAuthStore = create<AuthState>()(
 
           const user = {
             ...response.user,
-            name: response.user.firstName && response.user.lastName 
-              ? `${response.user.firstName} ${response.user.lastName}`
-              : response.user.email
+            name: (response.user as any).name 
+              || (response.user.firstName && response.user.lastName 
+                ? `${response.user.firstName} ${response.user.lastName}`
+                : response.user.email)
           };
 
           set({
