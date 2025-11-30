@@ -210,7 +210,7 @@ export class NotificationService {
           orderNumber: order.orderNumber,
           trackingNumber: trackingInfo?.trackingNumber,
           trackingUrl: trackingInfo?.trackingUrl,
-          estimatedDelivery: trackingInfo?.estimatedDelivery ? new Date(trackingInfo.estimatedDelivery) : undefined,
+          estimatedDelivery: trackingInfo?.estimatedDelivery,
           carrier: trackingInfo?.carrier,
           shippingAddress,
         });

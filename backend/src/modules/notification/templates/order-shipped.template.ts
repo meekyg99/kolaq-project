@@ -6,8 +6,8 @@ interface ShippedEmailData {
   trackingNumber?: string;
   trackingUrl?: string;
   carrier?: string;
-  estimatedDelivery?: Date;
-  shippingAddress: {
+  estimatedDelivery?: string;
+  shippingAddress?: {
     street: string;
     city: string;
     state: string;
@@ -69,6 +69,7 @@ export function orderShippedTemplate(data: ShippedEmailData): string {
     </div>
     ` : ''}
 
+    ${data.shippingAddress ? `
     <div style="background: #FFF7ED; border-radius: 12px; padding: 20px; margin: 24px 0;">
       <h3 style="color: #9A3412; margin: 0 0 12px 0; font-size: 16px;">🏠 Shipping To:</h3>
       <p style="color: #1F2937; margin: 0; line-height: 1.6;">
@@ -78,6 +79,7 @@ export function orderShippedTemplate(data: ShippedEmailData): string {
         ${data.shippingAddress.country}
       </p>
     </div>
+    ` : ''}
 
     <div style="background: #F0FDF4; border-left: 4px solid #10B981; padding: 16px 20px; margin: 24px 0; border-radius: 0 8px 8px 0;">
       <h3 style="color: #166534; margin: 0 0 8px 0; font-size: 14px;">💡 Delivery Tips</h3>

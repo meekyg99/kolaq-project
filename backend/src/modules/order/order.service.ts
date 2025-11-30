@@ -158,7 +158,7 @@ export class OrderService {
     // Transform orders to include user info and proper structure for admin panel
     const transformedOrders = orders.map(order => {
       // Parse shipping address if it's a JSON string
-      let shippingAddress = order.shippingAddress;
+      let shippingAddress: string | { street: string; city: string; state: string; country: string } = order.shippingAddress;
       try {
         if (typeof order.shippingAddress === 'string') {
           shippingAddress = JSON.parse(order.shippingAddress);
