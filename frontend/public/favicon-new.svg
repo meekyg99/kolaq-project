@@ -1,0 +1,21 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="512" height="512" fill="#1a4d2e" rx="80"/>
+  
+  <!-- Letter K -->
+  <text 
+    x="256" 
+    y="360" 
+    font-family="Arial, sans-serif" 
+    font-size="320" 
+    font-weight="bold" 
+    fill="#d4af37" 
+    text-anchor="middle"
+    dominant-baseline="middle">K</text>
+  
+  <!-- Accent leaf/herbal element -->
+  <path 
+    d="M 380 140 Q 400 120, 420 140 T 400 180 Q 380 160, 380 140" 
+    fill="#90c695" 
+    opacity="0.8"/>
+</svg>
