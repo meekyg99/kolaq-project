@@ -20,7 +20,7 @@ import { ApiTags, ApiOperation } from '@nestjs/swagger';
 @ApiTags('Admin')
 @Controller('api/v1/admin')
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Roles('admin')
+@Roles('admin', 'superadmin')
 export class AdminController {
   constructor(
     private readonly adminService: AdminService,

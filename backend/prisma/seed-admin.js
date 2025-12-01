@@ -13,12 +13,12 @@ async function main() {
     update: {
       passcodeHash: passcodeHash,
       name: 'Admin',
-      role: 'superadmin',
+      role: 'admin',
     },
     create: {
       email: 'support@kolaqalagbo.org',
       name: 'Admin',
-      role: 'superadmin',
+      role: 'admin',
       passcodeHash: passcodeHash,
     },
   });
