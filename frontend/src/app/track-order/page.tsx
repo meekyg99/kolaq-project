@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Search, Package, Truck, CheckCircle, Clock, XCircle } from 'lucide-react';
+import { OrderTimeline } from '@/components/order/OrderTimeline';
 
 interface OrderItem {
   id: string;
@@ -17,6 +18,13 @@ interface OrderItem {
   };
 }
 
+interface StatusHistory {
+  id: string;
+  status: string;
+  note?: string;
+  createdAt: string;
+}
+
 interface Order {
   id: string;
   orderNumber: string;
@@ -26,9 +34,12 @@ interface Order {
   customerEmail: string;
   customerPhone: string;
   shippingAddress: string;
-  shippingCity: string;
-  shippingState: string;
-  shippingCountry: string;
+  shippingState?: string;
+  shippingLGA?: string;
+  trackingNumber?: string;
+  trackingUrl?: string;
+  carrier?: string;
+  estimatedDelivery?: string;
   subtotal: number;
   shippingCost: number;
   total: number;
@@ -36,6 +47,7 @@ interface Order {
   createdAt: string;
   updatedAt: string;
   items: OrderItem[];
+  statusHistory: StatusHistory[];
 }
 
 const statusSteps = [
@@ -60,7 +72,7 @@ export default function TrackOrderPage() {
 
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://kolaq-project-production.up.railway.app';
-      const response = await fetch(`${apiUrl}/api/v1/orders/number/${orderNumber.trim()}`);
+      const response = await fetch(`${apiUrl}/api/v1/orders/track/${orderNumber.trim()}`);
 
       if (!response.ok) {
         if (response.status === 404) {
@@ -152,57 +164,46 @@ export default function TrackOrderPage() {
 
         {order && (
           <div className="space-y-6">
-            {/* Order Status Timeline */}
+            {/* Order Timeline with Status History */}
             <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-6">Order Status</h2>
-              
-              {order.status === 'CANCELLED' ? (
-                <div className="p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-3">
-                  <XCircle className="w-6 h-6 text-red-600" />
-                  <div>
-                    <p className="font-semibold text-red-900">Order Cancelled</p>
-                    <p className="text-sm text-red-700">This order has been cancelled.</p>
-                  </div>
-                </div>
+              {order.statusHistory && order.statusHistory.length > 0 ? (
+                <OrderTimeline statusHistory={order.statusHistory} currentStatus={order.status} />
               ) : (
-                <div className="relative">
-                  <div className="absolute top-5 left-0 w-full h-0.5 bg-gray-200">
-                    <div
-                      className="h-full bg-amber-600 transition-all duration-500"
-                      style={{
-                        width: `${(getCurrentStepIndex(order.status) / (statusSteps.length - 1)) * 100}%`,
-                      }}
-                    />
-                  </div>
-                  
-                  <div className="relative flex justify-between">
-                    {statusSteps.map((step, index) => {
-                      const currentIndex = getCurrentStepIndex(order.status);
-                      const isCompleted = index <= currentIndex;
-                      const isCurrent = index === currentIndex;
-                      const Icon = step.icon;
-
-                      return (
-                        <div key={step.key} className="flex flex-col items-center" style={{ width: '20%' }}>
-                          <div
-                            className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all ${
-                              isCompleted
-                                ? 'bg-amber-600 border-amber-600 text-white'
-                                : 'bg-white border-gray-300 text-gray-400'
-                            } ${isCurrent ? 'ring-4 ring-amber-200' : ''}`}
-                          >
-                            <Icon className="w-5 h-5" />
-                          </div>
-                          <p className={`mt-2 text-xs sm:text-sm text-center ${isCompleted ? 'text-gray-900 font-medium' : 'text-gray-500'}`}>
-                            {step.label}
-                          </p>
-                        </div>
-                      );
-                    })}
-                  </div>
+                <div className="text-center py-8 text-gray-500">
+                  <p>No status history available</p>
                 </div>
               )}
             </div>
+
+            {/* Tracking Information (if available) */}
+            {order.trackingNumber && (
+              <div className="bg-white rounded-lg shadow-md p-6">
+                <h2 className="text-xl font-semibold text-gray-900 mb-4">Tracking Information</h2>
+                <div className="space-y-3">
+                  {order.carrier && (
+                    <div>
+                      <p className="text-sm text-gray-600">Carrier</p>
+                      <p className="font-semibold text-gray-900">{order.carrier}</p>
+                    </div>
+                  )}
+                  <div>
+                    <p className="text-sm text-gray-600">Tracking Number</p>
+                    <p className="font-mono font-semibold text-gray-900">{order.trackingNumber}</p>
+                  </div>
+                  {order.trackingUrl && (
+                    <a
+                      href={order.trackingUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center px-4 py-2 bg-[#1a4d2e] text-white rounded-lg hover:bg-[#153f24] transition-colors"
+                    >
+                      <Truck className="w-4 h-4 mr-2" />
+                      Track with {order.carrier || 'Carrier'}
+                    </a>
+                  )}
+                </div>
+              </div>
+            )}
 
             {/* Order Details */}
             <div className="bg-white rounded-lg shadow-md p-6">
