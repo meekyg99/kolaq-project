@@ -50,6 +50,11 @@ export class OrdersController {
     return this.ordersService.findByOrderNumber(orderNumber);
   }
 
+  @Get('track/:orderNumber')
+  trackOrder(@Param('orderNumber') orderNumber: string) {
+    return this.ordersService.trackOrder(orderNumber);
+  }
+
   @Patch(':id/status')
   @UseGuards(JwtAuthGuard)
   updateStatus(

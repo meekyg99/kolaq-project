@@ -22,6 +22,8 @@ export class OrdersService {
         customerName: data.customerName,
         customerPhone: data.customerPhone,
         shippingAddress: data.shippingAddress,
+        shippingState: data.shippingState,
+        shippingLGA: data.shippingLGA,
         currency: data.currency,
         subtotal: data.subtotal,
         shippingCost: data.shippingCost || 0,
@@ -37,6 +39,13 @@ export class OrdersService {
             currency: data.currency,
           })),
         },
+        statusHistory: {
+          create: {
+            status: 'PENDING',
+            note: 'Order created',
+            createdBy: 'SYSTEM',
+          },
+        },
       },
       include: {
         items: {
@@ -44,6 +53,7 @@ export class OrdersService {
             product: true,
           },
         },
+        statusHistory: true,
       },
     });
 
@@ -147,20 +157,42 @@ export class OrdersService {
   async updateStatus(id: string, updateDto: UpdateOrderStatusDto, userId?: string, userEmail?: string) {
     const order = await this.findOne(id);
 
-    const updated = await this.prisma.order.update({
-      where: { id },
-      data: {
-        status: updateDto.status,
-        paymentStatus: updateDto.paymentStatus,
-        notes: updateDto.notes || order.notes,
-      },
-      include: {
-        items: {
-          include: {
-            product: true,
+    // Use transaction to update order and create status history
+    const updated = await this.prisma.$transaction(async (tx) => {
+      // Update order
+      const updatedOrder = await tx.order.update({
+        where: { id },
+        data: {
+          status: updateDto.status,
+          paymentStatus: updateDto.paymentStatus,
+          notes: updateDto.notes || order.notes,
+        },
+        include: {
+          items: {
+            include: {
+              product: true,
+            },
+          },
+          statusHistory: {
+            orderBy: { createdAt: 'desc' },
+            take: 10,
           },
         },
-      },
+      });
+
+      // Create status history entry if status changed
+      if (updateDto.status && updateDto.status !== order.status) {
+        await tx.orderStatusHistory.create({
+          data: {
+            orderId: id,
+            status: updateDto.status,
+            note: updateDto.notes,
+            createdBy: userId || 'SYSTEM',
+          },
+        });
+      }
+
+      return updatedOrder;
     });
 
     await this.activityService.log({
@@ -180,6 +212,34 @@ export class OrdersService {
     });
 
     return updated;
+  }
+
+  async trackOrder(orderNumber: string) {
+    const order = await this.prisma.order.findUnique({
+      where: { orderNumber },
+      include: {
+        items: {
+          include: {
+            product: {
+              select: {
+                id: true,
+                name: true,
+                image: true,
+              },
+            },
+          },
+        },
+        statusHistory: {
+          orderBy: { createdAt: 'asc' },
+        },
+      },
+    });
+
+    if (!order) {
+      throw new NotFoundException(`Order ${orderNumber} not found`);
+    }
+
+    return order;
   }
 
   async getOrderStats() {

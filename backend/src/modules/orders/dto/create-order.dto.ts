@@ -27,6 +27,14 @@ export class CreateOrderDto {
   @IsString()
   shippingAddress: string;
 
+  @IsString()
+  @IsOptional()
+  shippingState?: string;
+
+  @IsString()
+  @IsOptional()
+  shippingLGA?: string;
+
   @IsEnum(Currency)
   currency: Currency;
 
