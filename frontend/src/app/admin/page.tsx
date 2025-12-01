@@ -71,8 +71,9 @@ export default function AdminDashboardPage() {
   const [loginError, setLoginError] = useState('');
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
-  // Check if user is admin (including superadmin role)
-  const isAdmin = user?.role === 'admin' || user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN' || user?.role === 'superadmin';
+  // Check if user is admin (case-insensitive comparison)
+  const adminRoles = ['admin', 'superadmin', 'super_admin'];
+  const isAdmin = user?.role && adminRoles.includes(user.role.toLowerCase());
 
   const handleLogin = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();

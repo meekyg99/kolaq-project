@@ -17,7 +17,9 @@ export default function AdminLoginPage() {
 
   // Redirect if already authenticated as admin
   useEffect(() => {
-    if (isAuthenticated && user?.role && ['admin', 'ADMIN', 'superadmin', 'SUPER_ADMIN'].includes(user.role)) {
+    const adminRoles = ['admin', 'superadmin', 'super_admin'];
+    const userRole = user?.role?.toLowerCase();
+    if (isAuthenticated && userRole && adminRoles.includes(userRole)) {
       router.push('/admin');
     }
   }, [isAuthenticated, user, router]);
@@ -31,13 +33,21 @@ export default function AdminLoginPage() {
     try {
       await login(email, password);
       
+      // Small delay to allow zustand persist to write to localStorage
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
       // Get updated user from store after login
       const userStr = localStorage.getItem('auth-storage');
       const authData = userStr ? JSON.parse(userStr) : null;
       const loggedInUser = authData?.state?.user;
 
-      // Check if user is admin
-      if (loggedInUser?.role && ['admin', 'ADMIN', 'superadmin', 'SUPER_ADMIN'].includes(loggedInUser.role)) {
+      console.log('Logged in user:', loggedInUser); // Debug log
+
+      // Check if user is admin (case-insensitive comparison)
+      const adminRoles = ['admin', 'superadmin', 'super_admin'];
+      const userRole = loggedInUser?.role?.toLowerCase();
+      
+      if (userRole && adminRoles.includes(userRole)) {
         router.push('/admin');
       } else {
         setLocalError('Access denied. Admin privileges required.');
