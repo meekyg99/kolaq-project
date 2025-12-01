@@ -124,6 +124,34 @@ export class NotificationService {
     });
   }
 
+  async sendPaymentPending(orderId: string) {
+    const order = await this.prisma.order.findUnique({
+      where: { id: orderId },
+    });
+
+    if (!order) {
+      throw new Error(`Order ${orderId} not found`);
+    }
+
+    const { paymentPendingTemplate } = await import('./templates');
+
+    const html = paymentPendingTemplate({
+      customerName: order.customerName,
+      orderNumber: order.orderNumber,
+      total: Number(order.total),
+      currency: order.currency,
+      orderDate: order.createdAt,
+    });
+
+    return this.sendNotification({
+      type: 'EMAIL',
+      recipient: order.customerEmail,
+      subject: `Payment Instructions - Order ${order.orderNumber}`,
+      message: html,
+      metadata: { orderId, orderNumber: order.orderNumber, status: 'PAYMENT_PENDING' },
+    });
+  }
+
   async sendOrderConfirmation(orderId: string) {
     const order = await this.prisma.order.findUnique({
       where: { id: orderId },

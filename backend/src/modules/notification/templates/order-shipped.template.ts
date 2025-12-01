@@ -90,14 +90,13 @@ export function orderShippedTemplate(data: ShippedEmailData): string {
       </ul>
     </div>
 
-    <div style="text-align: center; padding: 24px 0;">
-      <p style="color: #6B7280; margin: 0 0 16px 0; font-size: 14px;">
-        Questions about your shipment? We're here to help!
+    <div style="background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 16px; margin-top: 20px;">
+      <p style="margin: 0; font-size: 14px; color: #14532d; text-align: center;">
+        <strong>💬 Need Help?</strong><br>
+        WhatsApp: <a href="https://wa.me/2348157065742" style="color: #15803d; text-decoration: none; font-weight: 600;">+234 815 706 5742</a><br>
+        Email: <a href="mailto:support@kolaqalagbo.org" style="color: #15803d; text-decoration: none;">support@kolaqalagbo.org</a><br>
+        <span style="font-size: 12px; color: #16a34a;">Available Mon-Sat, 9AM - 6PM WAT</span>
       </p>
-      <a href="mailto:support@kolaqalagbo.com" 
-         style="color: #10B981; text-decoration: none; font-weight: 600;">
-        Contact Support →
-      </a>
     </div>
   `;
 

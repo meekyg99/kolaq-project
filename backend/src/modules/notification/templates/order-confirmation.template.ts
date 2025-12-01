@@ -83,13 +83,22 @@ export function orderConfirmationTemplate(data: {
       
       <div style="text-align: center;">
         <p class="message">You can track your order anytime using your order number.</p>
-        <a href="https://kolaqalagbo.org/track?order=${data.orderNumber}" class="cta-button">Track Your Order</a>
+        <a href="https://kolaqalagbo.org/track-order?order=${data.orderNumber}" class="cta-button">Track Your Order</a>
       </div>
       
       <div style="background: #fffbeb; border: 1px solid #fcd34d; border-radius: 8px; padding: 15px; margin-top: 25px;">
         <p style="margin: 0; font-size: 14px; color: #92400e;">
           <strong>📦 What's Next?</strong><br>
           We'll prepare your order and ship it within 1-2 business days. You'll receive tracking information once your order is on its way!
+        </p>
+      </div>
+
+      <div style="background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 15px; margin-top: 20px;">
+        <p style="margin: 0; font-size: 14px; color: #14532d;">
+          <strong>💬 Need Help?</strong><br>
+          WhatsApp: <a href="https://wa.me/2348157065742" style="color: #15803d; text-decoration: none; font-weight: 600;">+234 815 706 5742</a><br>
+          Email: <a href="mailto:support@kolaqalagbo.org" style="color: #15803d; text-decoration: none;">support@kolaqalagbo.org</a><br>
+          <span style="font-size: 12px; color: #16a34a;">Available Mon-Sat, 9AM - 6PM WAT</span>
         </p>
       </div>
     </div>
