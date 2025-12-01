@@ -117,28 +117,39 @@ model CartItem {
 }
 
 model Order {
-  id                 String        @id @default(cuid())
-  orderNumber        String        @unique
+  id                 String               @id @default(cuid())
+  orderNumber        String               @unique
   customerEmail      String
   customerName       String
   customerPhone      String?
   shippingAddress    String
+  shippingState      String?
+  shippingLGA        String?
   currency           Currency
-  subtotal           Decimal       @db.Decimal(12, 2)
-  shippingCost       Decimal       @default(0) @db.Decimal(12, 2)
-  total              Decimal       @db.Decimal(12, 2)
-  status             OrderStatus   @default(PENDING)
-  paymentStatus      PaymentStatus @default(PENDING)
+  subtotal           Decimal              @db.Decimal(12, 2)
+  shippingCost       Decimal              @default(0) @db.Decimal(12, 2)
+  total              Decimal              @db.Decimal(12, 2)
+  status             OrderStatus          @default(PENDING)
+  paymentStatus      PaymentStatus        @default(PENDING)
   paymentMethod      String?
   paymentRef         String?
   trackingNumber     String?
   trackingUrl        String?
   carrier            String?
   estimatedDelivery  DateTime?
+  actualDelivery     DateTime?
+  deliveryNotes      String?
+  deliveredBy        String?
   notes              String?
-  createdAt          DateTime      @default(now())
-  updatedAt          DateTime      @updatedAt
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
   items              OrderItem[]
+  statusHistory      OrderStatusHistory[]
+
+  @@index([orderNumber])
+  @@index([customerEmail])
+  @@index([status])
+  @@index([createdAt])
 }
 
 model OrderItem {
@@ -151,6 +162,19 @@ model OrderItem {
   createdAt DateTime @default(now())
   order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
   product   Product  @relation(fields: [productId], references: [id])
+}
+
+model OrderStatusHistory {
+  id        String      @id @default(cuid())
+  orderId   String
+  status    OrderStatus
+  note      String?
+  createdBy String?     // Admin user ID or 'SYSTEM'
+  createdAt DateTime    @default(now())
+  order     Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+  @@index([createdAt])
 }
 
 model Review {
@@ -211,13 +235,18 @@ enum Currency {
 }
 
 enum OrderStatus {
-  PENDING
-  PAID
-  PROCESSING
-  SHIPPED
-  DELIVERED
-  CANCELLED
-  REFUNDED
+  PENDING              // Order created, awaiting payment
+  PAYMENT_PENDING      // Payment initiated but not confirmed
+  PAID                 // Payment confirmed
+  PROCESSING           // Order being prepared
+  READY_FOR_DISPATCH   // Packed and ready to ship
+  DISPATCHED           // Handed to logistics partner
+  IN_TRANSIT           // In delivery
+  OUT_FOR_DELIVERY     // With delivery agent
+  DELIVERED            // Successfully delivered
+  CANCELLED            // Cancelled by customer/admin
+  REFUNDED             // Payment refunded
+  FAILED               // Delivery failed/returned
 }
 
 enum PaymentStatus {
