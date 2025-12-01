@@ -60,7 +60,7 @@ export function AdminVariantManager({
     }
   };
 
-  const sortedVariants = [...variants].sort((a, b) => a.sortOrder - b.sortOrder);
+  const sortedVariants = [...variants].sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
 
   return (
     <div className="space-y-4">
