@@ -1,6 +1,20 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
+// Helper function to decode JWT without verification (client-side only check)
+function decodeJWT(token: string) {
+  try {
+    const parts = token.split('.');
+    if (parts.length !== 3) return null;
+    
+    const payload = parts[1];
+    const decoded = JSON.parse(Buffer.from(payload, 'base64').toString('utf-8'));
+    return decoded;
+  } catch (error) {
+    return null;
+  }
+}
+
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
@@ -22,9 +36,25 @@ export function middleware(request: NextRequest) {
       return NextResponse.redirect(loginUrl);
     }
 
-    // Note: We can't verify JWT server-side in middleware without edge runtime support
-    // So we rely on the client-side admin page to do role verification
-    // The server-side API endpoints should also verify the role
+    // Decode JWT and check if user has admin role
+    const decoded = decodeJWT(accessToken);
+    if (!decoded || !decoded.role) {
+      const loginUrl = new URL('/admin/login', request.url);
+      loginUrl.searchParams.set('redirect', pathname);
+      loginUrl.searchParams.set('error', 'unauthorized');
+      return NextResponse.redirect(loginUrl);
+    }
+
+    // Check if user has admin privileges
+    const adminRoles = ['admin', 'superadmin', 'super_admin', 'ADMIN', 'SUPERADMIN'];
+    const userRole = decoded.role.toLowerCase();
+    
+    if (!adminRoles.includes(userRole) && !adminRoles.includes(decoded.role)) {
+      // User is authenticated but not an admin - redirect to home with error
+      const homeUrl = new URL('/', request.url);
+      homeUrl.searchParams.set('error', 'access_denied');
+      return NextResponse.redirect(homeUrl);
+    }
   }
 
   return NextResponse.next();

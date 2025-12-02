@@ -70,6 +70,7 @@ export default function AdminDashboardPage() {
   const [activeTab, setActiveTab] = useState<AdminTab>('overview');
   const { user, isAuthenticated, isLoading, logout } = useAuth();
   const router = useRouter();
+  const [authChecked, setAuthChecked] = useState(false);
 
   // Check if user is admin (case-insensitive comparison)
   const adminRoles = ['admin', 'superadmin', 'super_admin'];
@@ -81,13 +82,20 @@ export default function AdminDashboardPage() {
     router.push('/admin/login');
   };
 
+  // Wait for auth check to complete before rendering anything
+  useEffect(() => {
+    if (!isLoading) {
+      setAuthChecked(true);
+    }
+  }, [isLoading]);
+
   // Show loading state while checking auth
-  if (isLoading) {
+  if (isLoading || !authChecked) {
     return (
       <div className="container flex min-h-[70vh] items-center justify-center py-12">
         <div className="flex flex-col items-center gap-4">
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-200 border-t-[var(--accent)]" />
-          <p className="text-sm text-slate-500">Loading...</p>
+          <p className="text-sm text-slate-500">Verifying credentials...</p>
         </div>
       </div>
     );
@@ -96,7 +104,14 @@ export default function AdminDashboardPage() {
   // Redirect to admin login if not authenticated
   if (!isAuthenticated) {
     router.push('/admin/login');
-    return null;
+    return (
+      <div className="container flex min-h-[70vh] items-center justify-center py-12">
+        <div className="flex flex-col items-center gap-4">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-200 border-t-[var(--accent)]" />
+          <p className="text-sm text-slate-500">Redirecting to login...</p>
+        </div>
+      </div>
+    );
   }
 
   // Show access denied if authenticated but not admin
@@ -108,6 +123,9 @@ export default function AdminDashboardPage() {
             <h1 className="text-2xl font-semibold text-red-900">Access Denied</h1>
             <p className="text-sm text-red-700">
               You don't have admin privileges to access this dashboard.
+            </p>
+            <p className="text-xs text-red-600 mt-2">
+              Current role: {user?.role || 'Unknown'}
             </p>
           </div>
           <button
