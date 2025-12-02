@@ -43,6 +43,12 @@ export const useAuthStore = create<AuthState>()(
             } else {
               localStorage.removeItem('refresh_token');
             }
+            
+            // Set cookies for middleware access
+            document.cookie = `access_token=${response.accessToken}; path=/; max-age=${60 * 60 * 24 * 7}; samesite=strict`;
+            if (response.refreshToken) {
+              document.cookie = `refresh_token=${response.refreshToken}; path=/; max-age=${60 * 60 * 24 * 30}; samesite=strict`;
+            }
           }
 
           const user = {
@@ -79,6 +85,12 @@ export const useAuthStore = create<AuthState>()(
             } else {
               localStorage.removeItem('refresh_token');
             }
+            
+            // Set cookies for middleware access
+            document.cookie = `access_token=${response.accessToken}; path=/; max-age=${60 * 60 * 24 * 7}; samesite=strict`;
+            if (response.refreshToken) {
+              document.cookie = `refresh_token=${response.refreshToken}; path=/; max-age=${60 * 60 * 24 * 30}; samesite=strict`;
+            }
           }
 
           const user = {
@@ -104,6 +116,13 @@ export const useAuthStore = create<AuthState>()(
 
       logout: () => {
         authApi.logout();
+        
+        // Clear cookies
+        if (typeof window !== 'undefined') {
+          document.cookie = 'access_token=; path=/; max-age=0';
+          document.cookie = 'refresh_token=; path=/; max-age=0';
+        }
+        
         set({
           user: null,
           isAuthenticated: false,

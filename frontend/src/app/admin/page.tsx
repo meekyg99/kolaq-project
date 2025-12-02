@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { type ChangeEvent, type ComponentType, type FormEvent, type ReactNode, useEffect, useMemo, useState } from 'react';
 import { Bell, Check, Edit, Filter, LogOut, Package, Pencil, Plus, Search, ShoppingBag, Trash2, TrendingUp, X } from 'lucide-react';
 import { toast } from 'sonner';
@@ -67,39 +68,17 @@ const AUTH_STORAGE_KEY = 'kolaq-admin-auth-v1';
 
 export default function AdminDashboardPage() {
   const [activeTab, setActiveTab] = useState<AdminTab>('overview');
-  const { user, isAuthenticated, isLoading, login, logout, error: authError, clearError } = useAuth();
-  const [loginError, setLoginError] = useState('');
-  const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const { user, isAuthenticated, isLoading, logout } = useAuth();
+  const router = useRouter();
 
   // Check if user is admin (case-insensitive comparison)
   const adminRoles = ['admin', 'superadmin', 'super_admin'];
   const isAdmin = user?.role && adminRoles.includes(user.role.toLowerCase());
 
-  const handleLogin = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const form = new FormData(event.currentTarget);
-    const email = String(form.get('email') ?? '').trim();
-    const password = String(form.get('passcode') ?? '').trim();
-
-    setIsLoggingIn(true);
-    setLoginError('');
-    clearError();
-
-    try {
-      await login(email, password);
-      // Mark admin session
-      window.localStorage.setItem(AUTH_STORAGE_KEY, 'true');
-    } catch (error: any) {
-      console.error('Login failed:', error);
-      setLoginError(error.response?.data?.message || 'Invalid credentials. Please try again.');
-    } finally {
-      setIsLoggingIn(false);
-    }
-  };
-
   const handleSignOut = () => {
     window.localStorage.removeItem(AUTH_STORAGE_KEY);
     logout();
+    router.push('/admin/login');
   };
 
   // Show loading state while checking auth
@@ -114,58 +93,10 @@ export default function AdminDashboardPage() {
     );
   }
 
-  // Show login form if not authenticated
+  // Redirect to admin login if not authenticated
   if (!isAuthenticated) {
-    return (
-      <div className="container flex min-h-[70vh] items-center justify-center py-12">
-        <div className="w-full max-w-md space-y-6 rounded-[28px] border border-slate-200 bg-white p-8 shadow-lg">
-          <div className="space-y-2 text-center">
-            <h1 className="text-2xl font-semibold text-slate-900">Admin Access</h1>
-            <p className="text-sm text-slate-600">
-              Enter your admin email and password to manage inventory, users, and notifications.
-            </p>
-          </div>
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div className="space-y-2">
-              <label htmlFor="email" className="text-xs uppercase tracking-[0.3em] text-slate-400">
-                Email
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                required
-                disabled={isLoggingIn}
-                className="w-full rounded-[18px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-[var(--accent)] disabled:opacity-50"
-                placeholder="Enter your email"
-              />
-            </div>
-            <div className="space-y-2">
-              <label htmlFor="passcode" className="text-xs uppercase tracking-[0.3em] text-slate-400">
-                Password
-              </label>
-              <input
-                id="passcode"
-                name="passcode"
-                type="password"
-                required
-                disabled={isLoggingIn}
-                className="w-full rounded-[18px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-[var(--accent)] disabled:opacity-50"
-                placeholder="Your secure password"
-              />
-            </div>
-            {(loginError || authError) && <p className="text-sm text-red-500">{loginError || authError}</p>}
-            <button
-              type="submit"
-              disabled={isLoggingIn}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[var(--accent)] px-5 py-3 text-xs font-semibold uppercase tracking-[0.35em] text-white transition hover:bg-neutral-800 disabled:opacity-50"
-            >
-              {isLoggingIn ? 'Logging in...' : 'Unlock Dashboard'}
-            </button>
-          </form>
-        </div>
-      </div>
-    );
+    router.push('/admin/login');
+    return null;
   }
 
   // Show access denied if authenticated but not admin
