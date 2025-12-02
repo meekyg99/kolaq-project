@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Loader2 } from "lucide-react";
@@ -8,7 +8,7 @@ import { useAuth } from "@/lib/hooks";
 
 export function LoginForm() {
   const router = useRouter();
-  const { login, error: authError, isLoading: authLoading, clearError } = useAuth();
+  const { user, isAuthenticated, login, error: authError, isLoading: authLoading, clearError } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
@@ -16,6 +16,18 @@ export function LoginForm() {
 
   const error = localError || authError;
   const isLoading = authLoading;
+
+  // Check if user is already logged in and redirect
+  useEffect(() => {
+    if (isAuthenticated && user && !isLoading) {
+      // Redirect based on user role
+      if (user?.role === 'admin' || user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN') {
+        router.replace('/admin');
+      } else {
+        router.replace('/shop');
+      }
+    }
+  }, [isAuthenticated, user, isLoading, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,16 +37,19 @@ export function LoginForm() {
     try {
       await login(email, password);
       
+      // Wait a bit for state to update properly
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
       // Get updated user from store after login
       const userStr = localStorage.getItem('auth-storage');
       const authData = userStr ? JSON.parse(userStr) : null;
-      const user = authData?.state?.user;
+      const loggedInUser = authData?.state?.user;
 
-      // Redirect based on user role
-      if (user?.role === 'admin' || user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN') {
-        router.push('/admin');
+      // Force a full page reload to ensure middleware picks up the authentication
+      if (loggedInUser?.role === 'admin' || loggedInUser?.role === 'ADMIN' || loggedInUser?.role === 'SUPER_ADMIN') {
+        window.location.href = '/admin';
       } else {
-        router.push('/shop');
+        window.location.href = '/shop';
       }
     } catch (err: any) {
       console.error('Login error:', err);

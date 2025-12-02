@@ -19,10 +19,10 @@ export default function AdminLoginPage() {
   useEffect(() => {
     const adminRoles = ['admin', 'superadmin', 'super_admin'];
     const userRole = user?.role?.toLowerCase();
-    if (isAuthenticated && userRole && adminRoles.includes(userRole)) {
-      router.push('/admin');
+    if (isAuthenticated && userRole && adminRoles.includes(userRole) && !authLoading) {
+      window.location.href = '/admin';
     }
-  }, [isAuthenticated, user, router]);
+  }, [isAuthenticated, user, authLoading]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,12 +48,15 @@ export default function AdminLoginPage() {
       const userRole = loggedInUser?.role?.toLowerCase();
       
       if (userRole && adminRoles.includes(userRole)) {
-        router.push('/admin');
+        // Force a full page reload to ensure middleware picks up the authentication
+        window.location.href = '/admin';
       } else {
         setLocalError('Access denied. Admin privileges required.');
         // Clear auth since they're not admin
         localStorage.removeItem('access_token');
         localStorage.removeItem('refresh_token');
+        document.cookie = 'access_token=; path=/; max-age=0';
+        document.cookie = 'refresh_token=; path=/; max-age=0';
       }
     } catch (err: any) {
       console.error('Login error:', err);
