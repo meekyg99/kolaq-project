@@ -26,7 +26,7 @@ export function ProductVariantSelector({
 
   const activeVariants = variants
     .filter((v) => v.isActive)
-    .sort((a, b) => a.sortOrder - b.sortOrder);
+    .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
 
   const handleSelect = (variant: ProductVariant) => {
     setSelected(variant);

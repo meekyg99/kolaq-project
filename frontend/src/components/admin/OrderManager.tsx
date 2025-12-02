@@ -167,7 +167,7 @@ export function OrderManager() {
 
       const payload: Record<string, any> = { status: updateData.status };
       
-      if (updateData.status === 'SHIPPED') {
+      if (updateData.status === 'DISPATCHED' || updateData.status === 'IN_TRANSIT') {
         if (updateData.trackingNumber) payload.trackingNumber = updateData.trackingNumber;
         if (updateData.trackingUrl) payload.trackingUrl = updateData.trackingUrl;
         if (updateData.carrier) payload.carrier = updateData.carrier;
@@ -626,8 +626,8 @@ export function OrderManager() {
                 </select>
               </div>
 
-              {/* Shipping Details (when status is SHIPPED) */}
-              {updateData.status === 'SHIPPED' && (
+              {/* Shipping Details (when status is DISPATCHED or IN_TRANSIT) */}
+              {(updateData.status === 'DISPATCHED' || updateData.status === 'IN_TRANSIT' || updateData.status === 'OUT_FOR_DELIVERY') && (
                 <div className="space-y-4 rounded-lg border border-slate-200 bg-slate-50 p-4">
                   <h4 className="font-medium text-slate-900">Shipping Details</h4>
                   <div className="grid gap-4 sm:grid-cols-2">

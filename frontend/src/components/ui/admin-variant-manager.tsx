@@ -144,7 +144,7 @@ export function AdminVariantManager({
                 </button>
                 <button
                   type="button"
-                  onClick={() => handleDelete(variant.id)}
+                  onClick={() => variant.id && handleDelete(variant.id)}
                   className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-red-200 text-red-600 transition hover:border-red-300 hover:bg-red-50"
                   title="Delete variant"
                 >
@@ -165,7 +165,7 @@ export function AdminVariantManager({
             setEditingVariant(null);
           }}
           onCreate={handleCreate}
-          onUpdate={(updates) => editingVariant && handleUpdate(editingVariant.id, updates)}
+          onUpdate={(updates) => editingVariant && editingVariant.id && handleUpdate(editingVariant.id, updates)}
         />
       )}
     </div>

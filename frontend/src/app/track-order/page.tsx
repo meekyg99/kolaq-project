@@ -234,10 +234,7 @@ export default function TrackOrderPage() {
                 <h3 className="font-semibold text-gray-900 mb-2">Shipping Address</h3>
                 <p className="text-gray-700">{order.customerName}</p>
                 <p className="text-gray-700">{order.shippingAddress}</p>
-                <p className="text-gray-700">
-                  {order.shippingCity}, {order.shippingState}
-                </p>
-                <p className="text-gray-700">{order.shippingCountry}</p>
+                <p className="text-gray-700">{order.shippingState}</p>
                 <p className="text-gray-700 mt-2">{order.customerPhone}</p>
               </div>
             </div>
