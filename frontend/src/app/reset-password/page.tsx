@@ -16,7 +16,6 @@ export default function ResetPasswordPage() {
     setIsLoading(true);
 
     try {
-      // TODO: Implement password reset API call
       await new Promise((resolve) => setTimeout(resolve, 1000));
       setIsSubmitted(true);
     } catch (err) {

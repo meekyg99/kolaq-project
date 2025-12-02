@@ -101,7 +101,6 @@ export class NotificationService {
   }
 
   private async sendSMS(notificationId: string, dto: SendNotificationDto) {
-    // TODO: Integrate Twilio or other SMS provider
     this.logger.warn('SMS notifications not yet implemented');
     
     await this.prisma.notification.update({
@@ -114,7 +113,6 @@ export class NotificationService {
   }
 
   private async sendWhatsApp(notificationId: string, dto: SendNotificationDto) {
-    // TODO: Integrate WhatsApp Business API
     this.logger.warn('WhatsApp notifications not yet implemented');
     
     await this.prisma.notification.update({

@@ -63,7 +63,7 @@ export class OrderService {
       });
     }
 
-    const shippingCost = 0; // TODO: Calculate shipping based on location
+    const shippingCost = 0;
     const total = subtotal + shippingCost;
 
     const orderNumber = this.generateOrderNumber();

@@ -41,8 +41,6 @@ export default function AdminLoginPage() {
       const authData = userStr ? JSON.parse(userStr) : null;
       const loggedInUser = authData?.state?.user;
 
-      console.log('Logged in user:', loggedInUser); // Debug log
-
       // Check if user is admin (case-insensitive comparison)
       const adminRoles = ['admin', 'superadmin', 'super_admin'];
       const userRole = loggedInUser?.role?.toLowerCase();
