@@ -10,6 +10,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { CurrencyToggle } from "@/components/ui/currency-toggle";
 import { useCartStore } from "@/lib/store/cartStore";
 import { useProductSearch } from "@/components/providers/product-search-provider";
+import { useAuth } from "@/lib/hooks";
 
 const navLinks = [
   { href: "/", label: "Home" },
@@ -26,6 +27,7 @@ export function SiteHeader() {
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const { cart, fetchCart } = useCartStore();
   const { open } = useProductSearch();
+  const { user, isAuthenticated, logout } = useAuth();
   const cartCount = cart?.itemCount || 0;
 
   useEffect(() => {
@@ -155,18 +157,52 @@ export function SiteHeader() {
             </button>
             {profileMenuOpen && (
               <div className="absolute right-0 mt-3 w-44 rounded-2xl border border-slate-200 bg-white p-2 text-sm text-slate-600 shadow-lg">
-                <Link
-                  href="/signup"
-                  className="flex items-center gap-2 rounded-xl px-3 py-2 transition hover:bg-slate-100 hover:text-slate-900"
-                >
-                  Create Account
-                </Link>
-                <Link
-                  href="/login"
-                  className="flex items-center gap-2 rounded-xl px-3 py-2 transition hover:bg-slate-100 hover:text-slate-900"
-                >
-                  Log In
-                </Link>
+                {isAuthenticated ? (
+                  <>
+                    <div className="border-b border-slate-200 px-3 py-2 mb-1">
+                      <p className="text-xs font-medium text-slate-900 truncate">{user?.name || user?.email}</p>
+                      <p className="text-[10px] text-slate-500 uppercase tracking-wide">{user?.role}</p>
+                    </div>
+                    <Link
+                      href="/orders"
+                      className="flex items-center gap-2 rounded-xl px-3 py-2 transition hover:bg-slate-100 hover:text-slate-900"
+                    >
+                      My Orders
+                    </Link>
+                    {(user?.role === 'admin' || user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN') && (
+                      <Link
+                        href="/admin"
+                        className="flex items-center gap-2 rounded-xl px-3 py-2 transition hover:bg-slate-100 hover:text-slate-900"
+                      >
+                        Admin Panel
+                      </Link>
+                    )}
+                    <button
+                      onClick={() => {
+                        logout();
+                        setProfileMenuOpen(false);
+                      }}
+                      className="w-full flex items-center gap-2 rounded-xl px-3 py-2 transition hover:bg-red-50 hover:text-red-600"
+                    >
+                      Log Out
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <Link
+                      href="/signup"
+                      className="flex items-center gap-2 rounded-xl px-3 py-2 transition hover:bg-slate-100 hover:text-slate-900"
+                    >
+                      Create Account
+                    </Link>
+                    <Link
+                      href="/login"
+                      className="flex items-center gap-2 rounded-xl px-3 py-2 transition hover:bg-slate-100 hover:text-slate-900"
+                    >
+                      Log In
+                    </Link>
+                  </>
+                )}
               </div>
             )}
           </div>
@@ -331,21 +367,58 @@ export function SiteHeader() {
                   className="space-y-1"
                 >
                   <p className="px-4 pb-2 text-xs uppercase tracking-widest text-slate-400">Account</p>
-                  <Link
-                    href="/login"
-                    onClick={() => setMenuOpen(false)}
-                    className="flex items-center gap-3 rounded-xl px-4 py-3 text-base font-medium text-slate-700 transition hover:bg-slate-100"
-                  >
-                    <UserRound size={20} />
-                    Log In
-                  </Link>
-                  <Link
-                    href="/signup"
-                    onClick={() => setMenuOpen(false)}
-                    className="flex items-center gap-3 rounded-xl bg-[var(--accent-green)] px-4 py-3 text-base font-medium text-white transition hover:bg-[var(--accent-green-hover)]"
-                  >
-                    Create Account
-                  </Link>
+                  {isAuthenticated ? (
+                    <>
+                      <div className="px-4 py-2">
+                        <p className="text-sm font-medium text-slate-900 truncate">{user?.name || user?.email}</p>
+                        <p className="text-xs text-slate-500 uppercase tracking-wide">{user?.role}</p>
+                      </div>
+                      <Link
+                        href="/orders"
+                        onClick={() => setMenuOpen(false)}
+                        className="flex items-center gap-3 rounded-xl px-4 py-3 text-base font-medium text-slate-700 transition hover:bg-slate-100"
+                      >
+                        <UserRound size={20} />
+                        My Orders
+                      </Link>
+                      {(user?.role === 'admin' || user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN') && (
+                        <Link
+                          href="/admin"
+                          onClick={() => setMenuOpen(false)}
+                          className="flex items-center gap-3 rounded-xl px-4 py-3 text-base font-medium text-slate-700 transition hover:bg-slate-100"
+                        >
+                          Admin Panel
+                        </Link>
+                      )}
+                      <button
+                        onClick={() => {
+                          logout();
+                          setMenuOpen(false);
+                        }}
+                        className="w-full flex items-center gap-3 rounded-xl px-4 py-3 text-base font-medium text-red-600 transition hover:bg-red-50"
+                      >
+                        Log Out
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <Link
+                        href="/login"
+                        onClick={() => setMenuOpen(false)}
+                        className="flex items-center gap-3 rounded-xl px-4 py-3 text-base font-medium text-slate-700 transition hover:bg-slate-100"
+                      >
+                        <UserRound size={20} />
+                        Log In
+                      </Link>
+                      <Link
+                        href="/signup"
+                        onClick={() => setMenuOpen(false)}
+                        className="flex items-center gap-3 rounded-xl bg-[var(--accent-green)] px-4 py-3 text-base font-medium text-white transition hover:bg-[var(--accent-green-hover)]"
+                      >
+                        Create Account
+                      </Link>
+                    </>
+                  )}
                 </motion.div>
               </nav>
               

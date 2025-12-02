@@ -15,12 +15,15 @@ export const useAuth = () => {
     checkAuth,
   } = useAuthStore();
 
-  // Check auth on mount
+  // Check auth on mount and restore session
   useEffect(() => {
-    if (!user && !isLoading) {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
+    
+    // Only check auth if we have a token but no user loaded yet
+    if (token && !user && !isLoading) {
       checkAuth();
     }
-  }, []);
+  }, [checkAuth, user, isLoading]);
 
   return {
     user,

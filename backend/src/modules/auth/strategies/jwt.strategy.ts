@@ -24,19 +24,38 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: JwtPayload) {
-    const user = await this.prisma.adminUser.findUnique({
+    // First check adminUser table
+    let user = await this.prisma.adminUser.findUnique({
       where: { id: payload.sub },
     });
 
-    if (!user) {
+    if (user) {
+      return {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+      };
+    }
+
+    // Then check regular user table
+    const regularUser = await this.prisma.user.findUnique({
+      where: { id: payload.sub },
+    });
+
+    if (!regularUser) {
       throw new UnauthorizedException('Invalid token');
     }
 
     return {
-      id: user.id,
-      email: user.email,
-      name: user.name,
-      role: user.role,
+      id: regularUser.id,
+      email: regularUser.email,
+      name: regularUser.firstName && regularUser.lastName 
+        ? `${regularUser.firstName} ${regularUser.lastName}`
+        : regularUser.email,
+      firstName: regularUser.firstName,
+      lastName: regularUser.lastName,
+      role: regularUser.role,
     };
   }
 }

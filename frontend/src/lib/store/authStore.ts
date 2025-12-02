@@ -135,19 +135,30 @@ export const useAuthStore = create<AuthState>()(
       checkAuth: async () => {
         if (typeof window === 'undefined') return;
         
+        set({ isLoading: true });
+        
         const token = localStorage.getItem('access_token');
         if (!token) {
-          set({ isAuthenticated: false, user: null });
+          set({ isAuthenticated: false, user: null, isLoading: false });
+          // Clear cookies if no token
+          document.cookie = 'access_token=; path=/; max-age=0';
+          document.cookie = 'refresh_token=; path=/; max-age=0';
           return;
         }
 
         try {
           const user = await authApi.getProfile();
-          set({ user, isAuthenticated: true });
+          
+          // Also ensure cookies are set
+          document.cookie = `access_token=${token}; path=/; max-age=${60 * 60 * 24 * 7}; samesite=strict`;
+          
+          set({ user, isAuthenticated: true, isLoading: false });
         } catch (error) {
-          set({ isAuthenticated: false, user: null });
+          set({ isAuthenticated: false, user: null, isLoading: false });
           localStorage.removeItem('access_token');
           localStorage.removeItem('refresh_token');
+          document.cookie = 'access_token=; path=/; max-age=0';
+          document.cookie = 'refresh_token=; path=/; max-age=0';
         }
       },
     }),
