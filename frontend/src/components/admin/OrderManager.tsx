@@ -18,7 +18,9 @@ import {
   MapPin,
   Calendar,
   User,
-  DollarSign
+  DollarSign,
+  Send,
+  RotateCw
 } from 'lucide-react';
 import { formatCurrency } from '@/lib/currency';
 
@@ -121,6 +123,8 @@ export function OrderManager() {
     carrier: '',
     estimatedDelivery: '',
   });
+  const [creatingShipment, setCreatingShipment] = useState(false);
+  const [syncingShipment, setSyncingShipment] = useState(false);
 
   const fetchOrders = async () => {
     setLoading(true);
@@ -200,6 +204,73 @@ export function OrderManager() {
       toast.error(error.message || 'Failed to update order status');
     } finally {
       setIsUpdating(false);
+    }
+  };
+
+  const handleCreateShipment = async (orderId: string) => {
+    setCreatingShipment(true);
+    try {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+      const token = localStorage.getItem('token');
+
+      const response = await fetch(`${API_URL}/api/v1/orders/${orderId}/create-shipment`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to create shipment');
+      }
+
+      const updatedOrder = await response.json();
+      toast.success('Shipment created successfully! Tracking details added and customer notified.');
+      
+      // Update selected order if it's being viewed
+      if (selectedOrder?.id === orderId) {
+        setSelectedOrder(updatedOrder);
+      }
+      
+      fetchOrders();
+    } catch (error: any) {
+      console.error('Error creating shipment:', error);
+      toast.error(error.message || 'Failed to create shipment');
+    } finally {
+      setCreatingShipment(false);
+    }
+  };
+
+  const handleSyncShipment = async (orderId: string) => {
+    setSyncingShipment(true);
+    try {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+      const token = localStorage.getItem('token');
+
+      const response = await fetch(`${API_URL}/api/v1/orders/${orderId}/sync-shipment`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to sync shipment');
+      }
+
+      const result = await response.json();
+      toast.success(`Shipment synced! Status: ${result.status}`);
+      
+      fetchOrders();
+    } catch (error: any) {
+      console.error('Error syncing shipment:', error);
+      toast.error(error.message || 'Failed to sync shipment');
+    } finally {
+      setSyncingShipment(false);
     }
   };
 
@@ -427,25 +498,53 @@ export function OrderManager() {
               </div>
             </div>
 
-            {/* Tracking Info */}
-            {selectedOrder.trackingNumber && (
-              <div className="space-y-4 md:col-span-2">
+            {/* Logistics & Shipment Section */}
+            <div className="space-y-4 md:col-span-2">
+              <div className="flex items-center justify-between">
                 <h4 className="flex items-center gap-2 font-medium text-slate-900">
-                  <Truck size={16} /> Tracking Information
+                  <Truck size={16} /> Logistics & Shipment
                 </h4>
-                <div className="rounded-lg border border-slate-200 p-4">
+                <div className="flex items-center gap-2">
+                  {/* Create Shipment Button */}
+                  {selectedOrder.status === 'READY_FOR_DISPATCH' && !selectedOrder.trackingNumber && (
+                    <button
+                      onClick={() => handleCreateShipment(selectedOrder.id)}
+                      disabled={creatingShipment}
+                      className="inline-flex items-center gap-2 rounded-full bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700 disabled:opacity-50"
+                    >
+                      <Send size={16} />
+                      {creatingShipment ? 'Creating...' : 'Create Shipment with GIG'}
+                    </button>
+                  )}
+                  {/* Sync Shipment Button */}
+                  {selectedOrder.trackingNumber && (
+                    <button
+                      onClick={() => handleSyncShipment(selectedOrder.id)}
+                      disabled={syncingShipment}
+                      className="inline-flex items-center gap-2 rounded-full border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-300 disabled:opacity-50"
+                    >
+                      <RotateCw size={16} className={syncingShipment ? 'animate-spin' : ''} />
+                      {syncingShipment ? 'Syncing...' : 'Sync Status'}
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Tracking Info Display */}
+              {selectedOrder.trackingNumber ? (
+                <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
                   <div className="grid gap-4 sm:grid-cols-3">
                     <div>
-                      <p className="text-xs text-slate-500">Carrier</p>
-                      <p className="font-medium text-slate-900">{selectedOrder.carrier || 'N/A'}</p>
+                      <p className="text-xs text-blue-700">Carrier</p>
+                      <p className="font-medium text-blue-900">{selectedOrder.carrier || 'GIG Logistics'}</p>
                     </div>
                     <div>
-                      <p className="text-xs text-slate-500">Tracking Number</p>
-                      <p className="font-mono font-medium text-slate-900">{selectedOrder.trackingNumber}</p>
+                      <p className="text-xs text-blue-700">Tracking Number</p>
+                      <p className="font-mono font-medium text-blue-900">{selectedOrder.trackingNumber}</p>
                     </div>
                     <div>
-                      <p className="text-xs text-slate-500">Est. Delivery</p>
-                      <p className="font-medium text-slate-900">
+                      <p className="text-xs text-blue-700">Est. Delivery</p>
+                      <p className="font-medium text-blue-900">
                         {selectedOrder.estimatedDelivery 
                           ? new Date(selectedOrder.estimatedDelivery).toLocaleDateString()
                           : 'N/A'}
@@ -457,14 +556,25 @@ export function OrderManager() {
                       href={selectedOrder.trackingUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="mt-4 inline-flex items-center gap-2 text-sm font-medium text-[var(--accent)] hover:underline"
+                      className="mt-4 inline-flex items-center gap-2 text-sm font-medium text-blue-700 hover:text-blue-900 hover:underline"
                     >
-                      Track Package →
+                      <Truck size={16} />
+                      Track with {selectedOrder.carrier || 'GIG Logistics'} →
                     </a>
                   )}
                 </div>
-              </div>
-            )}
+              ) : (
+                <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-center">
+                  <Package className="mx-auto h-8 w-8 text-slate-400" />
+                  <p className="mt-2 text-sm font-medium text-slate-700">No shipment created yet</p>
+                  <p className="text-xs text-slate-500">
+                    {selectedOrder.status === 'READY_FOR_DISPATCH' 
+                      ? 'Order is ready - click "Create Shipment" to send with GIG Logistics'
+                      : `Update order status to "Ready to Ship" before creating shipment`}
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}
