@@ -22,7 +22,19 @@ import {
 } from 'lucide-react';
 import { formatCurrency } from '@/lib/currency';
 
-export type OrderStatus = 'PENDING' | 'PAID' | 'PROCESSING' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED' | 'REFUNDED';
+export type OrderStatus = 
+  | 'PENDING' 
+  | 'PAYMENT_PENDING' 
+  | 'PAID' 
+  | 'PROCESSING' 
+  | 'READY_FOR_DISPATCH' 
+  | 'DISPATCHED' 
+  | 'IN_TRANSIT' 
+  | 'OUT_FOR_DELIVERY' 
+  | 'DELIVERED' 
+  | 'CANCELLED' 
+  | 'REFUNDED' 
+  | 'FAILED';
 
 interface OrderItem {
   id: string;
@@ -65,23 +77,33 @@ interface Order {
 }
 
 const statusConfig: Record<OrderStatus, { label: string; color: string; bgColor: string; icon: typeof Clock }> = {
-  PENDING: { label: 'Pending', color: 'text-yellow-700', bgColor: 'bg-yellow-100', icon: Clock },
-  PAID: { label: 'Paid', color: 'text-blue-700', bgColor: 'bg-blue-100', icon: CreditCard },
-  PROCESSING: { label: 'Processing', color: 'text-purple-700', bgColor: 'bg-purple-100', icon: Package },
-  SHIPPED: { label: 'Shipped', color: 'text-indigo-700', bgColor: 'bg-indigo-100', icon: Truck },
+  PENDING: { label: 'Pending', color: 'text-gray-700', bgColor: 'bg-gray-100', icon: Clock },
+  PAYMENT_PENDING: { label: 'Payment Pending', color: 'text-yellow-700', bgColor: 'bg-yellow-100', icon: Clock },
+  PAID: { label: 'Paid', color: 'text-green-700', bgColor: 'bg-green-100', icon: CheckCircle },
+  PROCESSING: { label: 'Processing', color: 'text-blue-700', bgColor: 'bg-blue-100', icon: Package },
+  READY_FOR_DISPATCH: { label: 'Ready to Ship', color: 'text-blue-700', bgColor: 'bg-blue-100', icon: Package },
+  DISPATCHED: { label: 'Dispatched', color: 'text-indigo-700', bgColor: 'bg-indigo-100', icon: Truck },
+  IN_TRANSIT: { label: 'In Transit', color: 'text-purple-700', bgColor: 'bg-purple-100', icon: Truck },
+  OUT_FOR_DELIVERY: { label: 'Out for Delivery', color: 'text-orange-700', bgColor: 'bg-orange-100', icon: Truck },
   DELIVERED: { label: 'Delivered', color: 'text-green-700', bgColor: 'bg-green-100', icon: CheckCircle },
   CANCELLED: { label: 'Cancelled', color: 'text-red-700', bgColor: 'bg-red-100', icon: XCircle },
   REFUNDED: { label: 'Refunded', color: 'text-gray-700', bgColor: 'bg-gray-100', icon: RefreshCcw },
+  FAILED: { label: 'Failed', color: 'text-red-700', bgColor: 'bg-red-100', icon: XCircle },
 };
 
 const statusTransitions: Record<OrderStatus, OrderStatus[]> = {
-  PENDING: ['PAID', 'CANCELLED'],
+  PENDING: ['PAYMENT_PENDING', 'PAID', 'CANCELLED'],
+  PAYMENT_PENDING: ['PAID', 'CANCELLED'],
   PAID: ['PROCESSING', 'CANCELLED', 'REFUNDED'],
-  PROCESSING: ['SHIPPED', 'CANCELLED', 'REFUNDED'],
-  SHIPPED: ['DELIVERED', 'CANCELLED', 'REFUNDED'],
+  PROCESSING: ['READY_FOR_DISPATCH', 'CANCELLED', 'REFUNDED'],
+  READY_FOR_DISPATCH: ['DISPATCHED', 'CANCELLED'],
+  DISPATCHED: ['IN_TRANSIT', 'CANCELLED'],
+  IN_TRANSIT: ['OUT_FOR_DELIVERY', 'FAILED'],
+  OUT_FOR_DELIVERY: ['DELIVERED', 'FAILED'],
   DELIVERED: ['REFUNDED'],
-  CANCELLED: [],
+  CANCELLED: ['REFUNDED'],
   REFUNDED: [],
+  FAILED: ['REFUNDED', 'OUT_FOR_DELIVERY'], // Can retry or refund
 };
 
 export function OrderManager() {
