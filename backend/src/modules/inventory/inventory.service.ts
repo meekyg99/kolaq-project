@@ -198,4 +198,190 @@ export class InventoryService {
       lowStockThreshold: this.LOW_STOCK_THRESHOLD,
     };
   }
+
+  /**
+   * Deduct inventory for order items (called when order is paid)
+   */
+  async deductInventoryForOrder(
+    orderId: string,
+    items: Array<{ productId: string; quantity: number }>,
+  ): Promise<{
+    success: boolean;
+    lowStockAlerts: Array<{ productId: string; productName: string; currentStock: number }>;
+  }> {
+    const lowStockAlerts = [];
+
+    for (const item of items) {
+      const product = await this.prisma.product.findUnique({
+        where: { id: item.productId },
+        select: { id: true, name: true },
+      });
+
+      if (!product) {
+        this.logger.error(`Product ${item.productId} not found for inventory deduction`);
+        continue;
+      }
+
+      // Deduct inventory
+      const result = await this.adjustInventory({
+        productId: item.productId,
+        delta: -item.quantity,
+        reason: `Order ${orderId} placed`,
+        actorEmail: 'system@kolaqalagbo.org',
+      });
+
+      // Check for low stock
+      if (result.lowStockAlert) {
+        lowStockAlerts.push({
+          productId: item.productId,
+          productName: product.name,
+          currentStock: result.newStock,
+        });
+
+        this.logger.warn(
+          `LOW STOCK: ${product.name} now has ${result.newStock} units (threshold: ${this.LOW_STOCK_THRESHOLD})`,
+        );
+      }
+    }
+
+    return {
+      success: true,
+      lowStockAlerts,
+    };
+  }
+
+  /**
+   * Restore inventory when order is cancelled or refunded
+   */
+  async restoreInventoryForOrder(
+    orderId: string,
+    items: Array<{ productId: string; quantity: number }>,
+  ): Promise<boolean> {
+    for (const item of items) {
+      const product = await this.prisma.product.findUnique({
+        where: { id: item.productId },
+        select: { id: true, name: true },
+      });
+
+      if (!product) {
+        this.logger.error(`Product ${item.productId} not found for inventory restoration`);
+        continue;
+      }
+
+      // Restore inventory
+      await this.adjustInventory({
+        productId: item.productId,
+        delta: item.quantity,
+        reason: `Order ${orderId} cancelled/refunded`,
+        actorEmail: 'system@kolaqalagbo.org',
+      });
+
+      this.logger.log(`Inventory restored for ${product.name}: +${item.quantity} units`);
+    }
+
+    return true;
+  }
+
+  /**
+   * Check if products are in stock before checkout
+   */
+  async checkStockAvailability(
+    items: Array<{ productId: string; quantity: number }>,
+  ): Promise<{
+    available: boolean;
+    outOfStock: Array<{ productId: string; productName: string; available: number; requested: number }>;
+  }> {
+    const outOfStock = [];
+
+    for (const item of items) {
+      const product = await this.prisma.product.findUnique({
+        where: { id: item.productId },
+        select: { id: true, name: true },
+      });
+
+      if (!product) {
+        outOfStock.push({
+          productId: item.productId,
+          productName: 'Unknown Product',
+          available: 0,
+          requested: item.quantity,
+        });
+        continue;
+      }
+
+      const currentStock = await this.getCurrentStock(item.productId);
+
+      if (currentStock < item.quantity) {
+        outOfStock.push({
+          productId: item.productId,
+          productName: product.name,
+          available: currentStock,
+          requested: item.quantity,
+        });
+      }
+    }
+
+    return {
+      available: outOfStock.length === 0,
+      outOfStock,
+    };
+  }
+
+  /**
+   * Set LOW_STOCK_THRESHOLD dynamically
+   */
+  setLowStockThreshold(threshold: number): void {
+    (this as any).LOW_STOCK_THRESHOLD = threshold;
+    this.logger.log(`Low stock threshold updated to ${threshold}`);
+  }
+
+  /**
+   * Get inventory value (for reporting)
+   */
+  async getInventoryValue(): Promise<{
+    totalValue: number;
+    breakdown: Array<{
+      productId: string;
+      productName: string;
+      stock: number;
+      price: number;
+      value: number;
+    }>;
+  }> {
+    const products = await this.prisma.product.findMany({
+      select: {
+        id: true,
+        name: true,
+        prices: {
+          where: {
+            currency: 'NGN',
+          },
+          take: 1,
+        },
+      },
+    });
+
+    const breakdown = [];
+    let totalValue = 0;
+
+    for (const product of products) {
+      const stock = await this.getCurrentStock(product.id);
+      const price = product.prices[0] ? Number(product.prices[0].amount) : 0;
+      const value = stock * price;
+      totalValue += value;
+
+      breakdown.push({
+        productId: product.id,
+        productName: product.name,
+        stock,
+        price,
+        value,
+      });
+    }
+
+    return {
+      totalValue,
+      breakdown: breakdown.sort((a, b) => b.value - a.value),
+    };
+  }
 }

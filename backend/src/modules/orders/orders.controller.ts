@@ -69,4 +69,22 @@ export class OrdersController {
       req.user?.email,
     );
   }
+
+  @Post(':id/create-shipment')
+  @UseGuards(JwtAuthGuard)
+  createShipment(@Param('id') id: string, @Req() req: any) {
+    return this.ordersService.createShipmentForOrder(id, req.user?.id);
+  }
+
+  @Post(':id/sync-shipment')
+  @UseGuards(JwtAuthGuard)
+  syncShipment(@Param('id') id: string) {
+    return this.ordersService.syncShipmentStatus(id);
+  }
+
+  @Post('sync-all-shipments')
+  @UseGuards(JwtAuthGuard)
+  syncAllShipments() {
+    return this.ordersService.syncAllActiveShipments();
+  }
 }

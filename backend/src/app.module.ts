@@ -15,6 +15,8 @@ import { CartModule } from './modules/cart/cart.module';
 import { OrderModule } from './modules/order/order.module';
 import { NotificationModule } from './modules/notification/notification.module';
 import { AdminModule } from './modules/admin/admin.module';
+import { LogisticsModule } from './modules/logistics/logistics.module';
+import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { OrderService } from './modules/order/order.service';
@@ -60,6 +62,8 @@ import { ReviewModule } from './modules/review/review.module';
     OrderModule,
     NotificationModule,
     AdminModule,
+    LogisticsModule,
+    AnalyticsModule,
     ActivityModule,
     OrdersModule,
     JobsModule,

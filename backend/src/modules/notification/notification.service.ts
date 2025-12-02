@@ -4,6 +4,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { SendNotificationDto } from './dto/send-notification.dto';
 import { QueryNotificationDto } from './dto/query-notification.dto';
 import { EmailFacadeService } from './email/email.service';
+import { SmsService } from './sms.service';
 import {
   orderConfirmationTemplate,
   orderProcessingTemplate,
@@ -22,6 +23,7 @@ export class NotificationService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly configService: ConfigService,
+    private readonly smsService: SmsService,
   ) {
     this.emailService = new EmailFacadeService(configService);
   }
@@ -270,6 +272,47 @@ export class NotificationService {
       subject,
       message: html,
       metadata: { orderId, orderNumber: order.orderNumber, status },
+    });
+  }
+
+  async sendOrderDispatchedNotification(order: any) {
+    // Parse shipping address
+    let shippingAddress = { street: '', city: '', state: '', country: '' };
+    try {
+      if (typeof order.shippingAddress === 'string') {
+        shippingAddress = JSON.parse(order.shippingAddress);
+      }
+    } catch {
+      shippingAddress = { 
+        street: order.shippingAddress || '', 
+        city: order.shippingLGA || '', 
+        state: order.shippingState || '', 
+        country: 'Nigeria' 
+      };
+    }
+
+    const html = orderShippedTemplate({
+      customerName: order.customerName,
+      orderNumber: order.orderNumber,
+      trackingNumber: order.trackingNumber,
+      trackingUrl: order.trackingUrl,
+      estimatedDelivery: order.estimatedDelivery?.toISOString(),
+      carrier: order.carrier,
+      shippingAddress,
+    });
+
+    return this.sendNotification({
+      type: 'EMAIL',
+      recipient: order.customerEmail,
+      subject: `Your Order Has Been Shipped - ${order.orderNumber}`,
+      message: html,
+      metadata: { 
+        orderId: order.id, 
+        orderNumber: order.orderNumber, 
+        status: 'DISPATCHED',
+        trackingNumber: order.trackingNumber,
+        carrier: order.carrier,
+      },
     });
   }
 
