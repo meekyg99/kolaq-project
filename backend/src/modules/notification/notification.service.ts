@@ -232,7 +232,8 @@ export class NotificationService {
         subject = `Your Order is Being Prepared - ${order.orderNumber}`;
         break;
 
-      case 'SHIPPED':
+      case 'DISPATCHED':
+      case 'IN_TRANSIT':
         html = orderShippedTemplate({
           customerName: order.customerName,
           orderNumber: order.orderNumber,

@@ -334,14 +334,14 @@ export class OrderService {
       pendingOrders,
       paidOrders,
       processingOrders,
-      shippedOrders,
+      dispatchedOrders,
       deliveredOrders,
     ] = await Promise.all([
       this.prisma.order.count(),
       this.prisma.order.count({ where: { status: 'PENDING' } }),
       this.prisma.order.count({ where: { status: 'PAID' } }),
       this.prisma.order.count({ where: { status: 'PROCESSING' } }),
-      this.prisma.order.count({ where: { status: 'SHIPPED' } }),
+      this.prisma.order.count({ where: { status: 'DISPATCHED' } }),
       this.prisma.order.count({ where: { status: 'DELIVERED' } }),
     ]);
 
@@ -363,7 +363,7 @@ export class OrderService {
       pendingOrders,
       paidOrders,
       processingOrders,
-      shippedOrders,
+      dispatchedOrders,
       deliveredOrders,
       totalRevenue,
     };
